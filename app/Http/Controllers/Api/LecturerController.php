@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * LecturerController - Controller chính cho các chức năng liên quan đến giảng viên tự kê khai khối lượng công việc hàng năm.
+ * 
+ * Chức năng chính:
+ * - Quản lý thông tin kê khai tổng hợp và chi tiết theo năm học cho từng giảng viên.
+ * - Lưu, cập nhật, xóa, nộp bản kê khai, thống kê tổng hợp, lấy dữ liệu phục vụ báo cáo, biểu đồ.
+ * - Đảm bảo các nghiệp vụ về thời gian kê khai, trạng thái phê duyệt, định mức cá nhân, kiểm tra dữ liệu hợp lệ.
+ * 
+ * Lưu ý quan trọng:
+ * - Các hàm helper, hàm private chỉ dùng nội bộ controller, không expose ra ngoài API.
+ * - Khi chỉnh sửa nghiệp vụ cần kiểm tra kỹ các hàm liên quan đến trạng thái, định mức, thời gian kê khai.
+ * - Đảm bảo các hàm validate dữ liệu đầu vào, kiểm tra quyền truy cập, trạng thái bản ghi trước khi thao tác.
+ * - Các thao tác ghi/xóa dữ liệu đều đặt trong transaction để đảm bảo toàn vẹn dữ liệu.
+ * - Khi thêm mới nghiệp vụ cần chú thích rõ ràng, cập nhật lại các điểm lưu ý liên quan.
+ */
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -10,7 +26,6 @@ use App\Models\MinhChung;
 use App\Models\User;
 use App\Models\DinhMucCaNhanTheoNam;
 
-// Các model cho bảng kê khai chi tiết mới
 use App\Models\KekhaiGdLopDhTrongbm;
 use App\Models\KekhaiGdLopDhNgoaibm;
 use App\Models\KekhaiGdLopDhNgoaics;
@@ -39,11 +54,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-// Bỏ Mail và các model KeHoach nếu không dùng nữa
-// use App\Mail\KeKhaiNotification;
-// use App\Models\KeHoachGiangDay;
-// use App\Models\KeHoachChiTiet;
-
 
 class LecturerController extends Controller
 {
@@ -54,9 +64,6 @@ class LecturerController extends Controller
         $this->workloadService = $workloadService;
     }
 
-    //======================================================================
-    // TIỆN ÍCH VÀ LẤY DANH MỤC CƠ BẢN
-    //======================================================================
     protected function checkKeKhaiThoiGian($namHocId)
     {
         $now = now();
@@ -123,9 +130,6 @@ class LecturerController extends Controller
         }
     }
 
-    //======================================================================
-    // QUẢN LÝ KÊ KHAI TỔNG HỢP THEO NĂM HỌC
-    //======================================================================
     public function startOrGetKeKhaiTongHopNamHoc(Request $request)
     {
         $user = auth()->user();
@@ -136,7 +140,7 @@ class LecturerController extends Controller
 
         $keKhaiTongHop = KeKhaiTongHopNamHoc::where('nguoi_dung_id', $user->id)
             ->where('nam_hoc_id', $namHocId)
-            ->with(['namHoc', 'nguoiDung']) // Không cần chucDanh ở đây nữa
+            ->with(['namHoc', 'nguoiDung']) 
             ->first();
 
         $namHoc = NamHoc::find($namHocId);
@@ -145,19 +149,15 @@ class LecturerController extends Controller
         }
 
         if ($keKhaiTongHop) {
-            // Khi lấy lại bản kê khai, có thể cập nhật lại định mức nếu nó có thể thay đổi từ Admin
             $dinhMucCaNhan = DinhMucCaNhanTheoNam::where('nguoi_dung_id', $user->id)
                 ->where('nam_hoc_id', $namHocId)
                 ->first();
             if ($dinhMucCaNhan) {
                 $keKhaiTongHop->dinhmuc_gd_apdung = $dinhMucCaNhan->dinh_muc_gd;
                 $keKhaiTongHop->dinhmuc_khcn_apdung = $dinhMucCaNhan->dinh_muc_khcn;
-                // Không còn phan_tram_mien_giam_tong trực tiếp ở đây
                 $keKhaiTongHop->saveQuietly();
             } else {
-                // Nếu không tìm thấy định mức cá nhân, có thể log cảnh báo hoặc đặt giá trị mặc định
-                Log::warning("Không tìm thấy định mức cá nhân cho GV ID: {$user->id}, Năm học ID: {$namHocId}");
-                $keKhaiTongHop->dinhmuc_gd_apdung = 0; // Hoặc giá trị mặc định nào đó
+                $keKhaiTongHop->dinhmuc_gd_apdung = 0; 
                 $keKhaiTongHop->dinhmuc_khcn_apdung = 0;
                 $keKhaiTongHop->saveQuietly();
             }
@@ -178,11 +178,11 @@ class LecturerController extends Controller
             'trang_thai_phe_duyet' => 0,
             'dinhmuc_gd_apdung' => $dinhMucCaNhanKhiTaoMoi ? $dinhMucCaNhanKhiTaoMoi->dinh_muc_gd : 0,
             'dinhmuc_khcn_apdung' => $dinhMucCaNhanKhiTaoMoi ? $dinhMucCaNhanKhiTaoMoi->dinh_muc_khcn : 0,
-            // Không còn phan_tram_mien_giam_tong
         ]);
 
         return response()->json(['ke_khai_tong_hop_nam_hoc' => $newKeKhaiTongHop->load(['namHoc', 'nguoiDung'])], 201);
     }
+
     public function updateDinhMucKeKhaiTongHop(Request $request, $id)
     {
         $user = auth()->user();
@@ -190,7 +190,7 @@ class LecturerController extends Controller
             ->where('nguoi_dung_id', $user->id)
             ->firstOrFail();
 
-        if (!in_array($keKhaiTongHop->trang_thai_phe_duyet, [0, 4])) { // Chỉ cho phép sửa khi là Nháp hoặc BM Trả lại
+        if (!in_array($keKhaiTongHop->trang_thai_phe_duyet, [0, 4])) {
             return response()->json(['message' => 'Không thể cập nhật định mức cho kê khai ở trạng thái này.'], 403);
         }
 
@@ -209,20 +209,9 @@ class LecturerController extends Controller
 
         return response()->json(['message' => 'Cập nhật định mức thành công.', 'ke_khai_tong_hop_nam_hoc' => $keKhaiTongHop]);
     }
-    //======================================================================
-    // LƯU VÀ LẤY DỮ LIỆU KÊ KHAI CHI TIẾT
-    //======================================================================
+
     private function xoaTatCaChiTietCu($keKhaiTongHopNamHocId)
     {
-        // Xóa minh chứng của NCKH trước
-        $nckhIds = KekhaiNckhNamHoc::where('ke_khai_tong_hop_nam_hoc_id', $keKhaiTongHopNamHocId)->pluck('id');
-        if ($nckhIds->isNotEmpty()) {
-            $minhChungsNCKH = MinhChung::whereIn('kekhai_nckh_nam_hoc_id', $nckhIds)->get();
-            foreach ($minhChungsNCKH as $mc) {
-                if ($mc->duong_dan) Storage::disk('public')->delete($mc->duong_dan);
-                $mc->delete();
-            }
-        }
         // Xóa các bảng chi tiết
         KekhaiGdLopDhTrongbm::where('ke_khai_tong_hop_nam_hoc_id', $keKhaiTongHopNamHocId)->delete();
         KekhaiGdLopDhNgoaibm::where('ke_khai_tong_hop_nam_hoc_id', $keKhaiTongHopNamHocId)->delete();
@@ -248,6 +237,15 @@ class LecturerController extends Controller
         KekhaiCongtacKhacNamHoc::where('ke_khai_tong_hop_nam_hoc_id', $keKhaiTongHopNamHocId)->delete();
     }
 
+    /**
+     * Lưu toàn bộ dữ liệu kê khai chi tiết (batch) cho một bản kê khai tổng hợp.
+     * Lưu ý:
+     * - Kiểm tra quyền sở hữu bản kê khai, trạng thái, thời gian kê khai trước khi lưu.
+     * - Dữ liệu truyền lên dạng JSON, cần validate kỹ cấu trúc và kiểu dữ liệu.
+     * - Tất cả thao tác ghi dữ liệu đặt trong transaction để đảm bảo toàn vẹn.
+     * - Nếu có lỗi sẽ rollback và log chi tiết lỗi.
+     * - Khi lưu thành công sẽ tự động tính toán lại khối lượng qua WorkloadService.
+     */
     public function storeKekhaiChiTietBatch(Request $request)
     {
         $user = auth()->user();
@@ -280,15 +278,12 @@ class LecturerController extends Controller
 
             foreach ($keKhaiItemsInput as $index => $item) {
                 $data = $item['data'] ?? [];
-                // id_database không dùng nữa vì ta xóa cũ thêm mới toàn bộ
                 $minhChungFile = $request->file("ke_khai_items_files.{$index}");
-                $instance = null; // Để lưu model instance nếu có minh chứng
+                $instance = null; 
 
-                // Chuẩn bị data chung, loại bỏ các trường không có trong DB model hoặc chỉ dùng ở frontend
                 $commonDataToSave = ['ke_khai_tong_hop_nam_hoc_id' => $keKhaiTongHopNamHocId];
                 foreach ($data as $key => $value) {
-                    // Chỉ lấy các key có trong $fillable của model tương ứng (cần có cách check hoặc định nghĩa rõ ràng)
-                    // Tạm thời, ta sẽ giả định các key trong $data là các cột trong bảng
+
                     if (!in_array($key, ['id_temp', 'id_database', 'minh_chung_file', 'minh_chung_existing', 'minh_chung_existing_path', 'ten_hoat_dong', 'don_vi_tinh', 'dinh_muc_gio_tren_don_vi'])) {
                         $commonDataToSave[$key] = $value;
                     }
@@ -332,7 +327,6 @@ class LecturerController extends Controller
                         break;
                     case 'dg_la_tiensi':
                         $nhiemVuArr = $data['nhiem_vu_ts_arr'] ?? [];
-                        // Bỏ nhiem_vu_ts_arr khỏi commonDataToSave cho bảng cha
                         $dotChaData = $commonDataToSave;
                         unset($dotChaData['nhiem_vu_ts_arr']);
                         $dotCha = KekhaiDgLaTiensiDot::create($dotChaData);
@@ -349,8 +343,6 @@ class LecturerController extends Controller
                             }
                         }
                         $dotCha->update(['tong_gio_quydoi_cho_dot' => round($tongGioDotNay, 2)]);
-                        // Minh chứng cho dg_la_tiensi sẽ gắn vào $dotCha (nếu có)
-                        // Hiện tại logic minh chứng chỉ cho NCKH
                         break;
                     case 'khaothi_dh_trongbm':
                         $commonDataToSave['so_tiet_qd'] = round(floatval($data['so_ca_bai_mon'] ?? 0) * floatval($data['dinh_muc_gv_nhap'] ?? 0), 2);
@@ -399,6 +391,10 @@ class LecturerController extends Controller
         }
     }
 
+    /**
+     * Lấy toàn bộ chi tiết kê khai cho một bản tổng hợp (dùng cho giao diện chỉnh sửa).
+     * Lưu ý: Trả về đầy đủ các loại chi tiết, bao gồm cả minh chứng nếu có.
+     */
     public function getKekhaiChiTiet(Request $request)
     {
         $user = auth()->user();
@@ -420,7 +416,7 @@ class LecturerController extends Controller
                 $data = $item->toArray();
                 $minhChung = null;
                 if ($type === 'nckh' && isset($data['minh_chungs']) && !empty($data['minh_chungs'])) {
-                    $minhChung = $data['minh_chungs'][0]; // Lấy minh chứng đầu tiên nếu có
+                    $minhChung = $data['minh_chungs'][0]; 
                 }
                 unset($data['minh_chungs']);
 
@@ -448,11 +444,11 @@ class LecturerController extends Controller
         $mapAndConcat(KekhaiDgLvThacsi::class, 'dg_lv_thacsi', $keKhaiTongHopId);
 
         $dgLaTSDots = KekhaiDgLaTiensiDot::where('ke_khai_tong_hop_nam_hoc_id', $keKhaiTongHopId)
-            ->with(['nhiemVus']) // Chỉ cần load nhiệm vụ, minh chứng (nếu có) sẽ là của Dot
+            ->with(['nhiemVus']) 
             ->get()
             ->map(function ($dot) {
                 $data = $dot->toArray();
-                $nhiemVuArr = $data['nhiem_vus'] ?? []; // Lấy mảng nhiệm vụ đã eager load
+                $nhiemVuArr = $data['nhiem_vus'] ?? [];
                 unset($data['nhiem_vus']);
 
                 return [
@@ -483,7 +479,6 @@ class LecturerController extends Controller
         return response()->json(['all_kekhai_details' => $allDetails->values()->all()]);
     }
 
-
     public function submitKeKhaiTongHopNamHoc(Request $request, $id)
     {
         $user = auth()->user();
@@ -491,26 +486,27 @@ class LecturerController extends Controller
             ->where('nguoi_dung_id', $user->id)
             ->firstOrFail();
 
-        // Kiểm tra xem có ít nhất một mục chi tiết nào không
         $hasDetails = KekhaiGdLopDhTrongbm::where('ke_khai_tong_hop_nam_hoc_id', $id)->exists() ||
                       KekhaiHdDatnDaihoc::where('ke_khai_tong_hop_nam_hoc_id', $id)->exists() ||
                       KekhaiNckhNamHoc::where('ke_khai_tong_hop_nam_hoc_id', $id)->exists() ||
                       KekhaiCongtacKhacNamHoc::where('ke_khai_tong_hop_nam_hoc_id', $id)->exists() ||
-                      KekhaiDgHpTnDaihoc::where('ke_khai_tong_hop_nam_hoc_id', $id)->exists() || // Thêm các bảng khác
+                      KekhaiDgHpTnDaihoc::where('ke_khai_tong_hop_nam_hoc_id', $id)->exists() || 
                       KekhaiKhaothiDaihocTrongbm::where('ke_khai_tong_hop_nam_hoc_id', $id)->exists() ||
                       KekhaiXdCtdtVaKhacGd::where('ke_khai_tong_hop_nam_hoc_id', $id)->exists();
-
 
         if (!$hasDetails) {
             return response()->json(['message' => 'Vui lòng thêm ít nhất một mục kê khai chi tiết trước khi nộp.'], 400);
         }
 
-        if (!in_array($keKhaiTongHop->trang_thai_phe_duyet, [0, 4])) { /* ... */ }
-        if (!$this->checkKeKhaiThoiGian($keKhaiTongHop->nam_hoc_id)) { /* ... */ }
+        if (!in_array($keKhaiTongHop->trang_thai_phe_duyet, [0, 4])) { 
+            return response()->json(['message' => 'Không thể nộp kê khai ở trạng thái này.'], 403);
+        }
+        if (!$this->checkKeKhaiThoiGian($keKhaiTongHop->nam_hoc_id)) { 
+            return response()->json(['message' => 'Hết hạn kê khai hoặc thời gian chưa bắt đầu.'], 403);
+        }
 
         DB::beginTransaction();
         try {
-            // Đảm bảo GV đã nhập định mức
             if(is_null($keKhaiTongHop->dinhmuc_gd_apdung) || is_null($keKhaiTongHop->dinhmuc_khcn_apdung) || $keKhaiTongHop->dinhmuc_gd_apdung < 0 || $keKhaiTongHop->dinhmuc_khcn_apdung < 0){
                  DB::rollBack();
                  return response()->json(['message' => 'Vui lòng nhập đầy đủ và hợp lệ định mức GD và KHCN cho năm học này trước khi nộp (trong mục Thông tin chung của bản kê khai).'], 400);
@@ -532,66 +528,11 @@ class LecturerController extends Controller
         }
     }
 
-
-    // public function getKeKhaiNamHoc(Request $request)
-    // {
-    //     $user = auth()->user();
-    //     $namHocId = $request->query('nam_hoc_id');
-
-    //     $query = KeKhaiTongHopNamHoc::where('nguoi_dung_id', $user->id)
-    //         ->with($this->getEagerLoadRelationsForTongHopListView());
-
-    //     if ($namHocId) {
-    //         $query->where('nam_hoc_id', $namHocId);
-    //     }
-    //     $keKhaiTongHops = $query->orderBy('nam_hoc_id', 'desc')->orderBy('updated_at', 'desc')->get();
-    //     return response()->json($keKhaiTongHops);
-    // }
-
-//    private function getEagerLoadRelationsForTongHopListView() {
-//         return [
-//             'namHoc',
-//             'nguoiDung:id,ho_ten,ma_gv,hoc_ham,hoc_vi', // Thêm hoc_ham, hoc_vi
-//         ];
-//     }
-//     // Hàm helper để lấy các quan hệ cần eager load cho view chi tiết
-//     private function getEagerLoadRelationsForTongHopDetailView() {
-//         return [
-//             'namHoc', 
-//             'nguoiDung:id,ho_ten,ma_gv,hoc_ham,hoc_vi,bo_mon_id', 'nguoiDung.boMon:id,ten_bo_mon', // Thêm hoc_ham, hoc_vi
-//             'nguoiDuyetBm:id,ho_ten,hoc_ham,hoc_vi', // Lấy thông tin người duyệt
-//             'lichSuPheDuyet.nguoiThucHien:id,ho_ten',
-//             // Load tất cả các bảng chi tiết
-//             'kekhaiGdLopDhTrongbms', 'kekhaiGdLopDhNgoaibms', 'kekhaiGdLopDhNgoaicss',
-//             'kekhaiGdLopThss', 'kekhaiGdLopTss',
-//             'kekhaiHdDatnDaihoc', 'kekhaiHdLvThacsis', 'kekhaiHdLaTiensis',
-//             'kekhaiDgHpTnDaihoc', 'kekhaiDgLvThacsis',
-//             'kekhaiDgLaTiensiDots.nhiemVus',
-//             'kekhaiKhaothiDaihocTrongbms', 'kekhaiKhaothiDaihocNgoaibms',
-//             'kekhaiKhaothiThacsis', 'kekhaiKhaothiTiensis',
-//             'kekhaiXdCtdtVaKhacGds',
-//             'kekhaiNckhNamHocs.minhChungs',
-//             'kekhaiCongtacKhacNamHocs'
-//         ];
-//     }
-
-    // Các hàm cũ không còn dùng hoặc đã được thay thế:
-    // getHoatDongChiTiet, getDinhMuc, getHeSoQuyDoi (cho lecturer)
-    // storeKeKhaiGiangDay (đơn lẻ), updateKeKhaiGiangDay (đơn lẻ)
-    // storeKeKhaiNckh (đơn lẻ), updateKeKhaiNckh (đơn lẻ)
-    // storeKeKhaiKhac (đơn lẻ), updateKeKhaiKhac (đơn lẻ)
-    // deleteKeKhai (đơn lẻ)
-    // storeKeKhaiBatch (cũ)
-    // tinhGioChuan (cũ)
-    // updateTongHop (cũ)
-
-    // Các hàm liên quan đến Kế hoạch giảng dạy (KeHoachGiangDay) sẽ được xem xét riêng
-    // nếu nghiệp vụ yêu cầu giữ lại và điều chỉnh theo năm học. Hiện tại bỏ qua.
     public function getKeKhaiNamHoc(Request $request)
     {
         $user = auth()->user();
         $validator = Validator::make($request->all(), [
-            'nam_hoc_id' => 'nullable|exists:nam_hoc,id', // nam_hoc_id là tùy chọn
+            'nam_hoc_id' => 'nullable|exists:nam_hoc,id', 
         ]);
 
         if ($validator->fails()) {
@@ -599,27 +540,15 @@ class LecturerController extends Controller
         }
 
         $query = KeKhaiTongHopNamHoc::where('nguoi_dung_id', $user->id)
-            ->with($this->getEagerLoadRelationsForTongHopListView()); // Chỉ load những gì cần cho danh sách
+            ->with($this->getEagerLoadRelationsForTongHopListView()); 
 
         if ($request->filled('nam_hoc_id')) {
             $query->where('nam_hoc_id', $request->nam_hoc_id);
         }
 
-        // Sắp xếp để bản kê khai mới nhất hoặc của năm học mới nhất lên đầu
         $keKhaiTongHops = $query->orderBy('nam_hoc_id', 'desc')
             ->orderBy('updated_at', 'desc')
             ->get();
-
-        // Tính toán lại các giá trị hiển thị chính nếu cần (hoặc đảm bảo WorkloadService đã chạy)
-        foreach ($keKhaiTongHops as $tongHop) {
-            // Ví dụ: đảm bảo các giá trị final _duyet hoặc _tam_tinh là mới nhất
-            if($tongHop->trang_thai_phe_duyet !== 3 && $tongHop->trang_thai_phe_duyet !== 1) { // Nếu là nháp hoặc trả lại
-               $this->workloadService->calculateAllForKeKhaiTongHop($tongHop->id);
-               $tongHop->refresh(); // Tải lại dữ liệu đã được service cập nhật
-            }
-        }
-        // Lưu ý: Việc tính toán lại ở đây có thể làm chậm API nếu có nhiều bản kê khai.
-        // Tốt nhất là WorkloadService đã được gọi khi lưu hoặc nộp.
 
         return response()->json($keKhaiTongHops);
     }
@@ -628,32 +557,24 @@ class LecturerController extends Controller
      * Lấy chi tiết đầy đủ của một bản kê khai tổng hợp theo năm học (bao gồm tất cả các chi tiết con).
      * Được sử dụng cho việc Xem chi tiết/In báo cáo.
      */
-    public function getChiTietKeKhaiNamHoc(Request $request, $id) // $id là của ke_khai_tong_hop_nam_hoc
+    public function getChiTietKeKhaiNamHoc(Request $request, $id) 
     {
         $user = auth()->user();
         $keKhaiTongHop = KeKhaiTongHopNamHoc::where('id', $id)
             ->where('nguoi_dung_id', $user->id)
-            ->with($this->getEagerLoadRelationsForTongHopDetailView()) // Load tất cả chi tiết
+            ->with($this->getEagerLoadRelationsForTongHopDetailView()) 
             ->firstOrFail();
 
-        // Đảm bảo các giá trị tổng hợp là mới nhất trước khi trả về
         $this->workloadService->calculateAllForKeKhaiTongHop($keKhaiTongHop->id);
         $keKhaiTongHop->refresh()->load($this->getEagerLoadRelationsForTongHopDetailView());
 
-        // Chuẩn bị dữ liệu người duyệt nếu có
         if ($keKhaiTongHop->nguoiDuyetBm) {
             $keKhaiTongHop->ten_nguoi_duyet_bm = $keKhaiTongHop->nguoiDuyetBm->ho_ten;
         }
 
-
         return response()->json(['ke_khai_tong_hop_nam_hoc' => $keKhaiTongHop]);
     }
 
-
-    /**
-     * (Tùy chọn) Hàm xóa một bản kê khai tổng hợp và tất cả chi tiết liên quan.
-     * Chỉ cho phép xóa nếu ở trạng thái nháp.
-     */
     public function deleteKeKhaiTongHopNamHoc(Request $request, $id)
     {
         $user = auth()->user();
@@ -667,8 +588,8 @@ class LecturerController extends Controller
 
         DB::beginTransaction();
         try {
-            $this->xoaTatCaChiTietCu($id); // Gọi lại hàm đã tạo để xóa chi tiết
-            $keKhaiTongHop->delete(); // Xóa bản tổng hợp
+            $this->xoaTatCaChiTietCu($id); 
+            $keKhaiTongHop->delete(); 
 
             DB::commit();
             return response()->json(['message' => 'Đã xóa bản kê khai thành công.']);
@@ -679,17 +600,16 @@ class LecturerController extends Controller
         }
     }
 
-    // Hàm helper để lấy các quan hệ cần eager load cho view chi tiết một bản tổng hợp (để in)
+    // Hàm helper lấy các quan hệ cần eager load cho view chi tiết (dùng cho in báo cáo).
     private function getEagerLoadRelationsForTongHopDetailView()
     {
         return array_merge($this->getEagerLoadRelationsForTongHopListView(), [
             'nguoiDung.boMon:id,ten_bo_mon',
             'nguoiDung:hoc_ham', 
 
-            'nguoiDuyetBm:id,ho_ten,chuc_danh_id', // Chỉ lấy các cột có trong bảng nguoi_dung
-            'nguoiDuyetBm:id,hoc_ham,hoc_vi', // Eager load quan hệ chucDanh của nguoiDuyetBm
+            'nguoiDuyetBm:id,ho_ten,chuc_danh_id', 
+            'nguoiDuyetBm:id,hoc_ham,hoc_vi', 
 
-            // ... các quan hệ chi tiết khác ...
             'kekhaiGdLopDhTrongbms',
             'kekhaiGdLopDhNgoaibms',
             'kekhaiGdLopDhNgoaicss',
@@ -700,7 +620,7 @@ class LecturerController extends Controller
             'kekhaiHdLaTiensis',
             'kekhaiDgHpTnDaihoc',
             'kekhaiDgLvThacsis',
-            'kekhaiDgLaTiensiDots.nhiemVus', // Đảm bảo nhiemVus không cố select cột không tồn tại
+            'kekhaiDgLaTiensiDots.nhiemVus', 
             'kekhaiKhaothiDaihocTrongbms',
             'kekhaiKhaothiDaihocNgoaibms',
             'kekhaiKhaothiThacsis',
@@ -711,38 +631,39 @@ class LecturerController extends Controller
         ]);
     }
 
-    // Cũng kiểm tra getEagerLoadRelationsForTongHopListView()
+    // Hàm helper lấy các quan hệ cần eager load cho view danh sách.
     private function getEagerLoadRelationsForTongHopListView()
     {
         return [
             'namHoc',
-            'nguoiDung:id,ho_ten,ma_gv,chuc_danh_id,hoc_ham,hoc_vi', // Thêm chuc_danh_id nếu muốn load chucDanh
-            'nguoiDung:hoc_ham', // Ví dụ nếu muốn hiển thị tên chức danh ở list
+            'nguoiDung:id,ho_ten,ma_gv,chuc_danh_id,hoc_ham,hoc_vi',
+            'nguoiDung:hoc_ham', 
             'lichSuPheDuyet.nguoiThucHien:id,ho_ten'
         ];
     }
 
      /**
-     * Lấy dữ liệu thống kê tổng hợp của giảng viên qua các năm học.
-     * Bao gồm tổng giờ, phân bổ giờ, so sánh với định mức.
+     * API lấy dữ liệu thống kê tổng hợp của giảng viên qua các năm học.
+     * Lưu ý:
+     * - Chỉ lấy các bản kê khai đã duyệt hoặc đang chờ duyệt.
+     * - Tính toán tỷ lệ hoàn thành, tổng giờ, phân bổ giờ theo từng năm.
+     * - Nếu chưa có dữ liệu sẽ trả về thông báo phù hợp.
      */
     public function getLecturerStatisticsOverview(Request $request)
     {
         $user = auth()->user();
 
-        // Lấy tất cả các bản kê khai đã được duyệt hoặc đang chờ duyệt của giảng viên
-        // Để có cái nhìn tổng quan qua các năm, có thể lấy cả những bản chưa được duyệt hoàn toàn
         $keKhaiTongHops = KeKhaiTongHopNamHoc::where('nguoi_dung_id', $user->id)
             ->whereIn('trang_thai_phe_duyet', [0, 1, 3, 4]) // Nháp, Chờ duyệt, Đã duyệt, BM Trả lại
             ->with('namHoc')
-            ->orderBy('nam_hoc_id', 'desc') // Sắp xếp theo năm học mới nhất trước
+            ->orderBy('nam_hoc_id', 'desc') 
             ->get();
 
         if ($keKhaiTongHops->isEmpty()) {
             return response()->json([
                 'message' => 'Chưa có dữ liệu kê khai nào để thống kê.',
                 'statistics_by_year' => [],
-                'overall_summary' => null, // Hoặc một cấu trúc rỗng
+                'overall_summary' => null, 
             ]);
         }
 
@@ -751,29 +672,21 @@ class LecturerController extends Controller
             $dinhMucGD = floatval($tongHop->dinhmuc_gd_apdung ?: 0);
             $dinhMucKHCN = floatval($tongHop->dinhmuc_khcn_apdung ?: 0);
 
-            // Sử dụng giá trị đã duyệt nếu có, nếu không thì dùng tạm tính
             $gdFinal = $tongHop->tong_gio_giangday_final_duyet ?? $tongHop->tong_gio_giangday_final_tam_tinh ?: 0;
             $khcnFinal = $tongHop->tong_gio_khcn_kekhai_duyet ?? $tongHop->tong_gio_khcn_kekhai_tam_tinh ?: 0;
             $khacFinal = $tongHop->tong_gio_congtackhac_quydoi_duyet ?? $tongHop->tong_gio_congtackhac_quydoi_tam_tinh ?: 0;
             $tongGioThucHien = $tongHop->tong_gio_thuc_hien_final_duyet ?? $tongHop->tong_gio_thuc_hien_final_tam_tinh ?: 0;
 
-            // Chi tiết hơn theo các cột đã tính trong WorkloadService
             $gioGDLopVaDanhGia = $tongHop->tong_gio_gd_danhgia_duyet ?? $tongHop->tong_gio_gd_danhgia_tam_tinh ?: 0;
             $gioHuongDan = $tongHop->tong_gio_huongdan_quydoi_duyet ?? $tongHop->tong_gio_huongdan_quydoi_tam_tinh ?: 0;
             $gioCoiThiChamThiDH = $tongHop->tong_gio_coithi_chamthi_dh_duyet ?? $tongHop->tong_gio_coithi_chamthi_dh_tam_tinh ?: 0;
             
-            // Tính toán giờ cho từng thành phần của giảng dạy
-            // Giờ giảng dạy (bao gồm lớp, đánh giá/HĐ (ko ĐH), khảo thí (ThS, TS), XDCTĐT, CT Khác ra GD)
             $actualGioGD = $gioGDLopVaDanhGia;
-            // Giờ hướng dẫn (đã quy đổi theo hệ số chung)
             $actualGioHuongDan = $gioHuongDan;
-            // Giờ coi thi, chấm thi ĐH
             $actualGioKhaoThiDH = $gioCoiThiChamThiDH;
-
 
             $thuaThieuGD = $tongHop->ket_qua_thua_thieu_gio_gd_duyet ?? $tongHop->ket_qua_thua_thieu_gio_gd_tam_tinh ?: 0;
             $hoanThanhKHCNSoVoiDM = $tongHop->gio_khcn_hoanthanh_so_voi_dinhmuc_duyet ?? $tongHop->gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh ?: 0;
-
 
             return [
                 'nam_hoc' => $namHoc,
@@ -796,7 +709,7 @@ class LecturerController extends Controller
             ];
         });
 
-        // Tính toán tổng hợp chung (ví dụ trung bình qua các năm, hoặc tổng cộng)
+        // Tính toán tổng hợp chung
         $overallSummary = null;
         if ($statisticsByYear->isNotEmpty()) {
             $approvedStats = $statisticsByYear->filter(fn($item) => $item['trang_thai_phe_duyet'] === 3);
@@ -819,8 +732,8 @@ class LecturerController extends Controller
 
 
     /**
-     * Lấy dữ liệu chi tiết cho một năm học cụ thể để vẽ biểu đồ.
-     * Được gọi khi người dùng chọn một năm học trên trang thống kê.
+     * API lấy dữ liệu chi tiết cho một năm học cụ thể để vẽ biểu đồ.
+     * Lưu ý: Trả về dữ liệu chi tiết cho từng thành phần để hiển thị biểu đồ cột/tròn.
      */
     public function getLecturerYearlyStatisticsDetail(Request $request)
     {
@@ -836,7 +749,7 @@ class LecturerController extends Controller
 
         $tongHop = KeKhaiTongHopNamHoc::where('nguoi_dung_id', $user->id)
             ->where('nam_hoc_id', $namHocId)
-            ->with('namHoc') // Load tên năm học
+            ->with('namHoc') 
             ->first();
 
         if (!$tongHop) {
@@ -845,7 +758,7 @@ class LecturerController extends Controller
         
         // Đảm bảo dữ liệu tổng hợp là mới nhất
         // $this->workloadService->calculateAllForKeKhaiTongHop($tongHop->id);
-        // $tongHop->refresh(); // Tải lại dữ liệu đã được service cập nhật
+        // $tongHop->refresh(); 
 
         $dinhMucGD = floatval($tongHop->dinhmuc_gd_apdung ?: 0);
         $dinhMucKHCN = floatval($tongHop->dinhmuc_khcn_apdung ?: 0);
@@ -853,11 +766,6 @@ class LecturerController extends Controller
         $gdFinal = $tongHop->tong_gio_giangday_final_duyet ?? $tongHop->tong_gio_giangday_final_tam_tinh ?: 0;
         $khcnFinal = $tongHop->tong_gio_khcn_kekhai_duyet ?? $tongHop->tong_gio_khcn_kekhai_tam_tinh ?: 0;
         $khacFinal = $tongHop->tong_gio_congtackhac_quydoi_duyet ?? $tongHop->tong_gio_congtackhac_quydoi_tam_tinh ?: 0;
-        // Lưu ý: tong_gio_giangday_final_tam_tinh đã bao gồm GD Lớp, ĐG/HĐ, Khảo thí ThS/TS, XDCTĐT, CT Khác ra GD, VÀ Giờ Hướng dẫn QĐ.
-        // tong_gio_khcn_kekhai_tam_tinh đã bao gồm NCKH và CT Khác ra KHCN.
-        // Coi chấm thi ĐH là một mục riêng.
-        // GD Xa trường cũng là một mục riêng.
-        // Cần phân tách rõ hơn các thành phần này nếu muốn vẽ biểu đồ chi tiết hơn nữa.
 
         // Dữ liệu cho biểu đồ cột/tròn chi tiết của năm được chọn
         $detailedChartData = [
@@ -873,11 +781,11 @@ class LecturerController extends Controller
                         round($tongHop->tong_gio_gdxatruong_duyet ?? $tongHop->tong_gio_gdxatruong_tam_tinh ?: 0, 2),
                     ],
                     'backgroundColor' => [
-                        'rgba(54, 162, 235, 0.7)', // Blue for GD
-                        'rgba(75, 192, 192, 0.7)', // Green for Huong Dan
-                        'rgba(255, 206, 86, 0.7)', // Yellow for Coi Thi
-                        'rgba(153, 102, 255, 0.7)',// Purple for KHCN
-                        'rgba(255, 159, 64, 0.7)', // Orange for Xa Truong
+                        'rgba(54, 162, 235, 0.7)', // Blue
+                        'rgba(75, 192, 192, 0.7)', // Green
+                        'rgba(255, 206, 86, 0.7)', // Yellow
+                        'rgba(153, 102, 255, 0.7)',// Purple
+                        'rgba(255, 159, 64, 0.7)', // Orange
                     ],
                 ],
             ],

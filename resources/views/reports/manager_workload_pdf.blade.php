@@ -14,8 +14,17 @@
         }
         
         .header {
-            text-align: center;
+            display: table;
+            width: 100%;
             margin-bottom: 20px;
+        }
+        
+        .header-left,
+        .header-right {
+            display: table-cell;
+            width: 50%;
+            text-align: center;
+            vertical-align: top;
         }
         
         .header h1 {
@@ -114,12 +123,15 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <p><strong>BỘ NÔNG NGHIỆP & PTNT</strong></p>
-        <p><strong>TRƯỜNG ĐẠI HỌC THỦY LỢI</strong></p>
-        <br>
-        <h1>BẢNG TỔNG HỢP KHỐI LƯỢNG CÔNG TÁC</h1>
-        <h2>NĂM HỌC {{ $namHoc->ten_nam_hoc ?? 'N/A' }}</h2>
-        <p>Bộ môn: {{ $boMon->ten_bo_mon ?? 'N/A' }}</p>
+        <div class="header-left">
+            <h1><strong>BỘ NÔNG NGHIỆP & PTNT</strong></h1>
+            <h1><strong>TRƯỜNG ĐẠI HỌC THỦY LỢI</strong></h1>
+        </div>
+        <div class="header-right">
+            <h1>BẢNG TỔNG HỢP KHỐI LƯỢNG CÔNG TÁC</h1>
+            <h2>NĂM HỌC {{ $namHoc->ten_nam_hoc ?? 'N/A' }}</h2>
+            <p>Bộ môn: {{ $boMon->ten_bo_mon ?? 'N/A' }}</p>
+        </div>
     </div>
 
     <!-- Main Report Table -->
@@ -219,12 +231,17 @@
             <div class="signature-name">&nbsp;</div>
         </div>
         <div class="signature-block">
-            <div class="signature-title">Phòng TC-KT</div>
+            <div class="signature-title">Phòng QLKH&HTQT</div>
             <div class="signature-subtitle">(Ký, ghi rõ họ tên)</div>
             <div class="signature-name">&nbsp;</div>
         </div>
         <div class="signature-block">
-            <div class="signature-title">Phòng Đào tạo</div>
+            <div class="signature-title">Phòng CTSV</div>
+            <div class="signature-subtitle">(Ký, ghi rõ họ tên)</div>
+            <div class="signature-name">&nbsp;</div>
+        </div>
+        <div class="signature-block">
+            <div class="signature-title">Phòng khảo thí</div>
             <div class="signature-subtitle">(Ký, ghi rõ họ tên)</div>
             <div class="signature-name">&nbsp;</div>
         </div>

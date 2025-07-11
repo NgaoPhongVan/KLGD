@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { 
-    Modal, Form, Input, Select, Radio, Card, Space, Typography, Alert, 
-    Divider, Button, Tag, List, Avatar, Tooltip, Row, Col 
+    Modal, Form, Input, Select, Card, Space, Typography, Alert, 
+    Divider, Button, Tag, Row, Col 
 } from 'antd';
 import { 
     BellOutlined, UserOutlined, TeamOutlined, ClockCircleOutlined, 
-    MessageOutlined, SendOutlined, ExclamationCircleOutlined,
-    CheckCircleOutlined, WarningOutlined, InfoCircleOutlined, CalendarOutlined
+    MessageOutlined, SendOutlined, ExclamationCircleOutlined, 
+    WarningOutlined, InfoCircleOutlined, CalendarOutlined
 } from '@ant-design/icons';
 
 const { TextArea } = Input;
@@ -38,7 +38,7 @@ const SendNotificationModal = ({
             await onConfirm(values);
             form.resetFields();
         } catch (error) {
-            console.error('Validation failed:', error);
+            console.error('Lỗi validate thông báo:', error);
         }
     };
 
@@ -80,11 +80,11 @@ const SendNotificationModal = ({
     const predefinedMessages = [
         {
             title: 'Nhắc nhở nộp kê khai',
-            message: 'Kính gửi Thầy/Cô,\n\nHệ thống nhắc nhở Thầy/Cô hoàn thành kê khai khối lượng giảng dạy cho năm học hiện tại. Vui lòng đăng nhập hệ thống và hoàn thành kê khai trong thời gian quy định.\n\nTrân trọng!'
+            message: 'Kính gửi Thầy/Cô,\n\nHệ thống nhắc nhở Thầy/Cô hoàn thành kê khai khối lượng công tác cho năm học hiện tại. Vui lòng đăng nhập hệ thống và hoàn thành kê khai trong thời gian quy định.\n\nTrân trọng!'
         },
         {
             title: 'Thông báo hạn chót kê khai',
-            message: 'Kính gửi Thầy/Cô,\n\nHạn chót nộp kê khai khối lượng giảng dạy sắp đến. Để đảm bảo quyền lợi và tránh ảnh hưởng đến công tác thanh toán, vui lòng hoàn thành kê khai sớm nhất có thể.\n\nTrân trọng!'
+            message: 'Kính gửi Thầy/Cô,\n\nHạn chót nộp kê khai khối lượng công tác sắp đến. Để đảm bảo quyền lợi và tránh ảnh hưởng đến công tác thanh toán, vui lòng hoàn thành kê khai sớm nhất có thể.\n\nTrân trọng!'
         },
         {
             title: 'Yêu cầu bổ sung thông tin',
@@ -218,7 +218,6 @@ const SendNotificationModal = ({
                         </Col>
                     </Row>
 
-                    {/* Recipient Info Card */}
                     <Card 
                         className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 rounded-xl"
                         size="small"
@@ -241,27 +240,6 @@ const SendNotificationModal = ({
                         </div>
                     </Card>
 
-                    <Form.Item
-                        name="title"
-                        label={
-                            <span className="flex items-center space-x-2">
-                                <MessageOutlined className="text-blue-500" />
-                                <span>Tiêu đề thông báo</span>
-                            </span>
-                        }
-                        rules={[
-                            { required: true, message: 'Vui lòng nhập tiêu đề!' },
-                            { max: 255, message: 'Tiêu đề không được quá 255 ký tự!' }
-                        ]}
-                    >
-                        <Input 
-                            placeholder="Nhập tiêu đề thông báo..."
-                            className="rounded-lg"
-                            size="large"
-                        />
-                    </Form.Item>
-
-                    {/* Quick Message Templates */}
                     <div className="space-y-3">
                         <Text strong className="text-gray-700">
                             Mẫu tin nhắn nhanh:
@@ -298,6 +276,26 @@ const SendNotificationModal = ({
                     </div>
 
                     <Form.Item
+                        name="title"
+                        label={
+                            <span className="flex items-center space-x-2">
+                                <MessageOutlined className="text-blue-500" />
+                                <span>Tiêu đề thông báo</span>
+                            </span>
+                        }
+                        rules={[
+                            { required: true, message: 'Vui lòng nhập tiêu đề!' },
+                            { max: 255, message: 'Tiêu đề không được quá 255 ký tự!' }
+                        ]}
+                    >
+                        <Input 
+                            placeholder="Nhập tiêu đề thông báo..."
+                            className="rounded-lg"
+                            size="large"
+                        />
+                    </Form.Item>
+
+                    <Form.Item
                         name="message"
                         label={
                             <span className="flex items-center space-x-2">
@@ -321,7 +319,6 @@ const SendNotificationModal = ({
                     </Form.Item>
                 </Form>
 
-                {/* Preview Mode */}
                 {previewMode && currentFormValues.title && currentFormValues.message && (
                     <Card 
                         title={
@@ -363,7 +360,6 @@ const SendNotificationModal = ({
                     </Card>
                 )}
 
-                {/* Warning Alert */}
                 <Alert
                     message="Lưu ý quan trọng"
                     description="Thông báo sẽ được gửi qua email tới tất cả giảng viên thuộc đối tượng đã chọn. Vui lòng kiểm tra kỹ nội dung trước khi gửi."

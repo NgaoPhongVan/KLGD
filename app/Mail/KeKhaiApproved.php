@@ -17,18 +17,12 @@ class KeKhaiApproved extends Mailable
     public $keKhai;
     public $namHoc;
 
-    /**
-     * Create a new message instance.
-     */
     public function __construct(KeKhaiTongHopNamHoc $keKhai, NamHoc $namHoc)
     {
         $this->keKhai = $keKhai;
         $this->namHoc = $namHoc;
     }
 
-    /**
-     * Get the message envelope.
-     */
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -37,9 +31,6 @@ class KeKhaiApproved extends Mailable
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
         return new Content(
@@ -51,11 +42,6 @@ class KeKhaiApproved extends Mailable
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
     public function attachments(): array
     {
         return [];

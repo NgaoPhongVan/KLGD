@@ -253,7 +253,6 @@ function MienGiamDinhMucManagement() {
     const handleSubmit = async (values) => {
         setIsLoading(true);
         try {
-            // Convert dates to proper format
             const submitData = {
                 ...values,
                 ngay_bat_dau: values.ngay_bat_dau ? dayjs(values.ngay_bat_dau).format('YYYY-MM-DD') : null,
@@ -624,14 +623,12 @@ function MienGiamDinhMucManagement() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50/30 to-purple-50/40 relative">
-            {/* Enhanced background decoration */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-indigo-400/5 to-purple-400/5 rounded-full blur-3xl"></div>
                 <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-purple-400/5 to-pink-400/5 rounded-full blur-3xl"></div>
             </div>
 
             <div className="relative z-10 p-8 space-y-6">
-                {/* Enhanced Header */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-6">                            <div className="relative">
@@ -661,7 +658,6 @@ function MienGiamDinhMucManagement() {
                     </div>
                 </Card>
 
-                {/* Enhanced Search and Filter Section */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-indigo-50/50 to-purple-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
@@ -748,7 +744,6 @@ function MienGiamDinhMucManagement() {
                     </div>
                 </Card>
 
-                {/* Enhanced Form Section */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-indigo-50/50 to-purple-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
@@ -957,7 +952,6 @@ function MienGiamDinhMucManagement() {
                     </Form>
                 </Card>
 
-                {/* Enhanced Import Section */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-blue-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
@@ -1036,7 +1030,6 @@ function MienGiamDinhMucManagement() {
                     </Row>
                 </Card>
 
-                {/* Enhanced Table */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-indigo-50/50 to-purple-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center justify-between">                            <div className="flex items-center">
@@ -1090,7 +1083,8 @@ function MienGiamDinhMucManagement() {
                         rowKey="id"
                         className="custom-table"
                         locale={{
-                            emptyText: (                                <div className="py-12 text-center">
+                            emptyText: (                                
+                            <div className="py-12 text-center">
                                     <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                                         <SafetyOutlined className="text-2xl text-gray-400" />
                                     </div>
@@ -1147,7 +1141,6 @@ function MienGiamDinhMucManagement() {
                     )}
                 </Card>
 
-                {/* Delete Confirmation Modal */}
                 <Modal
                     title={
                         <div className="flex items-center">
@@ -1168,7 +1161,6 @@ function MienGiamDinhMucManagement() {
                     <p>Bạn có chắc chắn muốn xóa miễn giảm định mức này? Hành động này không thể hoàn tác.</p>
                 </Modal>
 
-                {/* Enhanced Custom Styles */}
                 <style>{`
                     .custom-select .ant-select-selector {
                         border-radius: 8px !important;

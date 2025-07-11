@@ -168,7 +168,6 @@ function HocKyManagement() {
             });
             setNamHocList(response.data.data || []);
         } catch (error) {
-            console.error("Error fetching academic year data:", error);
             message.error("Không thể tải dữ liệu năm học");
         }
     };
@@ -238,10 +237,7 @@ function HocKyManagement() {
     };
 
     const handleDelete = (id) => {
-        console.log("handleDelete called with id:", id); // Debug log
-        
         if (!id) {
-            console.error("ID is null or undefined");
             message.error("Không thể xác định học kỳ cần xóa");
             return;
         }
@@ -251,8 +247,6 @@ function HocKyManagement() {
     };
 
     const confirmDelete = async () => {
-        console.log("Confirm delete clicked, deleting ID:", deletingId); // Debug log
-        
         if (!deletingId) {
             message.error("Không thể xác định học kỳ cần xóa");
             return;
@@ -261,22 +255,17 @@ function HocKyManagement() {
         setIsDeleting(true);
         
         try {
-            console.log("Making DELETE request to:", `/api/admin/hoc-ky/${deletingId}`); // Debug log
-            
             const response = await axios.delete(`/api/admin/hoc-ky/${deletingId}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
             });
             
-            console.log("Delete response:", response); // Debug log
             message.success("Xóa học kỳ thành công");
             
-            // Close modal and reset state
             setDeleteModalVisible(false);
             setDeletingId(null);
             
-            // Refresh data after successful deletion
             await fetchHocKy();
             
         } catch (error) {
@@ -290,7 +279,6 @@ function HocKyManagement() {
                 errorMessage = "Bạn không có quyền xóa học kỳ này.";
             } else if (error.response?.status === 404) {
                 errorMessage = "Học kỳ không tồn tại hoặc đã được xóa.";
-                // Refresh data to update the list
                 await fetchHocKy();
             } else if (error.response?.status === 422) {
                 errorMessage = "Không thể xóa học kỳ này vì đã có dữ liệu liên kết!";
@@ -307,7 +295,6 @@ function HocKyManagement() {
     };
 
     const cancelDelete = () => {
-        console.log("Delete cancelled"); // Debug log
         setDeleteModalVisible(false);
         setDeletingId(null);
     };
@@ -342,14 +329,12 @@ function HocKyManagement() {
     };
 
     const downloadSampleFile = () => {
-        // Tạo dữ liệu mẫu CSV với cấu trúc đúng cho học kỳ
         const csvHeaders = [
             'ten_hoc_ky',
             'nam_hoc_id',
             'la_ky_hien_hanh'
         ];
 
-        // Dữ liệu mẫu với các giá trị ví dụ
         const sampleData = [
             [
                 'Học kỳ 1',
@@ -378,17 +363,14 @@ function HocKyManagement() {
             ]
         ];
 
-        // Tạo nội dung CSV
         const csvContent = [
             csvHeaders.join(','),
             ...sampleData.map(row => row.join(','))
         ].join('\n');
 
-        // Thêm BOM để hỗ trợ UTF-8 trong Excel
         const BOM = '\uFEFF';
         const finalContent = BOM + csvContent;
 
-        // Tạo và tải xuống file
         const blob = new Blob([finalContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
@@ -414,7 +396,7 @@ function HocKyManagement() {
                 return false;
             }
             setFile(file);
-            return false; // Prevent auto upload
+            return false; 
         },
         onRemove: () => {
             setFile(null);
@@ -516,14 +498,12 @@ function HocKyManagement() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40 relative">
-            {/* Enhanced background decoration */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-blue-400/5 to-indigo-400/5 rounded-full blur-3xl"></div>
                 <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-purple-400/5 to-pink-400/5 rounded-full blur-3xl"></div>
             </div>
 
             <div className="relative z-10 p-8 space-y-6">
-                {/* Enhanced Header */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-6">
@@ -554,7 +534,6 @@ function HocKyManagement() {
                     </div>
                 </Card>
 
-                {/* Enhanced Search Section */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-blue-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
@@ -607,7 +586,6 @@ function HocKyManagement() {
                     </div>
                 </Card>
 
-                {/* Enhanced Form Section */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-purple-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
@@ -730,7 +708,6 @@ function HocKyManagement() {
                     </Form>
                 </Card>
 
-                {/* Enhanced Import Section */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-emerald-50/50 to-teal-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
@@ -780,7 +757,6 @@ function HocKyManagement() {
                                 </div>
                             </div>
 
-                            {/* Additional help section */}
                             <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
                                 <div className="flex items-start">
                                     <div className="w-4 h-4 bg-amber-400 rounded-full mt-0.5 mr-2 flex-shrink-0"></div>
@@ -797,7 +773,6 @@ function HocKyManagement() {
                                 </div>
                             </div>
 
-                            {/* Nam Hoc reference section */}
                             {namHocList.length > 0 && (
                                 <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
                                     <div className="flex items-start">
@@ -822,7 +797,6 @@ function HocKyManagement() {
                                 </div>
                             )}
 
-                            {/* Status reference section */}
                             <div className="mt-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
                                 <div className="flex items-start">
                                     <div className="w-4 h-4 bg-purple-400 rounded-full mt-0.5 mr-2 flex-shrink-0"></div>
@@ -874,7 +848,6 @@ function HocKyManagement() {
                     </Row>
                 </Card>
 
-                {/* Enhanced HocKy Table */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-purple-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center justify-between">
@@ -983,7 +956,6 @@ function HocKyManagement() {
                     )}
                 </Card>
 
-                {/* Delete Confirmation Modal */}
                 <Modal
                     title={
                         <div className="flex items-center">
@@ -1004,9 +976,7 @@ function HocKyManagement() {
                     <p>Bạn có chắc chắn muốn xóa học kỳ này? Hành động này không thể hoàn tác.</p>
                 </Modal>
 
-                {/* Enhanced Custom Styles */}
                 <style>{`
-                    /* Base Ant Design Component Styles */
                     .custom-select .ant-select-selector {
                         border-radius: 8px !important;
                         border: 1px solid #e2e8f0 !important;
@@ -1032,7 +1002,6 @@ function HocKyManagement() {
                         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important;
                     }
                     
-                    /* Table styling */
                     .custom-table .ant-table {
                         border-radius: 12px !important;
                         overflow: hidden !important;
@@ -1055,7 +1024,6 @@ function HocKyManagement() {
                         background: rgba(59, 130, 246, 0.05) !important;
                     }
                     
-                    /* Button styling enhancements */
                     .ant-btn-primary {
                         border-radius: 12px !important;
                         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25) !important;
@@ -1078,7 +1046,6 @@ function HocKyManagement() {
                         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
                     }
                     
-                    /* Pagination styling */
                     .custom-pagination .ant-pagination-item {
                         border-radius: 8px !important;
                         border: 1px solid #e2e8f0 !important;
@@ -1093,19 +1060,16 @@ function HocKyManagement() {
                         color: white !important;
                     }
                     
-                    /* Upload styling */
                     .ant-upload-list-item {
                         border-radius: 8px !important;
                         border: 1px solid #e2e8f0 !important;
                     }
                     
-                    /* Form styling */
                     .ant-form-item-label > label {
                         font-weight: 500 !important;
                         color: #374151 !important;
                     }
                     
-                    /* Tag styling */
                     .ant-tag {
                         border-radius: 6px !important;
                         font-weight: 500 !important;

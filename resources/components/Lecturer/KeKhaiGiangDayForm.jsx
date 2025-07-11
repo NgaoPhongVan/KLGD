@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useCallback } from "react";
+import axios from "axios";
 import {
     Card,
     Button,
@@ -14,52 +14,52 @@ import {
     Alert,
     Row,
     Col,
-    Tag
-} from 'antd';
+    Tag,
+} from "antd";
 import {
     SaveOutlined,
     CalendarOutlined,
     BookOutlined,
     SolutionOutlined, // Giảng dạy lớp
     UserSwitchOutlined, // Hướng dẫn
-    AuditOutlined,      // Đánh giá/Hội đồng
-    CarryOutOutlined,   // Khảo thí
-    BuildOutlined,      // XDCTĐT & Hoạt động GD khác
+    AuditOutlined, // Đánh giá/Hội đồng
+    CarryOutOutlined, // Khảo thí
+    BuildOutlined, // XDCTĐT & Hoạt động GD khác
     ExperimentOutlined, // NCKH
-    TeamOutlined,       // Công tác khác (GVCN, Olympic...)
-    StopOutlined
-} from '@ant-design/icons';
+    TeamOutlined, // Công tác khác (GVCN, Olympic...)
+    StopOutlined,
+} from "@ant-design/icons";
 
-// Import các component form con chuyên biệt (GIẢ SỬ BẠN SẼ TẠO CÁC FILE NÀY)
-// Mỗi component này sẽ quản lý việc thêm/sửa/xóa và hiển thị bảng cho một loại kê khai cụ thể
-import FormGdLop from './KekhaiForms/FormGdLop'; // Chung cho giảng dạy lớp các cấp, các phạm vi
-import FormHdDatnDaihoc from './KekhaiForms/FormHdDatnDaihoc';
-import FormHdLvThacsi from './KekhaiForms/FormHdLvThacsi';
-import FormHdLaTiensi from './KekhaiForms/FormHdLaTiensi';
-import FormDgHpTnDaihoc from './KekhaiForms/FormDgHpTnDaihoc';
-import FormDgLvThacsi from './KekhaiForms/FormDgLvThacsi';
-import FormDgLaTiensi from './KekhaiForms/FormDgLaTiensi'; // Form này sẽ quản lý cả Dot và NhiemVu con
-import FormKhaoThi from './KekhaiForms/FormKhaoThi'; // Chung cho khảo thí các cấp
-import FormXdCtdtVaKhacGd from './KekhaiForms/FormXdCtdtVaKhacGd';
-import FormNckh from './KekhaiForms/FormNckh';
-import FormCongTacKhac from './KekhaiForms/FormCongTacKhac';
-
+// Import các component form con chuyên biệt
+import FormGdLop from "./KekhaiForms/FormGdLop";
+import FormHdDatnDaihoc from "./KekhaiForms/FormHdDatnDaihoc";
+import FormHdLvThacsi from "./KekhaiForms/FormHdLvThacsi";
+import FormHdLaTiensi from "./KekhaiForms/FormHdLaTiensi";
+import FormDgHpTnDaihoc from "./KekhaiForms/FormDgHpTnDaihoc";
+import FormDgLvThacsi from "./KekhaiForms/FormDgLvThacsi";
+import FormDgLaTiensi from "./KekhaiForms/FormDgLaTiensi";
+import FormKhaoThi from "./KekhaiForms/FormKhaoThi";
+import FormXdCtdtVaKhacGd from "./KekhaiForms/FormXdCtdtVaKhacGd";
+import FormNckh from "./KekhaiForms/FormNckh";
+import FormCongTacKhac from "./KekhaiForms/FormCongTacKhac";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 const { Option } = Select;
 
 function KeKhaiGiangDayForm() {
-    const [form] = Form.useForm(); // Form chính này có thể không dùng nhiều nếu các form con tự xử lý
+    const [form] = Form.useForm();
     const [isLoadingInitial, setIsLoadingInitial] = useState(true);
-    const [isLoadingData, setIsLoadingData] = useState(false);    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoadingData, setIsLoadingData] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmittingOfficial, setIsSubmittingOfficial] = useState(false);
     const [error, setError] = useState(null);
 
     const [namHocList, setNamHocList] = useState([]);
     const [selectedNamHocId, setSelectedNamHocId] = useState(null);
     const [currentKeKhaiTongHop, setCurrentKeKhaiTongHop] = useState(null);
-    const [currentUserProfile, setCurrentUserProfile] = useState(null); // Để lấy định mức gợi ý
+    const [currentUserProfile, setCurrentUserProfile] = useState(null);
+    const [keKhaiThoiGian, setKeKhaiThoiGian] = useState(null);
 
     // State cho từng bảng kê khai chi tiết (mỗi mảng lưu các item của bảng đó)
     const [gdLopDhTrongBmList, setGdLopDhTrongBmList] = useState([]);
@@ -74,7 +74,7 @@ function KeKhaiGiangDayForm() {
 
     const [dgHpTnDhList, setDgHpTnDhList] = useState([]);
     const [dgLvThsList, setDgLvThsList] = useState([]);
-    const [dgLaTsDotList, setDgLaTsDotList] = useState([]); // Lưu các đợt đánh giá LA TS
+    const [dgLaTsDotList, setDgLaTsDotList] = useState([]);
 
     const [khaoThiDhTrongBmList, setKhaoThiDhTrongBmList] = useState([]);
     const [khaoThiDhNgoaiBmList, setKhaoThiDhNgoaiBmList] = useState([]);
@@ -85,14 +85,13 @@ function KeKhaiGiangDayForm() {
     const [nckhList, setNckhList] = useState([]);
     const [congTacKhacList, setCongTacKhacList] = useState([]);
 
-    const [dmHeSoChung, setDmHeSoChung] = useState([]); // Lưu các hệ số chung (HD LA,LV,DAKL cho bảng I.2)
+    const [dmHeSoChung, setDmHeSoChung] = useState([]);
 
-    // Utility functions for form components
     const formatDisplayValue = (value) => {
-        if (value === null || value === undefined || value === '') {
+        if (value === null || value === undefined || value === "") {
             return <EmptyValueDisplay />;
         }
-        if (typeof value === 'number') {
+        if (typeof value === "number") {
             return value.toLocaleString();
         }
         return value;
@@ -103,22 +102,27 @@ function KeKhaiGiangDayForm() {
     );
 
     const renderTableCell = (value, record, dataIndex) => {
-        if (value === null || value === undefined || value === '') {
+        if (value === null || value === undefined || value === "") {
             return <EmptyValueDisplay />;
         }
-        if (typeof value === 'number') {
-            return <span className="font-medium">{value.toLocaleString()}</span>;
+        if (typeof value === "number") {
+            return (
+                <span className="font-medium">{value.toLocaleString()}</span>
+            );
         }
         return value;
     };
 
     const renderNotes = (notes) => {
-        if (!notes || notes.trim() === '') {
+        if (!notes || notes.trim() === "") {
             return <EmptyValueDisplay />;
         }
         return (
             <div className="max-w-xs">
-                <Text className="text-sm text-gray-600" ellipsis={{ tooltip: notes }}>
+                <Text
+                    className="text-sm text-gray-600"
+                    ellipsis={{ tooltip: notes }}
+                >
                     {notes}
                 </Text>
             </div>
@@ -128,7 +132,7 @@ function KeKhaiGiangDayForm() {
     const renderFileAttachment = (record) => {
         const hasExistingFile = record.minh_chung_existing;
         const hasNewFile = record.minh_chung_file instanceof File;
-        
+
         if (!hasExistingFile && !hasNewFile) {
             return <EmptyValueDisplay />;
         }
@@ -136,9 +140,9 @@ function KeKhaiGiangDayForm() {
         return (
             <div className="flex flex-col space-y-1">
                 {hasExistingFile && (
-                    <a 
-                        href={record.minh_chung_existing_path} 
-                        target="_blank" 
+                    <a
+                        href={record.minh_chung_existing_path}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:text-blue-800 text-xs"
                     >
@@ -155,114 +159,203 @@ function KeKhaiGiangDayForm() {
     };
 
     const resetAllDetailLists = () => {
-        setGdLopDhTrongBmList([]); setGdLopDhNgoaiBmList([]); setGdLopDhNgoaiCsList([]);
-        setGdLopThsList([]); setGdLopTsList([]);
-        setHdDatnDhList([]); setHdLvThsList([]); setHdLaTsList([]);
-        setDgHpTnDhList([]); setDgLvThsList([]); setDgLaTsDotList([]);
-        setKhaoThiDhTrongBmList([]); setKhaoThiDhNgoaiBmList([]);
-        setKhaoThiThsList([]); setKhaoThiTsList([]);
+        setGdLopDhTrongBmList([]);
+        setGdLopDhNgoaiBmList([]);
+        setGdLopDhNgoaiCsList([]);
+        setGdLopThsList([]);
+        setGdLopTsList([]);
+        setHdDatnDhList([]);
+        setHdLvThsList([]);
+        setHdLaTsList([]);
+        setDgHpTnDhList([]);
+        setDgLvThsList([]);
+        setDgLaTsDotList([]);
+        setKhaoThiDhTrongBmList([]);
+        setKhaoThiDhNgoaiBmList([]);
+        setKhaoThiThsList([]);
+        setKhaoThiTsList([]);
         setXdCtdtVaKhacGdList([]);
-        setNckhList([]); setCongTacKhacList([]);
+        setNckhList([]);
+        setCongTacKhacList([]);
     };
 
-    const fetchDataForSelectedNamHoc = useCallback(async (namHocIdForFetch) => {
+    const fetchKeKhaiThoiGian = useCallback(async (namHocIdForFetch) => {
         if (!namHocIdForFetch) {
-            setCurrentKeKhaiTongHop(null);
-            resetAllDetailLists();
+            setKeKhaiThoiGian(null);
             return;
         }
-        setIsLoadingData(true); setError(null);
+
         const token = localStorage.getItem("token");
         try {
-            const keKhaiTongHopRes = await axios.post("/api/lecturer/ke-khai-tong-hop-nam-hoc/start",
-                { nam_hoc_id: namHocIdForFetch },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-            const newKeKhaiTongHop = keKhaiTongHopRes.data.ke_khai_tong_hop_nam_hoc;
-            setCurrentKeKhaiTongHop(newKeKhaiTongHop);
-
-            if (newKeKhaiTongHop && newKeKhaiTongHop.id) {
-                const chiTietRes = await axios.get(`/api/lecturer/kekhai-chi-tiet?ke_khai_tong_hop_nam_hoc_id=${newKeKhaiTongHop.id}`, {
+            const response = await axios.get(
+                `/api/lecturer/ke-khai-thoi-gian?nam_hoc_id=${namHocIdForFetch}`,
+                {
                     headers: { Authorization: `Bearer ${token}` },
-                });
-                const { all_kekhai_details } = chiTietRes.data;
+                }
+            );
+
+            if (response.data) {
+                if (
+                    response.data.data &&
+                    Array.isArray(response.data.data) &&
+                    response.data.data.length > 0
+                ) {
+                    setKeKhaiThoiGian(response.data.data[0]);
+                } else if (
+                    response.data.thoi_gian_bat_dau &&
+                    response.data.thoi_gian_ket_thuc
+                ) {
+                    setKeKhaiThoiGian(response.data);
+                } else if (
+                    Array.isArray(response.data) &&
+                    response.data.length > 0
+                ) {
+                    setKeKhaiThoiGian(response.data[0]);
+                } else {
+                    setKeKhaiThoiGian(null);
+                }
+            } else {
+                setKeKhaiThoiGian(null);
+            }
+        } catch (err) {
+            console.error("Lỗi tải thời gian kê khai:", err);
+            setKeKhaiThoiGian(null);
+        }
+    }, []);
+
+    const fetchDataForSelectedNamHoc = useCallback(
+        async (namHocIdForFetch) => {
+            if (!namHocIdForFetch) {
+                setCurrentKeKhaiTongHop(null);
                 resetAllDetailLists();
-                if (all_kekhai_details && Array.isArray(all_kekhai_details)) {
-                    const typeToListSetterMap = {
-                        'gd_lop_dh_trongbm': setGdLopDhTrongBmList,
-                        'gd_lop_dh_ngoaibm': setGdLopDhNgoaiBmList,
-                        'gd_lop_dh_ngoaics': setGdLopDhNgoaiCsList,
-                        'gd_lop_ths': setGdLopThsList,
-                        'gd_lop_ts': setGdLopTsList,
-                        'hd_datn_daihoc': setHdDatnDhList,
-                        'hd_lv_thacsi': setHdLvThsList,
-                        'hd_la_tiensi': setHdLaTsList,
-                        'dg_hp_tn_daihoc': setDgHpTnDhList,
-                        'dg_lv_thacsi': setDgLvThsList,
-                        'dg_la_tiensi': setDgLaTsDotList, // Lưu các đợt đánh giá LA TS
-                        'khaothi_dh_trongbm': setKhaoThiDhTrongBmList,
-                        'khaothi_dh_ngoaibm': setKhaoThiDhNgoaiBmList,
-                        'khaothi_ths': setKhaoThiThsList,
-                        'khaothi_ts': setKhaoThiTsList,
-                        'xd_ctdt_va_khac_gd': setXdCtdtVaKhacGdList,
-                        'nckh': setNckhList,
-                        'congtac_khac': setCongTacKhacList,
-                    };
+                setKeKhaiThoiGian(null);
+                return;
+            }
+            setIsLoadingData(true);
+            setError(null);
+            const token = localStorage.getItem("token");
+            try {
+                await fetchKeKhaiThoiGian(namHocIdForFetch);
 
-                    // Phân loại dữ liệu từ API vào các state list tương ứng
-                    const groupedDetails = {};
-                    all_kekhai_details.forEach(item => {
-                        if (!groupedDetails[item.type]) {
-                            groupedDetails[item.type] = [];
+                const keKhaiTongHopRes = await axios.post(
+                    "/api/lecturer/ke-khai-tong-hop-nam-hoc/start",
+                    { nam_hoc_id: namHocIdForFetch },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                const newKeKhaiTongHop =
+                    keKhaiTongHopRes.data.ke_khai_tong_hop_nam_hoc;
+                setCurrentKeKhaiTongHop(newKeKhaiTongHop);
+
+                if (newKeKhaiTongHop && newKeKhaiTongHop.id) {
+                    const chiTietRes = await axios.get(
+                        `/api/lecturer/kekhai-chi-tiet?ke_khai_tong_hop_nam_hoc_id=${newKeKhaiTongHop.id}`,
+                        {
+                            headers: { Authorization: `Bearer ${token}` },
                         }
-                        // Chuyển data từ item.data vào cấp ngoài cùng cho dễ dùng ở form con
-                        groupedDetails[item.type].push({
-                            ...item.data, // Lấy các trường từ data
-                            id_temp: item.id_database || Date.now() + Math.random(),
-                            id_database: item.id_database,
-                            minh_chung_existing: item.minh_chung_existing,
-                            minh_chung_existing_path: item.minh_chung_existing_path,
-                            // Đặc biệt cho dg_la_tiensi, giữ lại nhiem_vu_ts_arr
-                            ...(item.type === 'dg_la_tiensi' && { nhiem_vu_ts_arr: item.nhiem_vu_ts_arr || [] }),
-                        });
-                    });
+                    );
+                    const { all_kekhai_details } = chiTietRes.data;
+                    resetAllDetailLists();
+                    if (
+                        all_kekhai_details &&
+                        Array.isArray(all_kekhai_details)
+                    ) {
+                        const typeToListSetterMap = {
+                            gd_lop_dh_trongbm: setGdLopDhTrongBmList,
+                            gd_lop_dh_ngoaibm: setGdLopDhNgoaiBmList,
+                            gd_lop_dh_ngoaics: setGdLopDhNgoaiCsList,
+                            gd_lop_ths: setGdLopThsList,
+                            gd_lop_ts: setGdLopTsList,
+                            hd_datn_daihoc: setHdDatnDhList,
+                            hd_lv_thacsi: setHdLvThsList,
+                            hd_la_tiensi: setHdLaTsList,
+                            dg_hp_tn_daihoc: setDgHpTnDhList,
+                            dg_lv_thacsi: setDgLvThsList,
+                            dg_la_tiensi: setDgLaTsDotList,
+                            khaothi_dh_trongbm: setKhaoThiDhTrongBmList,
+                            khaothi_dh_ngoaibm: setKhaoThiDhNgoaiBmList,
+                            khaothi_ths: setKhaoThiThsList,
+                            khaothi_ts: setKhaoThiTsList,
+                            xd_ctdt_va_khac_gd: setXdCtdtVaKhacGdList,
+                            nckh: setNckhList,
+                            congtac_khac: setCongTacKhacList,
+                        };
 
-                    for (const type in typeToListSetterMap) {
-                        if (groupedDetails[type]) {
-                            typeToListSetterMap[type](groupedDetails[type]);
+                        // Phân loại dữ liệu từ API vào các state list tương ứng
+                        const groupedDetails = {};
+                        all_kekhai_details.forEach((item) => {
+                            if (!groupedDetails[item.type]) {
+                                groupedDetails[item.type] = [];
+                            }
+                            // Chuyển data từ item.data vào cấp ngoài cùng cho dễ dùng ở form con
+                            groupedDetails[item.type].push({
+                                ...item.data, // Lấy các trường từ data
+                                id_temp:
+                                    item.id_database ||
+                                    Date.now() + Math.random(),
+                                id_database: item.id_database,
+                                minh_chung_existing: item.minh_chung_existing,
+                                minh_chung_existing_path:
+                                    item.minh_chung_existing_path,
+                                // Đặc biệt cho dg_la_tiensi, giữ lại nhiem_vu_ts_arr
+                                ...(item.type === "dg_la_tiensi" && {
+                                    nhiem_vu_ts_arr: item.nhiem_vu_ts_arr || [],
+                                }),
+                            });
+                        });
+
+                        for (const type in typeToListSetterMap) {
+                            if (groupedDetails[type]) {
+                                typeToListSetterMap[type](groupedDetails[type]);
+                            }
                         }
                     }
                 }
+            } catch (err) {
+                console.error("Lỗi tải dữ liệu chi tiết:", err);
+                message.error(
+                    err.response?.data?.message || "Lỗi tải dữ liệu chi tiết."
+                );
+                setError(
+                    err.response?.data?.message || "Lỗi tải dữ liệu chi tiết."
+                );
+                setCurrentKeKhaiTongHop(null);
+                setKeKhaiThoiGian(null);
+            } finally {
+                setIsLoadingData(false);
             }
-        } catch (err) {
-            console.error("Lỗi tải dữ liệu chi tiết:", err);
-            message.error(err.response?.data?.message || "Lỗi tải dữ liệu chi tiết.");
-            setError(err.response?.data?.message || "Lỗi tải dữ liệu chi tiết.");
-            setCurrentKeKhaiTongHop(null);
-        } finally {
-            setIsLoadingData(false);
-        }
-    }, []); // Remove token from dependency array
+        },
+        [fetchKeKhaiThoiGian]
+    );
 
     useEffect(() => {
         const token = localStorage.getItem("token");
         const fetchInitialData = async () => {
             setIsLoadingInitial(true);
             try {
-                const profileRes = await axios.get("/api/lecturer/profile", { headers: { Authorization: `Bearer ${token}` } });
+                const profileRes = await axios.get("/api/lecturer/profile", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
                 setCurrentUserProfile(profileRes.data);
 
-                const namHocRes = await axios.get("/api/lecturer/nam-hoc", { headers: { Authorization: `Bearer ${token}` } });
+                const namHocRes = await axios.get("/api/lecturer/nam-hoc", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
                 const nhs = namHocRes.data || [];
                 setNamHocList(nhs);
-                const currentActiveNamHoc = nhs.find(nh => nh.la_nam_hien_hanh === 1);
+                const currentActiveNamHoc = nhs.find(
+                    (nh) => nh.la_nam_hien_hanh === 1
+                );
                 if (currentActiveNamHoc) {
                     setSelectedNamHocId(currentActiveNamHoc.id.toString());
-                    // Auto-fetch data for current active year
-                    await fetchDataForSelectedNamHoc(currentActiveNamHoc.id.toString());
+                    await fetchDataForSelectedNamHoc(
+                        currentActiveNamHoc.id.toString()
+                    );
                 }
 
-                const dmHSCRes = await axios.get("/api/lecturer/dm-he-so-chung", { headers: { Authorization: `Bearer ${token}` } });
+                const dmHSCRes = await axios.get(
+                    "/api/lecturer/dm-he-so-chung",
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
                 setDmHeSoChung(dmHSCRes.data.data || []);
 
                 setError(null);
@@ -277,12 +370,12 @@ function KeKhaiGiangDayForm() {
     }, [fetchDataForSelectedNamHoc]);
 
     useEffect(() => {
-        // Auto-fetch data when selectedNamHocId changes (except initial load)
         if (selectedNamHocId && !isLoadingInitial) {
             fetchDataForSelectedNamHoc(selectedNamHocId);
         } else if (!selectedNamHocId) {
             setCurrentKeKhaiTongHop(null);
             resetAllDetailLists();
+            setKeKhaiThoiGian(null);
         }
     }, [selectedNamHocId, fetchDataForSelectedNamHoc, isLoadingInitial]);
 
@@ -292,12 +385,17 @@ function KeKhaiGiangDayForm() {
         } else {
             message.info("Vui lòng chọn một năm học.");
         }
-    };    const handleSaveAll = async () => {
+    };
+
+    const handleSaveAll = async () => {
         if (!currentKeKhaiTongHop || !currentKeKhaiTongHop.id) {
-            message.error("Vui lòng chọn năm học và bắt đầu kê khai trước khi lưu.");
+            message.error(
+                "Vui lòng chọn năm học và bắt đầu kê khai trước khi lưu."
+            );
             return;
         }
-        setIsSubmitting(true); setError(null);
+        setIsSubmitting(true);
+        setError(null);
         const currentToken = localStorage.getItem("token");
         try {
             const payloads = [];
@@ -305,76 +403,132 @@ function KeKhaiGiangDayForm() {
 
             const prepareItemData = (item, type) => {
                 const {
-                    id_temp, id_database, minh_chung_file,
-                    minh_chung_existing, minh_chung_existing_path,
+                    id_temp,
+                    id_database,
+                    minh_chung_file,
+                    minh_chung_existing,
+                    minh_chung_existing_path,
                     // Các trường chỉ dùng ở frontend mà không có trong model DB
-                    ten_hoat_dong, don_vi_tinh, dinh_muc_gio_tren_don_vi,
-                    ...dataToSubmit // Còn lại là dữ liệu của model
+                    ten_hoat_dong,
+                    don_vi_tinh,
+                    dinh_muc_gio_tren_don_vi,
+                    ...dataToSubmit // Dữ liệu của model
                 } = item;
 
                 return {
                     type: type,
                     data: dataToSubmit,
-                    minh_chung_file: minh_chung_file instanceof File ? minh_chung_file : null,
-                    id_database: id_database // Giữ id_database nếu là sửa
+                    minh_chung_file:
+                        minh_chung_file instanceof File
+                            ? minh_chung_file
+                            : null,
+                    id_database: id_database,
                 };
             };
 
             // Thu thập dữ liệu từ tất cả các state list
-            gdLopDhTrongBmList.forEach(item => payloads.push(prepareItemData(item, 'gd_lop_dh_trongbm')));
-            gdLopDhNgoaiBmList.forEach(item => payloads.push(prepareItemData(item, 'gd_lop_dh_ngoaibm')));
-            gdLopDhNgoaiCsList.forEach(item => payloads.push(prepareItemData(item, 'gd_lop_dh_ngoaics')));
-            gdLopThsList.forEach(item => payloads.push(prepareItemData(item, 'gd_lop_ths')));
-            gdLopTsList.forEach(item => payloads.push(prepareItemData(item, 'gd_lop_ts')));
+            gdLopDhTrongBmList.forEach((item) =>
+                payloads.push(prepareItemData(item, "gd_lop_dh_trongbm"))
+            );
+            gdLopDhNgoaiBmList.forEach((item) =>
+                payloads.push(prepareItemData(item, "gd_lop_dh_ngoaibm"))
+            );
+            gdLopDhNgoaiCsList.forEach((item) =>
+                payloads.push(prepareItemData(item, "gd_lop_dh_ngoaics"))
+            );
+            gdLopThsList.forEach((item) =>
+                payloads.push(prepareItemData(item, "gd_lop_ths"))
+            );
+            gdLopTsList.forEach((item) =>
+                payloads.push(prepareItemData(item, "gd_lop_ts"))
+            );
 
-            hdDatnDhList.forEach(item => payloads.push(prepareItemData(item, 'hd_datn_daihoc')));
-            hdLvThsList.forEach(item => payloads.push(prepareItemData(item, 'hd_lv_thacsi')));
-            hdLaTsList.forEach(item => payloads.push(prepareItemData(item, 'hd_la_tiensi')));
+            hdDatnDhList.forEach((item) =>
+                payloads.push(prepareItemData(item, "hd_datn_daihoc"))
+            );
+            hdLvThsList.forEach((item) =>
+                payloads.push(prepareItemData(item, "hd_lv_thacsi"))
+            );
+            hdLaTsList.forEach((item) =>
+                payloads.push(prepareItemData(item, "hd_la_tiensi"))
+            );
 
-            dgHpTnDhList.forEach(item => payloads.push(prepareItemData(item, 'dg_hp_tn_daihoc')));
-            dgLvThsList.forEach(item => payloads.push(prepareItemData(item, 'dg_lv_thacsi')));
-            dgLaTsDotList.forEach(item => payloads.push(prepareItemData(item, 'dg_la_tiensi'))); // Gửi cả mảng nhiệm vụ con
+            dgHpTnDhList.forEach((item) =>
+                payloads.push(prepareItemData(item, "dg_hp_tn_daihoc"))
+            );
+            dgLvThsList.forEach((item) =>
+                payloads.push(prepareItemData(item, "dg_lv_thacsi"))
+            );
+            dgLaTsDotList.forEach((item) =>
+                payloads.push(prepareItemData(item, "dg_la_tiensi"))
+            );
 
-            khaoThiDhTrongBmList.forEach(item => payloads.push(prepareItemData(item, 'khaothi_dh_trongbm')));
-            khaoThiDhNgoaiBmList.forEach(item => payloads.push(prepareItemData(item, 'khaothi_dh_ngoaibm')));
-            khaoThiThsList.forEach(item => payloads.push(prepareItemData(item, 'khaothi_ths')));
-            khaoThiTsList.forEach(item => payloads.push(prepareItemData(item, 'khaothi_ts')));
+            khaoThiDhTrongBmList.forEach((item) =>
+                payloads.push(prepareItemData(item, "khaothi_dh_trongbm"))
+            );
+            khaoThiDhNgoaiBmList.forEach((item) =>
+                payloads.push(prepareItemData(item, "khaothi_dh_ngoaibm"))
+            );
+            khaoThiThsList.forEach((item) =>
+                payloads.push(prepareItemData(item, "khaothi_ths"))
+            );
+            khaoThiTsList.forEach((item) =>
+                payloads.push(prepareItemData(item, "khaothi_ts"))
+            );
 
-            xdCtdtVaKhacGdList.forEach(item => payloads.push(prepareItemData(item, 'xd_ctdt_va_khac_gd')));
-            nckhList.forEach(item => payloads.push(prepareItemData(item, 'nckh')));
-            congTacKhacList.forEach(item => payloads.push(prepareItemData(item, 'congtac_khac')));
-
+            xdCtdtVaKhacGdList.forEach((item) =>
+                payloads.push(prepareItemData(item, "xd_ctdt_va_khac_gd"))
+            );
+            nckhList.forEach((item) =>
+                payloads.push(prepareItemData(item, "nckh"))
+            );
+            congTacKhacList.forEach((item) =>
+                payloads.push(prepareItemData(item, "congtac_khac"))
+            );
 
             const formData = new FormData();
-            formData.append('ke_khai_tong_hop_nam_hoc_id', keKhaiTongHopIdToSave);
-            const itemsForJson = payloads.map(p => ({
+            formData.append(
+                "ke_khai_tong_hop_nam_hoc_id",
+                keKhaiTongHopIdToSave
+            );
+            const itemsForJson = payloads.map((p) => ({
                 type: p.type,
                 data: p.data,
-                id_database: p.id_database
+                id_database: p.id_database,
             }));
-            formData.append('ke_khai_items_json', JSON.stringify(itemsForJson));
+            formData.append("ke_khai_items_json", JSON.stringify(itemsForJson));
 
             payloads.forEach((payload, index) => {
-                if (payload.minh_chung_file) { // Chỉ gửi file mới
-                    formData.append(`ke_khai_items_files[${index}]`, payload.minh_chung_file, payload.minh_chung_file.name);
+                if (payload.minh_chung_file) {
+                    // Chỉ gửi file mới
+                    formData.append(
+                        `ke_khai_items_files[${index}]`,
+                        payload.minh_chung_file,
+                        payload.minh_chung_file.name
+                    );
                 }
             });
 
-            const response = await axios.post('/api/lecturer/kekhai-chi-tiet/batch-save', formData, {
-                headers: { Authorization: `Bearer ${currentToken}` },
-            });
-            message.success(response.data.message || "Lưu toàn bộ kê khai thành công!");
-            if(response.data.ke_khai_tong_hop_nam_hoc){ // Sửa tên key response
+            const response = await axios.post(
+                "/api/lecturer/kekhai-chi-tiet/batch-save",
+                formData,
+                {
+                    headers: { Authorization: `Bearer ${currentToken}` },
+                }
+            );
+            message.success(
+                response.data.message || "Lưu toàn bộ kê khai thành công!"
+            );
+            if (response.data.ke_khai_tong_hop_nam_hoc) {
                 setCurrentKeKhaiTongHop(response.data.ke_khai_tong_hop_nam_hoc);
                 fetchDataForSelectedNamHoc(selectedNamHocId);
             }
-
         } catch (err) {
-            showNotification("error", 
+            showNotification(
+                "error",
                 err.response?.data?.message || "Có lỗi xảy ra khi lưu kê khai",
                 "Lỗi lưu dữ liệu"
             );
-            // ...existing error handling...
         } finally {
             setIsSubmitting(false);
         }
@@ -382,22 +536,39 @@ function KeKhaiGiangDayForm() {
 
     const handleSubmitOfficial = async () => {
         if (!currentKeKhaiTongHop || !currentKeKhaiTongHop.id) {
-            message.error("Vui lòng chọn năm học và bắt đầu kê khai trước khi nộp.");
+            message.error(
+                "Vui lòng chọn năm học và bắt đầu kê khai trước khi nộp."
+            );
             return;
         }
 
         // Kiểm tra xem có dữ liệu nào không
-        const hasAnyData = [
-            ...gdLopDhTrongBmList, ...gdLopDhNgoaiBmList, ...gdLopDhNgoaiCsList,
-            ...gdLopThsList, ...gdLopTsList,
-            ...hdDatnDhList, ...hdLvThsList, ...hdLaTsList,
-            ...dgHpTnDhList, ...dgLvThsList, ...dgLaTsDotList,
-            ...khaoThiDhTrongBmList, ...khaoThiDhNgoaiBmList, ...khaoThiThsList, ...khaoThiTsList,
-            ...xdCtdtVaKhacGdList, ...nckhList, ...congTacKhacList
-        ].length > 0;
+        const hasAnyData =
+            [
+                ...gdLopDhTrongBmList,
+                ...gdLopDhNgoaiBmList,
+                ...gdLopDhNgoaiCsList,
+                ...gdLopThsList,
+                ...gdLopTsList,
+                ...hdDatnDhList,
+                ...hdLvThsList,
+                ...hdLaTsList,
+                ...dgHpTnDhList,
+                ...dgLvThsList,
+                ...dgLaTsDotList,
+                ...khaoThiDhTrongBmList,
+                ...khaoThiDhNgoaiBmList,
+                ...khaoThiThsList,
+                ...khaoThiTsList,
+                ...xdCtdtVaKhacGdList,
+                ...nckhList,
+                ...congTacKhacList,
+            ].length > 0;
 
         if (!hasAnyData) {
-            message.warning("Vui lòng thêm ít nhất một mục kê khai trước khi nộp chính thức.");
+            message.warning(
+                "Vui lòng thêm ít nhất một mục kê khai trước khi nộp chính thức."
+            );
             return;
         }
 
@@ -405,25 +576,26 @@ function KeKhaiGiangDayForm() {
         setError(null);
         const currentToken = localStorage.getItem("token");
 
-        try {            const response = await axios.post(
+        try {
+            const response = await axios.post(
                 `/api/lecturer/ke-khai-tong-hop-nam-hoc/${currentKeKhaiTongHop.id}/submit`,
                 {},
                 { headers: { Authorization: `Bearer ${currentToken}` } }
             );
 
-            showNotification("success", 
+            showNotification(
+                "success",
                 response.data.message || "Nộp kê khai thành công!",
                 "Nộp kê khai thành công"
             );
 
-            // Refresh data to get updated status
             if (response.data.data) {
                 setCurrentKeKhaiTongHop(response.data.data);
             }
             fetchDataForSelectedNamHoc(selectedNamHocId);
-
         } catch (err) {
-            showNotification("error", 
+            showNotification(
+                "error",
                 err.response?.data?.message || "Có lỗi xảy ra khi nộp kê khai",
                 "Lỗi nộp kê khai"
             );
@@ -439,7 +611,12 @@ function KeKhaiGiangDayForm() {
         message.info("Đã hủy kê khai cho năm học hiện tại và reset form.");
     };
 
-    const [notification, setNotification] = useState({ show: false, type: "", message: "", title: "" });
+    const [notification, setNotification] = useState({
+        show: false,
+        type: "",
+        message: "",
+        title: "",
+    });
 
     const showNotification = (type, message, title = "") => {
         const notificationConfig = {
@@ -448,29 +625,29 @@ function KeKhaiGiangDayForm() {
                 bgGradient: "from-emerald-500 via-green-500 to-teal-500",
                 iconBg: "bg-emerald-100",
                 iconColor: "text-emerald-600",
-                icon: "M5 13l4 4L19 7"
+                icon: "M5 13l4 4L19 7",
             },
             error: {
                 title: title || "Có lỗi xảy ra!",
                 bgGradient: "from-red-500 via-rose-500 to-pink-500",
                 iconBg: "bg-red-100",
                 iconColor: "text-red-600",
-                icon: "M6 18L18 6M6 6l12 12"
+                icon: "M6 18L18 6M6 6l12 12",
             },
             warning: {
                 title: title || "Cảnh báo!",
                 bgGradient: "from-amber-500 via-yellow-500 to-orange-500",
                 iconBg: "bg-amber-100",
                 iconColor: "text-amber-600",
-                icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.08 16.5c-.77.833.192 2.5 1.732 2.5z"
+                icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.08 16.5c-.77.833.192 2.5 1.732 2.5z",
             },
             info: {
                 title: title || "Thông tin",
                 bgGradient: "from-blue-500 via-indigo-500 to-purple-500",
                 iconBg: "bg-blue-100",
                 iconColor: "text-blue-600",
-                icon: "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            }
+                icon: "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+            },
         };
 
         setNotification({
@@ -478,50 +655,58 @@ function KeKhaiGiangDayForm() {
             type,
             message,
             title,
-            config: notificationConfig[type] || notificationConfig.info
+            config: notificationConfig[type] || notificationConfig.info,
         });
 
-        // Auto hide after 4 seconds
         setTimeout(() => {
-            setNotification(prev => ({ ...prev, show: false }));
+            setNotification((prev) => ({ ...prev, show: false }));
         }, 4000);
     };
 
     const dismissNotification = () => {
-        setNotification(prev => ({ ...prev, show: false }));
+        setNotification((prev) => ({ ...prev, show: false }));
     };
 
-    // Enhanced Notification Component
     const renderNotification = () => {
         if (!notification.show) return null;
 
         return (
             <div className="fixed top-6 right-6 z-50 transform transition-all duration-500 ease-out">
-                <div className={`
+                <div
+                    className={`
                     bg-white/95 backdrop-blur-xl shadow-2xl border border-white/20 backdrop-blur-xl
                     transform transition-all duration-500 ease-out
-                    ${notification.show ? 'translate-x-0 opacity-100 scale-100' : 'translate-x-full opacity-0 scale-95'}
+                    ${notification.show
+                            ? "translate-x-0 opacity-100 scale-100"
+                            : "translate-x-full opacity-0 scale-95"
+                        }
                     hover:scale-105 hover:shadow-3xl
                     max-w-md w-full mx-4 rounded-2xl
-                `}>
-                    {/* Animated background gradient */}
-                    <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${notification.config?.bgGradient} opacity-5 animate-pulse`}></div>
-                    
-                    {/* Progress bar */}
+                `}
+                >
+                    <div
+                        className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${notification.config?.bgGradient} opacity-5 animate-pulse`}
+                    ></div>
+
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200/20 rounded-t-2xl overflow-hidden">
-                        <div className={`h-full bg-gradient-to-r ${notification.config?.bgGradient} animate-progress-bar`}></div>
+                        <div
+                            className={`h-full bg-gradient-to-r ${notification.config?.bgGradient} animate-progress-bar`}
+                        ></div>
                     </div>
 
                     <div className="relative p-6">
                         <div className="flex items-start space-x-4">
-                            {/* Animated icon */}
-                            <div className={`
+                            <div
+                                className={`
                                 flex-shrink-0 w-12 h-12 ${notification.config?.iconBg} rounded-xl 
                                 flex items-center justify-center transform transition-all duration-300
                                 hover:scale-110 hover:rotate-6
                                 shadow-lg border border-white/30
-                            `}>
-                                <div className={`w-6 h-6 ${notification.config?.iconColor} animate-bounce-gentle`}>
+                            `}
+                            >
+                                <div
+                                    className={`w-6 h-6 ${notification.config?.iconColor} animate-bounce-gentle`}
+                                >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         className="w-full h-full"
@@ -539,41 +724,56 @@ function KeKhaiGiangDayForm() {
                                 </div>
                             </div>
 
-                            {/* Content */}
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between mb-2">
-                                    <h4 className={`
+                                    <h4
+                                        className={`
                                         text-lg font-bold bg-gradient-to-r ${notification.config?.bgGradient} 
                                         bg-clip-text text-transparent animate-text-shine
-                                    `}>
+                                    `}
+                                    >
                                         {notification.config?.title}
                                     </h4>
-                                    
+
                                     <button
                                         onClick={dismissNotification}
                                         className="flex-shrink-0 w-8 h-8 bg-gray-100/80 hover:bg-gray-200/80 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 transition-all duration-200 hover:scale-110 ml-2"
                                     >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        <svg
+                                            className="w-4 h-4"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M6 18L18 6M6 6l12 12"
+                                            />
                                         </svg>
                                     </button>
                                 </div>
-                                
+
                                 <p className="text-gray-700 text-sm leading-relaxed">
                                     {notification.message}
                                 </p>
 
-                                {/* Action dots animation */}
                                 <div className="flex items-center mt-3 space-x-1">
-                                    <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${notification.config?.bgGradient} animate-pulse-delay-0`}></div>
-                                    <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${notification.config?.bgGradient} animate-pulse-delay-1`}></div>
-                                    <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${notification.config?.bgGradient} animate-pulse-delay-2`}></div>
+                                    <div
+                                        className={`w-2 h-2 rounded-full bg-gradient-to-r ${notification.config?.bgGradient} animate-pulse-delay-0`}
+                                    ></div>
+                                    <div
+                                        className={`w-2 h-2 rounded-full bg-gradient-to-r ${notification.config?.bgGradient} animate-pulse-delay-1`}
+                                    ></div>
+                                    <div
+                                        className={`w-2 h-2 rounded-full bg-gradient-to-r ${notification.config?.bgGradient} animate-pulse-delay-2`}
+                                    ></div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Decorative elements */}
                     <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full shadow-lg border-2 border-gray-100 animate-ping"></div>
                     <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full shadow-lg animate-bounce"></div>
                 </div>
@@ -583,212 +783,220 @@ function KeKhaiGiangDayForm() {
 
     if (isLoadingInitial) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40 flex items-center justify-center overflow-hidden relative">
-                {/* Enhanced Background Decorations */}
-                <div className="absolute inset-0 overflow-hidden">
-                    <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-r from-indigo-400/6 to-blue-400/6 rounded-full blur-3xl animate-float"></div>
-                    <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-r from-emerald-400/6 to-green-400/6 rounded-full blur-3xl animate-float-delayed"></div>
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[32rem] h-[32rem] bg-gradient-to-r from-purple-400/4 to-pink-400/4 rounded-full blur-3xl animate-pulse"></div>
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 relative overflow-hidden flex items-center justify-center">
+                <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-blue-400/10 to-indigo-400/10 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-purple-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
                 </div>
 
-                {/* Enhanced Loading Card */}
-                <div className="relative z-10">
-                    <div className="bg-white/95 backdrop-blur-xl shadow-2xl rounded-3xl p-12 border border-white/30 max-w-lg w-full mx-4 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-br from-white/70 to-transparent pointer-events-none"></div>
-                        
-                        {/* Animated background pattern */}
-                        <div className="absolute inset-0 opacity-5">
-                            <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full -mr-20 -mt-20 animate-spin-slow"></div>
-                            <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-br from-emerald-500 to-green-500 rounded-full -ml-16 -mb-16 animate-bounce-slow"></div>
+                <div className="relative z-10 text-center space-y-8">
+                    <div className="relative">
+                        <div className="w-24 h-24 bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 rounded-3xl shadow-2xl flex items-center justify-center mx-auto mb-6 animate-bounce">
+                            <BookOutlined className="text-4xl text-white" />
                         </div>
 
-                        <div className="relative z-10 flex flex-col items-center">
-                            {/* Enhanced Multi-layered Loading Animation */}
-                            <div className="relative mb-8">
-                                <div className="w-32 h-32 relative flex justify-center items-center">
-                                    {/* Outer ring with activity status dots */}
-                                    <div className="absolute w-full h-full">
-                                        <div className="w-full h-full border-4 border-indigo-200/30 rounded-full relative">
-                                            <div className="absolute w-3.5 h-3.5 bg-emerald-500 rounded-full top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-ping"></div>
-                                            <div className="absolute w-3 h-3 bg-amber-500 rounded-full top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
-                                            <div className="absolute w-3.5 h-3.5 bg-blue-500 rounded-full bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 animate-bounce"></div>
-                                            <div className="absolute w-3 h-3 bg-purple-500 rounded-full top-1/2 left-0 transform -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
-                                        </div>
-                                    </div>
-                                    
-                                    {/* Middle rotating ring */}
-                                    <div className="absolute w-24 h-24 border-t-3 border-r-3 border-indigo-500 rounded-full animate-spin"></div>
-                                    
-                                    {/* Inner counter-rotating ring */}
-                                    <div className="absolute w-20 h-20 border-t-2 border-l-2 border-emerald-400 rounded-full animate-spin-reverse"></div>
-                                    
-                                    {/* Center icon with breathing effect */}
-                                    <div className="w-16 h-16 bg-gradient-to-tr from-indigo-600 via-blue-600 to-emerald-600 rounded-full shadow-2xl flex items-center justify-center animate-breathing">
-                                        <BookOutlined className="text-white text-xl animate-bounce-gentle" />
-                                    </div>
-                                </div>
-                            </div>
+                        <div className="absolute -top-2 -right-8 w-4 h-4 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full animate-ping"></div>
+                        <div className="absolute -bottom-2 -left-8 w-3 h-3 bg-gradient-to-r from-orange-400 to-red-500 rounded-full animate-pulse delay-300"></div>
+                    </div>
 
-                            {/* Enhanced Loading Text with Animation */}
-                            <div className="text-center mb-8">
-                                <h3 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-blue-600 to-emerald-600 bg-clip-text text-transparent mb-3 animate-text-shimmer">
-                                    Đang khởi tạo hệ thống kê khai
-                                </h3>
-                                <div className="flex items-center justify-center space-x-2 mb-4">
-                                    <div className="w-3 h-3 bg-indigo-500 rounded-full animate-bounce-1"></div>
-                                    <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce-2"></div>
-                                    <div className="w-3 h-3 bg-emerald-500 rounded-full animate-bounce-3"></div>
-                                </div>
-                                <p className="text-gray-600 text-sm leading-relaxed max-w-sm mx-auto animate-fade-in-up">
-                                    Đang tải dữ liệu năm học, hoạt động và các thông tin cần thiết
-                                </p>
-                            </div>
+                    <div className="space-y-4">
+                        <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-800 via-slate-700 to-gray-800 bg-clip-text text-transparent">
+                            Đang khởi tạo hệ thống
+                        </h2>
+                        <p className="text-lg text-gray-600 max-w-md mx-auto">
+                            Vui lòng chờ trong giây lát, chúng tôi đang tải dữ
+                            liệu cho bạn...
+                        </p>
+                    </div>
 
-                            {/* Enhanced Progress Steps */}
-                            <div className="w-full space-y-4 mb-6">
-                                <div className="flex items-center space-x-3 animate-slide-in-left">
-                                    <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center animate-check-mark">
-                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </div>
-                                    <span className="text-sm text-gray-700 font-medium">Tải danh sách năm học</span>
-                                </div>
-                                
-                                <div className="flex items-center space-x-3 animate-slide-in-left animation-delay-300">
-                                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center animate-spin-pulse">
-                                        <BookOutlined className="text-white text-xs" />
-                                    </div>
-                                    <span className="text-sm text-gray-700 font-medium">Tải cấu hình kê khai</span>
-                                </div>
-                                
-                                <div className="flex items-center space-x-3 animate-slide-in-left animation-delay-600">
-                                    <div className="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center animate-spin-pulse">
-                                        <CalendarOutlined className="text-white text-xs" />
-                                    </div>
-                                    <span className="text-sm text-gray-700 font-medium">Khởi tạo dữ liệu chi tiết</span>
-                                </div>
-                            </div>
+                    <div className="flex justify-center space-x-2">
+                        <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
+                        <div className="w-3 h-3 bg-indigo-500 rounded-full animate-bounce delay-100"></div>
+                        <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce delay-200"></div>
+                        <div className="w-3 h-3 bg-pink-500 rounded-full animate-bounce delay-300"></div>
+                    </div>
 
-                            {/* Enhanced Progress Bar */}
-                            <div className="w-full">
-                                <div className="h-3 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 rounded-full overflow-hidden shadow-inner">
-                                    <div className="h-full bg-gradient-to-r from-indigo-600 via-blue-500 via-emerald-500 to-green-500 rounded-full animate-loading-wave transform origin-left"></div>
-                                </div>
-                                <div className="flex justify-between mt-3 text-xs text-gray-500">
-                                    <span className="animate-pulse">0%</span>
-                                    <span className="font-medium text-indigo-600 animate-pulse">Đang tải...</span>
-                                    <span className="animate-pulse">100%</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div className="w-64 h-2 bg-gray-200 rounded-full overflow-hidden mx-auto">
+                        <div className="h-full bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600 rounded-full animate-pulse"></div>
                     </div>
                 </div>
-
-                {/* Enhanced Loading Animation Styles */}
-                <style>{`
-                    @keyframes float {
-                        0%, 100% { transform: translateY(0px) rotate(0deg); }
-                        50% { transform: translateY(-30px) rotate(180deg); }
-                    }
-                    @keyframes float-delayed {
-                        0%, 100% { transform: translateY(0px) rotate(0deg); }
-                        50% { transform: translateY(-25px) rotate(-180deg); }
-                    }
-                    @keyframes spin-slow {
-                        from { transform: rotate(0deg); }
-                        to { transform: rotate(360deg); }
-                    }
-                    @keyframes bounce-slow {
-                        0%, 100% { transform: translateY(0); }
-                        50% { transform: translateY(-15px); }
-                    }
-                    @keyframes spin-reverse {
-                        from { transform: rotate(360deg); }
-                        to { transform: rotate(0deg); }
-                    }
-                    @keyframes breathing {
-                        0%, 100% { transform: scale(1); }
-                        50% { transform: scale(1.1); }
-                    }
-                    @keyframes bounce-gentle {
-                        0%, 100% { transform: translateY(0); }
-                        50% { transform: translateY(-6px); }
-                    }
-                    @keyframes text-shimmer {
-                        0% { background-position: -200% center; }
-                        100% { background-position: 200% center; }
-                    }
-                    @keyframes bounce-1 {
-                        0%, 100% { transform: translateY(0); }
-                        50% { transform: translateY(-12px); }
-                    }
-                    @keyframes bounce-2 {
-                        0%, 100% { transform: translateY(0); }
-                        50% { transform: translateY(-12px); }
-                    }
-                    @keyframes bounce-3 {
-                        0%, 100% { transform: translateY(0); }
-                        50% { transform: translateY(-12px); }
-                    }
-                    @keyframes fade-in-up {
-                        from { opacity: 0; transform: translateY(30px); }
-                        to { opacity: 1; transform: translateY(0); }
-                    }
-                    @keyframes slide-in-left {
-                        from { opacity: 0; transform: translateX(-50px); }
-                        to { opacity: 1; transform: translateX(0); }
-                    }
-                    @keyframes check-mark {
-                        0% { transform: scale(0); }
-                        50% { transform: scale(1.3); }
-                        100% { transform: scale(1); }
-                    }
-                    @keyframes spin-pulse {
-                        0%, 100% { transform: rotate(0deg) scale(1); }
-                        50% { transform: rotate(180deg) scale(1.2); }
-                    }
-                    @keyframes loading-wave {
-                        0% { transform: translateX(-100%) scaleX(0); }
-                        50% { transform: translateX(0%) scaleX(1); }
-                        100% { transform: translateX(100%) scaleX(0); }
-                    }
-                    .animate-float { animation: float 12s ease-in-out infinite; }
-                    .animate-float-delayed { animation: float-delayed 14s ease-in-out infinite; animation-delay: 1.5s; }
-                    .animate-spin-slow { animation: spin-slow 6s linear infinite; }
-                    .animate-bounce-slow { animation: bounce-slow 5s ease-in-out infinite; }
-                    .animate-spin-reverse { animation: spin-reverse 4s linear infinite; }
-                    .animate-breathing { animation: breathing 3s ease-in-out infinite; }
-                    .animate-bounce-gentle { animation: bounce-gentle 2s ease-in-out infinite; }
-                    .animate-text-shimmer { background-size: 200% auto; animation: text-shimmer 3s linear infinite; }
-                    .animate-bounce-1 { animation: bounce-1 1.8s ease-in-out infinite; }
-                    .animate-bounce-2 { animation: bounce-2 1.8s ease-in-out infinite; animation-delay: 0.15s; }
-                    .animate-bounce-3 { animation: bounce-3 1.8s ease-in-out infinite; animation-delay: 0.3s; }
-                    .animate-fade-in-up { animation: fade-in-up 1.5s ease-out; }
-                    .animate-slide-in-left { animation: slide-in-left 1.2s ease-out; }
-                    .animate-check-mark { animation: check-mark 1.3s ease-out; }
-                    .animate-spin-pulse { animation: spin-pulse 3s ease-in-out infinite; }
-                    .animate-loading-wave { animation: loading-wave 3.5s ease-in-out infinite; }
-                    .animation-delay-300 { animation-delay: 300ms; }
-                    .animation-delay-600 { animation-delay: 600ms; }
-                    .border-3 { border-width: 3px; }
-                    .shadow-inner { box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.1); }
-                `}</style>
             </div>
         );
     }
 
+    const renderKeKhaiTimeInfo = () => {
+        if (!keKhaiThoiGian) {
+            return (
+                <div className="rounded-xl border-2 border-gray-200 bg-gray-50 p-4 shadow-sm">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center space-x-2">
+                            <span className="text-lg">⏰</span>
+                            <Text strong className="text-sm text-gray-600">
+                                Thời gian Kê khai
+                            </Text>
+                        </div>
+                        <Tag color="default" className="border-0 font-medium">
+                            Chưa thiết lập
+                        </Tag>
+                    </div>
+
+                    <div className="text-center py-4">
+                        <Text type="secondary" className="text-sm">
+                            Chưa có thông tin thời gian kê khai cho năm học này
+                        </Text>
+                    </div>
+                </div>
+            );
+        }
+
+        const formatDateTime = (dateTimeString) => {
+            if (!dateTimeString) return "Chưa xác định";
+            try {
+                return new Date(dateTimeString).toLocaleString("vi-VN", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                });
+            } catch (error) {
+                return dateTimeString;
+            }
+        };
+
+        const isActive = () => {
+            if (
+                !keKhaiThoiGian.thoi_gian_bat_dau ||
+                !keKhaiThoiGian.thoi_gian_ket_thuc
+            )
+                return null;
+
+            const now = new Date();
+            const startTime = new Date(keKhaiThoiGian.thoi_gian_bat_dau);
+            const endTime = new Date(keKhaiThoiGian.thoi_gian_ket_thuc);
+
+            if (now < startTime) return "upcoming";
+            if (now > endTime) return "expired";
+            return "active";
+        };
+
+        const status = isActive();
+        const getStatusConfig = () => {
+            switch (status) {
+                case "active":
+                    return {
+                        color: "green",
+                        bgColor: "bg-green-50",
+                        textColor: "text-green-700",
+                        borderColor: "border-green-200",
+                        icon: "🟢",
+                        text: "Đang mở",
+                    };
+                case "upcoming":
+                    return {
+                        color: "blue",
+                        bgColor: "bg-blue-50",
+                        textColor: "text-blue-700",
+                        borderColor: "border-blue-200",
+                        icon: "🔵",
+                        text: "Sắp mở",
+                    };
+                case "expired":
+                    return {
+                        color: "red",
+                        bgColor: "bg-red-50",
+                        textColor: "text-red-700",
+                        borderColor: "border-red-200",
+                        icon: "🔴",
+                        text: "Đã đóng",
+                    };
+                default:
+                    return {
+                        color: "gray",
+                        bgColor: "bg-gray-50",
+                        textColor: "text-gray-700",
+                        borderColor: "border-gray-200",
+                        icon: "⚪",
+                        text: "Chưa xác định",
+                    };
+            }
+        };
+
+        const statusConfig = getStatusConfig();
+
+        return (
+            <div
+                className={`rounded-xl border-2 ${statusConfig.borderColor} ${statusConfig.bgColor} p-4 shadow-sm mt-4`}
+            >
+                <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                        <span className="text-lg">{statusConfig.icon}</span>
+                        <Text
+                            strong
+                            className={`text-sm ${statusConfig.textColor}`}
+                        >
+                            Thời gian Kê khai
+                        </Text>
+                    </div>
+                    <Tag
+                        color={statusConfig.color}
+                        className="border-0 font-medium"
+                    >
+                        {statusConfig.text}
+                    </Tag>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    <div className="space-y-1">
+                        <Text type="secondary" className="text-xs font-medium">
+                            Bắt đầu:
+                        </Text>
+                        <div
+                            className={`font-medium ${statusConfig.textColor}`}
+                        >
+                            {formatDateTime(keKhaiThoiGian.thoi_gian_bat_dau)}
+                        </div>
+                    </div>
+                    <div className="space-y-1">
+                        <Text type="secondary" className="text-xs font-medium">
+                            Kết thúc:
+                        </Text>
+                        <div
+                            className={`font-medium ${statusConfig.textColor}`}
+                        >
+                            {formatDateTime(keKhaiThoiGian.thoi_gian_ket_thuc)}
+                        </div>
+                    </div>
+                </div>
+
+                {keKhaiThoiGian.ghi_chu && (
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                        <Text type="secondary" className="text-xs font-medium">
+                            Ghi chú:
+                        </Text>
+                        <div
+                            className={`text-sm ${statusConfig.textColor} mt-1`}
+                        >
+                            {keKhaiThoiGian.ghi_chu}
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40 relative">
-            {/* Enhanced background decoration */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-blue-400/5 to-indigo-400/5 rounded-full blur-3xl"></div>
                 <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-purple-400/5 to-pink-400/5 rounded-full blur-3xl"></div>
             </div>
 
             <div className="relative z-10 p-8 space-y-6">
-                {/* Enhanced Header */}
-                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+                <Card
+                    className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl"
+                    style={{ borderRadius: "16px" }}
+                >
                     <div className="bg-gradient-to-r from-slate-50 via-blue-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-6">
@@ -799,13 +1007,18 @@ function KeKhaiGiangDayForm() {
                                     <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white shadow-md"></div>
                                 </div>
                                 <div className="space-y-2">
-                                    <Title level={2} style={{ margin: 0 }} className="text-3xl font-bold bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 bg-clip-text text-transparent">
-                                        Kê khai Giảng dạy và Nghiên cứu khoa học
+                                    <Title
+                                        level={2}
+                                        style={{ margin: 0 }}
+                                        className="text-3xl font-bold bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 bg-clip-text text-transparent"
+                                    >
+                                        Kê khai khối lượng công việc
                                     </Title>
                                     <div className="flex items-center space-x-2">
                                         <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
                                         <Text type="secondary">
-                                            Hệ thống kê khai tổng hợp khối lượng công việc theo năm học
+                                            Hệ thống kê khai tổng hợp khối lượng
+                                            công việc theo năm học
                                         </Text>
                                     </div>
                                 </div>
@@ -813,22 +1026,43 @@ function KeKhaiGiangDayForm() {
                         </div>
                     </div>
 
-                    <Row gutter={16} align="bottom" style={{ marginBottom: 24 }}>
+                    <Row
+                        gutter={16}
+                        align="bottom"
+                        style={{ marginBottom: 24 }}
+                    >
                         <Col xs={24} md={10}>
-                            <Form.Item label={<Text strong>Chọn Năm học để Kê khai</Text>} style={{marginBottom: 0}}>
+                            <Form.Item
+                                label={
+                                    <Text strong>Chọn Năm học để Kê khai</Text>
+                                }
+                                style={{ marginBottom: 0 }}
+                            >
                                 <Select
                                     value={selectedNamHocId}
-                                    onChange={(value) => setSelectedNamHocId(value)}
+                                    onChange={(value) =>
+                                        setSelectedNamHocId(value)
+                                    }
                                     placeholder="Vui lòng chọn năm học"
-                                    style={{ width: '100%' }}
+                                    style={{ width: "100%" }}
                                     size="large"
                                     loading={isLoadingInitial || isLoadingData}
                                     className="custom-select"
                                 >
-                                    {namHocList.map(nh => (
-                                        <Option key={nh.id} value={nh.id.toString()}>
+                                    {namHocList.map((nh) => (
+                                        <Option
+                                            key={nh.id}
+                                            value={nh.id.toString()}
+                                        >
                                             {nh.ten_nam_hoc}
-                                            {nh.la_nam_hien_hanh ? <Tag color="green" style={{marginLeft: 5}}>Hiện hành</Tag> : null}
+                                            {nh.la_nam_hien_hanh ? (
+                                                <Tag
+                                                    color="green"
+                                                    style={{ marginLeft: 5 }}
+                                                >
+                                                    Hiện hành
+                                                </Tag>
+                                            ) : null}
                                         </Option>
                                     ))}
                                 </Select>
@@ -839,7 +1073,11 @@ function KeKhaiGiangDayForm() {
                                 <Button
                                     type="default"
                                     onClick={handleSelectNamHocAndFetch}
-                                    disabled={!selectedNamHocId || isLoadingData || isLoadingInitial}
+                                    disabled={
+                                        !selectedNamHocId ||
+                                        isLoadingData ||
+                                        isLoadingInitial
+                                    }
                                     loading={isLoadingData}
                                     size="large"
                                     icon={<CalendarOutlined />}
@@ -848,7 +1086,7 @@ function KeKhaiGiangDayForm() {
                                     Làm mới dữ liệu
                                 </Button>
                                 {currentKeKhaiTongHop && (
-                                     <Button
+                                    <Button
                                         onClick={handleCancelCurrentDeclare}
                                         size="large"
                                         danger
@@ -862,23 +1100,32 @@ function KeKhaiGiangDayForm() {
                             </Space>
                         </Col>
                     </Row>
+
+                    {selectedNamHocId && (
+                        <div style={{ marginTop: "16px" }}>
+                            {renderKeKhaiTimeInfo()}
+                        </div>
+                    )}
                 </Card>
 
                 {error && !isLoadingData && (
-                     <Alert 
-                        message="Thông báo lỗi" 
-                        description={error} 
-                        type="error" 
-                        showIcon 
-                        closable 
-                        onClose={() => setError(null)} 
-                        style={{marginBottom: 16}}
+                    <Alert
+                        message="Thông báo lỗi"
+                        description={error}
+                        type="error"
+                        showIcon
+                        closable
+                        onClose={() => setError(null)}
+                        style={{ marginBottom: 16 }}
                         className="custom-alert"
                     />
                 )}
 
                 {isLoadingData && (
-                     <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+                    <Card
+                        className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl"
+                        style={{ borderRadius: "16px" }}
+                    >
                         <div className="flex justify-center items-center h-64">
                             <div className="text-center">
                                 <div className="relative mb-6">
@@ -890,11 +1137,26 @@ function KeKhaiGiangDayForm() {
                                         </div>
                                     </div>
                                 </div>
-                                <Text className="text-lg font-medium text-gray-700">Đang tải dữ liệu kê khai...</Text>
+                                <Text className="text-lg font-medium text-gray-700">
+                                    Đang tải dữ liệu kê khai...
+                                </Text>
                                 <div className="flex items-center justify-center space-x-1 mt-3">
-                                    <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
-                                    <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                                    <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                                    <div
+                                        className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
+                                        style={{ animationDelay: "0s" }}
+                                    ></div>
+                                    <div
+                                        className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
+                                        style={{ animationDelay: "0.1s" }}
+                                    ></div>
+                                    <div
+                                        className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
+                                        style={{ animationDelay: "0.2s" }}
+                                    ></div>
+                                    <div
+                                        className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
+                                        style={{ animationDelay: "0.3s" }}
+                                    ></div>
                                 </div>
                             </div>
                         </div>
@@ -902,279 +1164,442 @@ function KeKhaiGiangDayForm() {
                 )}
 
                 {currentKeKhaiTongHop && !isLoadingData && !error && (
-                    <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
-                        <Form form={form} layout="vertical" onFinish={handleSaveAll} className="enhanced-form">
-                            <Tabs defaultActiveKey="tab_giang_day_dai_hoc" type="line" size="large" className="custom-tabs">
-                                <TabPane tab={<span className="tab-label"><BookOutlined />Giảng dạy Đại học</span>} key="tab_giang_day_dai_hoc">
+                    <Card
+                        className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl"
+                        style={{ borderRadius: "16px" }}
+                    >
+                        <Form
+                            form={form}
+                            layout="vertical"
+                            onFinish={handleSaveAll}
+                            className="enhanced-form"
+                        >
+                            <Tabs
+                                defaultActiveKey="tab_giang_day_dai_hoc"
+                                type="line"
+                                size="large"
+                                className="custom-tabs"
+                            >
+                                <TabPane
+                                    tab={
+                                        <span className="tab-label">
+                                            <BookOutlined />
+                                            Giảng dạy Đại học
+                                        </span>
+                                    }
+                                    key="tab_giang_day_dai_hoc"
+                                >
                                     <div className="p-6">
-                                        <Tabs defaultActiveKey="gd_dh_trongbm" type="card" size="small" className="custom-tabs-inner">
-                                            <TabPane tab="Trong Bộ môn" key="gd_dh_trongbm">
+                                        <Tabs
+                                            defaultActiveKey="gd_dh_trongbm"
+                                            type="card"
+                                            size="small"
+                                            className="custom-tabs-inner"
+                                        >
+                                            <TabPane
+                                                tab="Trong Bộ môn"
+                                                key="gd_dh_trongbm"
+                                            >
                                                 <div className="p-4">
-                            <FormGdLop 
-                                type="gd_lop_dh_trongbm" 
-                                dataSource={gdLopDhTrongBmList} 
-                                setDataSource={setGdLopDhTrongBmList} 
-                                formatDisplayValue={formatDisplayValue} 
-                                EmptyValueDisplay={EmptyValueDisplay}
-                                renderTableCell={renderTableCell}
-                                renderNotes={renderNotes}
-                                renderFileAttachment={renderFileAttachment}
-                            />
+                                                    <FormGdLop
+                                                        type="gd_lop_dh_trongbm"
+                                                        dataSource={
+                                                            gdLopDhTrongBmList
+                                                        }
+                                                        setDataSource={
+                                                            setGdLopDhTrongBmList
+                                                        }
+                                                        formatDisplayValue={
+                                                            formatDisplayValue
+                                                        }
+                                                        EmptyValueDisplay={
+                                                            EmptyValueDisplay
+                                                        }
+                                                        renderTableCell={
+                                                            renderTableCell
+                                                        }
+                                                        renderNotes={
+                                                            renderNotes
+                                                        }
+                                                        renderFileAttachment={
+                                                            renderFileAttachment
+                                                        }
+                                                    />
                                                 </div>
-                                            </TabPane>                                            <TabPane tab="Ngoài Bộ môn" key="gd_dh_ngoaibm">
+                                            </TabPane>{" "}
+                                            <TabPane
+                                                tab="Ngoài Bộ môn"
+                                                key="gd_dh_ngoaibm"
+                                            >
                                                 <div className="p-4">
-                                                    <FormGdLop 
-                                                        type="gd_lop_dh_ngoaibm" 
-                                                        dataSource={gdLopDhNgoaiBmList} 
-                                                        setDataSource={setGdLopDhNgoaiBmList} 
-                                                        formatDisplayValue={formatDisplayValue} 
-                                                        EmptyValueDisplay={EmptyValueDisplay}
-                                                        renderTableCell={renderTableCell}
-                                                        renderNotes={renderNotes}
-                                                        renderFileAttachment={renderFileAttachment}
+                                                    <FormGdLop
+                                                        type="gd_lop_dh_ngoaibm"
+                                                        dataSource={
+                                                            gdLopDhNgoaiBmList
+                                                        }
+                                                        setDataSource={
+                                                            setGdLopDhNgoaiBmList
+                                                        }
+                                                        formatDisplayValue={
+                                                            formatDisplayValue
+                                                        }
+                                                        EmptyValueDisplay={
+                                                            EmptyValueDisplay
+                                                        }
+                                                        renderTableCell={
+                                                            renderTableCell
+                                                        }
+                                                        renderNotes={
+                                                            renderNotes
+                                                        }
+                                                        renderFileAttachment={
+                                                            renderFileAttachment
+                                                        }
                                                     />
                                                 </div>
                                             </TabPane>
-                                            <TabPane tab="Ngoài Cơ sở chính" key="gd_dh_ngoàics">
+                                            <TabPane
+                                                tab="Ngoài Cơ sở chính"
+                                                key="gd_dh_ngoàics"
+                                            >
                                                 <div className="p-4">
-                                                    <FormGdLop 
-                                                        type="gd_lop_dh_ngoaics" 
-                                                        dataSource={gdLopDhNgoaiCsList} 
-                                                        setDataSource={setGdLopDhNgoaiCsList} 
-                                                        formatDisplayValue={formatDisplayValue} 
-                                                        EmptyValueDisplay={EmptyValueDisplay}
-                                                        renderTableCell={renderTableCell}
-                                                        renderNotes={renderNotes}
-                                                        renderFileAttachment={renderFileAttachment}
+                                                    <FormGdLop
+                                                        type="gd_lop_dh_ngoaics"
+                                                        dataSource={
+                                                            gdLopDhNgoaiCsList
+                                                        }
+                                                        setDataSource={
+                                                            setGdLopDhNgoaiCsList
+                                                        }
+                                                        formatDisplayValue={
+                                                            formatDisplayValue
+                                                        }
+                                                        EmptyValueDisplay={
+                                                            EmptyValueDisplay
+                                                        }
+                                                        renderTableCell={
+                                                            renderTableCell
+                                                        }
+                                                        renderNotes={
+                                                            renderNotes
+                                                        }
+                                                        renderFileAttachment={
+                                                            renderFileAttachment
+                                                        }
                                                     />
                                                 </div>
                                             </TabPane>
                                         </Tabs>
                                     </div>
-                                </TabPane>                                <TabPane tab={<span className="tab-label"><BookOutlined />Giảng dạy Thạc sĩ</span>} key="tab_giang_day_ths">
+                                </TabPane>{" "}
+                                <TabPane
+                                    tab={
+                                        <span className="tab-label">
+                                            <BookOutlined />
+                                            Giảng dạy Thạc sĩ
+                                        </span>
+                                    }
+                                    key="tab_giang_day_ths"
+                                >
                                     <div className="p-6">
-                                        <FormGdLop 
-                                            type="gd_lop_ths" 
-                                            dataSource={gdLopThsList} 
-                                            setDataSource={setGdLopThsList} 
-                                            formatDisplayValue={formatDisplayValue} 
-                                            EmptyValueDisplay={EmptyValueDisplay}
+                                        <FormGdLop
+                                            type="gd_lop_ths"
+                                            dataSource={gdLopThsList}
+                                            setDataSource={setGdLopThsList}
+                                            formatDisplayValue={ formatDisplayValue }
+                                            EmptyValueDisplay={ EmptyValueDisplay }
                                             renderTableCell={renderTableCell}
                                             renderNotes={renderNotes}
-                                            renderFileAttachment={renderFileAttachment}
+                                            renderFileAttachment={ renderFileAttachment }
                                         />
                                     </div>
                                 </TabPane>
-
-                                <TabPane tab={<span className="tab-label"><BookOutlined />Giảng dạy Tiến sĩ</span>} key="tab_giang_day_ts">
+                                <TabPane
+                                    tab={
+                                        <span className="tab-label">
+                                            <BookOutlined />
+                                            Giảng dạy Tiến sĩ
+                                        </span>
+                                    }
+                                    key="tab_giang_day_ts"
+                                >
                                     <div className="p-6">
-                                        <FormGdLop 
-                                            type="gd_lop_ts" 
-                                            dataSource={gdLopTsList} 
-                                            setDataSource={setGdLopTsList} 
-                                            formatDisplayValue={formatDisplayValue} 
-                                            EmptyValueDisplay={EmptyValueDisplay}
+                                        <FormGdLop
+                                            type="gd_lop_ts"
+                                            dataSource={gdLopTsList}
+                                            setDataSource={setGdLopTsList}
+                                            formatDisplayValue={ formatDisplayValue }
+                                            EmptyValueDisplay={ EmptyValueDisplay }
                                             renderTableCell={renderTableCell}
                                             renderNotes={renderNotes}
-                                            renderFileAttachment={renderFileAttachment}
+                                            renderFileAttachment={ renderFileAttachment }
                                         />
                                     </div>
                                 </TabPane>
-
-                                <TabPane tab={<span className="tab-label"><UserSwitchOutlined />Hướng dẫn</span>} key="tab_huong_dan">
+                                <TabPane
+                                    tab={
+                                        <span className="tab-label">
+                                            <UserSwitchOutlined />
+                                            Hướng dẫn
+                                        </span>
+                                    }
+                                    key="tab_huong_dan"
+                                >
                                     <div className="p-6">
-                                        <Tabs defaultActiveKey="hd_dh" type="card" size="small" className="custom-tabs-inner">                                            <TabPane tab="Đại học" key="hd_dh">
+                                        <Tabs
+                                            defaultActiveKey="hd_dh"
+                                            type="card"
+                                            size="small"
+                                            className="custom-tabs-inner"
+                                        >
+                                            {" "}
+                                            <TabPane tab="Đại học" key="hd_dh">
                                                 <div className="p-4">
-                                                    <FormHdDatnDaihoc 
-                                                        dataSource={hdDatnDhList} 
-                                                        setDataSource={setHdDatnDhList} 
-                                                        formatDisplayValue={formatDisplayValue} 
-                                                        EmptyValueDisplay={EmptyValueDisplay}
-                                                        renderTableCell={renderTableCell}
-                                                        renderNotes={renderNotes}
-                                                        renderFileAttachment={renderFileAttachment}
+                                                    <FormHdDatnDaihoc
+                                                        dataSource={ hdDatnDhList }
+                                                        setDataSource={ setHdDatnDhList }
+                                                        formatDisplayValue={ formatDisplayValue }
+                                                        EmptyValueDisplay={ EmptyValueDisplay }
+                                                        renderTableCell={ renderTableCell }
+                                                        renderNotes={  renderNotes }
+                                                        renderFileAttachment={ renderFileAttachment }
                                                     />
                                                 </div>
                                             </TabPane>
                                             <TabPane tab="Thạc sĩ" key="hd_ths">
                                                 <div className="p-4">
-                                                    <FormHdLvThacsi 
-                                                        dataSource={hdLvThsList} 
-                                                        setDataSource={setHdLvThsList} 
-                                                        formatDisplayValue={formatDisplayValue} 
-                                                        EmptyValueDisplay={EmptyValueDisplay}
-                                                        renderTableCell={renderTableCell}
-                                                        renderNotes={renderNotes}
-                                                        renderFileAttachment={renderFileAttachment}
+                                                    <FormHdLvThacsi
+                                                        dataSource={hdLvThsList}
+                                                        setDataSource={setHdLvThsList}
+                                                        formatDisplayValue={ formatDisplayValue }
+                                                        EmptyValueDisplay={ EmptyValueDisplay }
+                                                        renderTableCell={ renderTableCell }
+                                                        renderNotes={ renderNotes }
+                                                        renderFileAttachment={ renderFileAttachment }
                                                     />
                                                 </div>
                                             </TabPane>
                                             <TabPane tab="Tiến sĩ" key="hd_ts">
                                                 <div className="p-4">
-                                                    <FormHdLaTiensi 
-                                                        dataSource={hdLaTsList} 
-                                                        setDataSource={setHdLaTsList} 
-                                                        formatDisplayValue={formatDisplayValue} 
-                                                        EmptyValueDisplay={EmptyValueDisplay}
-                                                        renderTableCell={renderTableCell}
-                                                        renderNotes={renderNotes}
-                                                        renderFileAttachment={renderFileAttachment}
+                                                    <FormHdLaTiensi
+                                                        dataSource={hdLaTsList}
+                                                        setDataSource={ setHdLaTsList }
+                                                        formatDisplayValue={ formatDisplayValue }
+                                                        EmptyValueDisplay={ EmptyValueDisplay }
+                                                        renderTableCell={ renderTableCell }
+                                                        renderNotes={ renderNotes }
+                                                        renderFileAttachment={ renderFileAttachment }
                                                     />
                                                 </div>
                                             </TabPane>
                                         </Tabs>
                                     </div>
                                 </TabPane>
-
-                                <TabPane tab={<span className="tab-label"><AuditOutlined />Đánh giá & Hội đồng</span>} key="tab_danh_gia">
+                                <TabPane
+                                    tab={
+                                        <span className="tab-label">
+                                            <AuditOutlined /> Đánh giá & Hội đồng
+                                        </span>
+                                    }
+                                    key="tab_danh_gia"
+                                >
                                     <div className="p-6">
-                                        <Tabs defaultActiveKey="dg_dh" type="card" size="small" className="custom-tabs-inner">                                            <TabPane tab="Đại học" key="dg_dh">
+                                        <Tabs
+                                            defaultActiveKey="dg_dh"
+                                            type="card"
+                                            size="small"
+                                            className="custom-tabs-inner"
+                                        >
+                                            {" "}
+                                            <TabPane tab="Đại học" key="dg_dh">
                                                 <div className="p-4">
-                                                    <FormDgHpTnDaihoc 
-                                                        dataSource={dgHpTnDhList} 
-                                                        setDataSource={setDgHpTnDhList} 
-                                                        formatDisplayValue={formatDisplayValue} 
-                                                        EmptyValueDisplay={EmptyValueDisplay}
-                                                        renderTableCell={renderTableCell}
-                                                        renderNotes={renderNotes}
-                                                        renderFileAttachment={renderFileAttachment}
+                                                    <FormDgHpTnDaihoc
+                                                        dataSource={ dgHpTnDhList }
+                                                        setDataSource={ setDgHpTnDhList }
+                                                        formatDisplayValue={ formatDisplayValue }
+                                                        EmptyValueDisplay={ EmptyValueDisplay }
+                                                        renderTableCell={ renderTableCell }
+                                                        renderNotes={ renderNotes }
+                                                        renderFileAttachment={ renderFileAttachment }
                                                     />
                                                 </div>
                                             </TabPane>
                                             <TabPane tab="Thạc sĩ" key="dg_ths">
                                                 <div className="p-4">
-                                                    <FormDgLvThacsi 
-                                                        dataSource={dgLvThsList} 
-                                                        setDataSource={setDgLvThsList} 
-                                                        formatDisplayValue={formatDisplayValue} 
-                                                        EmptyValueDisplay={EmptyValueDisplay}
-                                                        renderTableCell={renderTableCell}
-                                                        renderNotes={renderNotes}
-                                                        renderFileAttachment={renderFileAttachment}
+                                                    <FormDgLvThacsi
+                                                        dataSource={dgLvThsList}
+                                                        setDataSource={ setDgLvThsList }
+                                                        formatDisplayValue={ formatDisplayValue }
+                                                        EmptyValueDisplay={ EmptyValueDisplay }
+                                                        renderTableCell={ renderTableCell }
+                                                        renderNotes={ renderNotes }
+                                                        renderFileAttachment={ renderFileAttachment }
                                                     />
                                                 </div>
                                             </TabPane>
                                             <TabPane tab="Tiến sĩ" key="dg_ts">
                                                 <div className="p-4">
-                                                    <FormDgLaTiensi 
-                                                        dataSource={dgLaTsDotList} 
-                                                        setDataSource={setDgLaTsDotList} 
-                                                        formatDisplayValue={formatDisplayValue} 
-                                                        EmptyValueDisplay={EmptyValueDisplay}
-                                                        renderTableCell={renderTableCell}
-                                                        renderNotes={renderNotes}
-                                                        renderFileAttachment={renderFileAttachment}
+                                                    <FormDgLaTiensi
+                                                        dataSource={ dgLaTsDotList }
+                                                        setDataSource={ setDgLaTsDotList }
+                                                        formatDisplayValue={ formatDisplayValue }
+                                                        EmptyValueDisplay={ EmptyValueDisplay }
+                                                        renderTableCell={ renderTableCell }
+                                                        renderNotes={ renderNotes }
+                                                        renderFileAttachment={ renderFileAttachment }
                                                     />
                                                 </div>
                                             </TabPane>
                                         </Tabs>
                                     </div>
                                 </TabPane>
-
-                                <TabPane tab={<span className="tab-label"><CarryOutOutlined />Coi thi, Chấm thi</span>} key="tab_khao_thi">
+                                <TabPane
+                                    tab={
+                                        <span className="tab-label">
+                                            <CarryOutOutlined /> Coi thi, Chấm thi
+                                        </span>
+                                    }
+                                    key="tab_khao_thi"
+                                >
                                     <div className="p-6">
-                                        <Tabs defaultActiveKey="kt_dh_trongbm" type="card" size="small" className="custom-tabs-inner">                                            <TabPane tab="ĐH - Trong BM" key="kt_dh_trongbm">
+                                        <Tabs
+                                            defaultActiveKey="kt_dh_trongbm"
+                                            type="card"
+                                            size="small"
+                                            className="custom-tabs-inner"
+                                        >
+                                            {" "}
+                                            <TabPane
+                                                tab="ĐH - Trong BM"
+                                                key="kt_dh_trongbm"
+                                            >
                                                 <div className="p-4">
-                                                    <FormKhaoThi 
-                                                        type="khaothi_dh_trongbm" 
-                                                        dataSource={khaoThiDhTrongBmList} 
-                                                        setDataSource={setKhaoThiDhTrongBmList} 
-                                                        formatDisplayValue={formatDisplayValue} 
-                                                        EmptyValueDisplay={EmptyValueDisplay}
-                                                        renderTableCell={renderTableCell}
-                                                        renderNotes={renderNotes}
-                                                        renderFileAttachment={renderFileAttachment}
+                                                    <FormKhaoThi
+                                                        type="khaothi_dh_trongbm"
+                                                        dataSource={ khaoThiDhTrongBmList }
+                                                        setDataSource={ setKhaoThiDhTrongBmList }
+                                                        formatDisplayValue={ formatDisplayValue }
+                                                        EmptyValueDisplay={ EmptyValueDisplay }
+                                                        renderTableCell={ renderTableCell }
+                                                        renderNotes={ renderNotes }
+                                                        renderFileAttachment={ renderFileAttachment }
                                                     />
                                                 </div>
                                             </TabPane>
-                                            <TabPane tab="ĐH - Ngoài BM" key="kt_dh_ngoaibm">
+                                            <TabPane
+                                                tab="ĐH - Ngoài BM"
+                                                key="kt_dh_ngoaibm"
+                                            >
                                                 <div className="p-4">
-                                                    <FormKhaoThi 
-                                                        type="khaothi_dh_ngoaibm" 
-                                                        dataSource={khaoThiDhNgoaiBmList} 
-                                                        setDataSource={setKhaoThiDhNgoaiBmList} 
-                                                        formatDisplayValue={formatDisplayValue} 
-                                                        EmptyValueDisplay={EmptyValueDisplay}
-                                                        renderTableCell={renderTableCell}
-                                                        renderNotes={renderNotes}
-                                                        renderFileAttachment={renderFileAttachment}
+                                                    <FormKhaoThi
+                                                        type="khaothi_dh_ngoaibm"
+                                                        dataSource={ khaoThiDhNgoaiBmList }
+                                                        setDataSource={ setKhaoThiDhNgoaiBmList }
+                                                        formatDisplayValue={ formatDisplayValue }
+                                                        EmptyValueDisplay={ EmptyValueDisplay }
+                                                        renderTableCell={ renderTableCell }
+                                                        renderNotes={ renderNotes }
+                                                        renderFileAttachment={ renderFileAttachment }
                                                     />
                                                 </div>
                                             </TabPane>
                                             <TabPane tab="Thạc sĩ" key="kt_ths">
                                                 <div className="p-4">
-                                                    <FormKhaoThi 
-                                                        type="khaothi_ths" 
-                                                        dataSource={khaoThiThsList} 
-                                                        setDataSource={setKhaoThiThsList} 
-                                                        formatDisplayValue={formatDisplayValue} 
-                                                        EmptyValueDisplay={EmptyValueDisplay}
-                                                        renderTableCell={renderTableCell}
-                                                        renderNotes={renderNotes}
-                                                        renderFileAttachment={renderFileAttachment}
+                                                    <FormKhaoThi type="khaothi_ths" dataSource={ khaoThiThsList }
+                                                        setDataSource={ setKhaoThiThsList }
+                                                        formatDisplayValue={ formatDisplayValue }
+                                                        EmptyValueDisplay={ EmptyValueDisplay }
+                                                        renderTableCell={ renderTableCell }
+                                                        renderNotes={ renderNotes }
+                                                        renderFileAttachment={ renderFileAttachment }
                                                     />
                                                 </div>
                                             </TabPane>
                                             <TabPane tab="Tiến sĩ" key="kt_ts">
                                                 <div className="p-4">
-                                                    <FormKhaoThi 
-                                                        type="khaothi_ts" 
-                                                        dataSource={khaoThiTsList} 
-                                                        setDataSource={setKhaoThiTsList} 
-                                                        formatDisplayValue={formatDisplayValue} 
-                                                        EmptyValueDisplay={EmptyValueDisplay}
-                                                        renderTableCell={renderTableCell}
-                                                        renderNotes={renderNotes}
-                                                        renderFileAttachment={renderFileAttachment}
+                                                    <FormKhaoThi
+                                                        type="khaothi_ts"
+                                                        dataSource={  khaoThiTsList }
+                                                        setDataSource={ setKhaoThiTsList }
+                                                        formatDisplayValue={ formatDisplayValue }
+                                                        EmptyValueDisplay={ EmptyValueDisplay }
+                                                        renderTableCell={ renderTableCell }
+                                                        renderNotes={ renderNotes }
+                                                        renderFileAttachment={ renderFileAttachment }
                                                     />
                                                 </div>
                                             </TabPane>
                                         </Tabs>
                                     </div>
-                                </TabPane>                                <TabPane tab={<span className="tab-label"><BuildOutlined />XD CTĐT & HĐ GD khác</span>} key="tab_xd_ctdt_khac">
+                                </TabPane>{" "}
+                                <TabPane
+                                    tab={
+                                        <span className="tab-label">
+                                            <BuildOutlined /> XD CTĐT & HĐ GD khác
+                                        </span>
+                                    }
+                                    key="tab_xd_ctdt_khac"
+                                >
                                     <div className="p-6">
-                                        <FormXdCtdtVaKhacGd 
-                                            dataSource={xdCtdtVaKhacGdList} 
-                                            setDataSource={setXdCtdtVaKhacGdList} 
-                                            formatDisplayValue={formatDisplayValue} 
-                                            EmptyValueDisplay={EmptyValueDisplay}
+                                        <FormXdCtdtVaKhacGd
+                                            dataSource={xdCtdtVaKhacGdList}
+                                            setDataSource={ setXdCtdtVaKhacGdList }
+                                            formatDisplayValue={ EmptyValueDisplay }
                                             renderTableCell={renderTableCell}
                                             renderNotes={renderNotes}
-                                            renderFileAttachment={renderFileAttachment}
+                                            renderFileAttachment={ renderFileAttachment }
                                         />
                                     </div>
                                 </TabPane>
-
-                                <TabPane tab={<span className="tab-label"><ExperimentOutlined />Nghiên cứu Khoa học</span>} key="tab_nckh">
+                                <TabPane
+                                    tab={
+                                        <span className="tab-label">
+                                            <ExperimentOutlined /> Nghiên cứu Khoa học
+                                        </span>
+                                    }
+                                    key="tab_nckh"
+                                >
                                     <div className="p-6">
-                                        <FormNckh 
-                                            dataSource={nckhList} 
-                                            setDataSource={setNckhList} 
-                                            keKhaiTongHopId={currentKeKhaiTongHop?.id} 
-                                            formatDisplayValue={formatDisplayValue} 
-                                            EmptyValueDisplay={EmptyValueDisplay}
+                                        <FormNckh
+                                            dataSource={nckhList}
+                                            setDataSource={setNckhList}
+                                            keKhaiTongHopId={ currentKeKhaiTongHop?.id }
+                                            formatDisplayValue={ formatDisplayValue }
+                                            EmptyValueDisplay={ EmptyValueDisplay }
                                             renderTableCell={renderTableCell}
                                             renderNotes={renderNotes}
-                                            renderFileAttachment={renderFileAttachment}
+                                            renderFileAttachment={ renderFileAttachment }
                                         />
                                     </div>
                                 </TabPane>
-
-                                <TabPane tab={<span className="tab-label"><TeamOutlined />Công tác khác</span>} key="tab_cong_tac_khac">
+                                <TabPane
+                                    tab={
+                                        <span className="tab-label">
+                                            <TeamOutlined /> Công tác khác
+                                        </span>
+                                    }
+                                    key="tab_cong_tac_khac"
+                                >
                                     <div className="p-6">
-                                        <FormCongTacKhac 
-                                            dataSource={congTacKhacList} 
-                                            setDataSource={setCongTacKhacList} 
-                                            formatDisplayValue={formatDisplayValue} 
-                                            EmptyValueDisplay={EmptyValueDisplay}
+                                        <FormCongTacKhac
+                                            dataSource={congTacKhacList}
+                                            setDataSource={setCongTacKhacList}
+                                            formatDisplayValue={ formatDisplayValue }
+                                            EmptyValueDisplay={ EmptyValueDisplay }
                                             renderTableCell={renderTableCell}
                                             renderNotes={renderNotes}
-                                            renderFileAttachment={renderFileAttachment}
+                                            renderFileAttachment={ renderFileAttachment }
                                         />
                                     </div>
                                 </TabPane>
-                            </Tabs>                            <Divider />
-                            <Form.Item style={{ marginTop: '20px', textAlign: 'right' }}>
+                            </Tabs>{" "}
+                            <Divider />
+                            <Form.Item
+                                style={{
+                                    marginTop: "20px",
+                                    textAlign: "right",
+                                }}
+                            >
                                 <Space>
                                     <Button
                                         type="default"
@@ -1182,7 +1607,9 @@ function KeKhaiGiangDayForm() {
                                         icon={<SaveOutlined />}
                                         loading={isSubmitting}
                                         size="large"
-                                        disabled={isSubmittingOfficial || !currentKeKhaiTongHop || currentKeKhaiTongHop.trang_thai_phe_duyet === 1 || currentKeKhaiTongHop.trang_thai_phe_duyet === 3}
+                                        disabled={
+                                            isSubmittingOfficial || !currentKeKhaiTongHop || currentKeKhaiTongHop.trang_thai_phe_duyet === 1 || currentKeKhaiTongHop.trang_thai_phe_duyet === 3
+                                        }
                                         className="text-white px-8 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 border-0 rounded-xl shadow-lg hover:shadow-xl"
                                     >
                                         Lưu Bản Nháp
@@ -1193,7 +1620,14 @@ function KeKhaiGiangDayForm() {
                                         icon={<SolutionOutlined />}
                                         loading={isSubmittingOfficial}
                                         size="large"
-                                        disabled={isSubmitting || !currentKeKhaiTongHop || currentKeKhaiTongHop.trang_thai_phe_duyet === 1 || currentKeKhaiTongHop.trang_thai_phe_duyet === 3}
+                                        disabled={
+                                            isSubmitting ||
+                                            !currentKeKhaiTongHop ||
+                                            currentKeKhaiTongHop.trang_thai_phe_duyet ===
+                                            1 ||
+                                            currentKeKhaiTongHop.trang_thai_phe_duyet ===
+                                            3
+                                        }
                                         className="px-8 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 border-0 rounded-xl shadow-lg hover:shadow-xl"
                                     >
                                         Nộp Kê Khai Chính Thức
@@ -1204,46 +1638,63 @@ function KeKhaiGiangDayForm() {
                     </Card>
                 )}
 
-                {!currentKeKhaiTongHop && !isLoadingData && !error && selectedNamHocId && (
-                    <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
-                        <div className="text-center py-12">
-                            <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <CalendarOutlined className="text-3xl text-gray-400" />
+                {!currentKeKhaiTongHop &&
+                    !isLoadingData &&
+                    !error &&
+                    selectedNamHocId && (
+                        <Card
+                            className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl"
+                            style={{ borderRadius: "16px" }}
+                        >
+                            <div className="text-center py-12">
+                                <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <CalendarOutlined className="text-3xl text-gray-400" />
+                                </div>
+                                <Title level={4} className="text-gray-600 mb-4">
+                                    Chưa có dữ liệu kê khai
+                                </Title>
+                                <Text
+                                    type="secondary"
+                                    className="text-base mb-6 block"
+                                >
+                                    Vui lòng nhấn "Làm mới dữ liệu" để bắt đầu
+                                    kê khai cho năm học đã chọn
+                                </Text>
                             </div>
-                            <Title level={4} className="text-gray-600 mb-4">Chưa có dữ liệu kê khai</Title>
-                            <Text type="secondary" className="text-base mb-6 block">
-                                Vui lòng nhấn "Làm mới dữ liệu" để bắt đầu kê khai cho năm học đã chọn
-                            </Text>
-                        </div>
-                    </Card>
-                )}
+                        </Card>
+                    )}
 
                 {!selectedNamHocId && !isLoadingInitial && (
-                    <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+                    <Card
+                        className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl"
+                        style={{ borderRadius: "16px" }}
+                    >
                         <div className="text-center py-12">
                             <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-indigo-200 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <BookOutlined className="text-3xl text-blue-500" />
                             </div>
-                            <Title level={4} className="text-gray-600 mb-4">Chào mừng đến với hệ thống kê khai</Title>
-                            <Text type="secondary" className="text-base mb-6 block">
-                                Vui lòng chọn năm học để bắt đầu kê khai khối lượng công việc của bạn
+                            <Title level={4} className="text-gray-600 mb-4">
+                                Chào mừng đến với hệ thống kê khai
+                            </Title>
+                            <Text
+                                type="secondary"
+                                className="text-base mb-6 block"
+                            >
+                                Vui lòng chọn năm học để bắt đầu kê khai khối
+                                lượng công việc của bạn
                             </Text>
                         </div>
                     </Card>
                 )}
 
-                {/* Enhanced Notification System */}
                 {renderNotification()}
 
-                {/* Enhanced Custom Styles */}
                 <style>{`
-                    /* Enhanced Form Styling */
                     .enhanced-form .ant-form-item-label > label {
                         font-weight: 600 !important;
                         color: #374151 !important;
                     }
 
-                    /* Custom Select Styling */
                     .custom-select .ant-select-selector {
                         border-radius: 12px !important;
                         border: 1px solid #e2e8f0 !important;
@@ -1263,7 +1714,6 @@ function KeKhaiGiangDayForm() {
                         box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
                     }
 
-                    /* Custom Button Styling */
                     .custom-button.ant-btn {
                         border-radius: 12px !important;
                         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
@@ -1285,7 +1735,6 @@ function KeKhaiGiangDayForm() {
                         background: linear-gradient(135deg, #1d4ed8, #1e40af) !important;
                     }
 
-                    /* Custom Alert Styling */
                     .custom-alert.ant-alert {
                         border-radius: 12px !important;
                         border: none !important;
@@ -1293,7 +1742,6 @@ function KeKhaiGiangDayForm() {
                         backdrop-filter: blur(8px) !important;
                     }
 
-                    /* Custom Tabs Styling */
                     .custom-tabs .ant-tabs-nav {
                         margin-bottom: 24px !important;
                     }
@@ -1324,7 +1772,6 @@ function KeKhaiGiangDayForm() {
                         min-width: 120px !important;
                     }
 
-                    /* Enhanced Tab Label Styling */
                     .tab-label {
                         display: inline-flex !important;
                         align-items: center !important;
@@ -1339,7 +1786,7 @@ function KeKhaiGiangDayForm() {
                         margin-right: 0 !important;
                     }
 
-                    /* Responsive tabs */
+                    /* Responsive */
                     @media (max-width: 1200px) {
                         .custom-tabs .ant-tabs-tab {
                             min-width: 150px !important;
@@ -1386,6 +1833,47 @@ function KeKhaiGiangDayForm() {
                         .tab-label .anticon {
                             font-size: 13px !important;
                         }
+                    }
+
+                    .ant-card {
+                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                    }
+
+                    .ant-card:hover {
+                        transform: translateY(-2px) !important;
+                        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+                    }                   
+                    .ant-divider {
+                        border-color: rgba(59, 130, 246, 0.1) !important;
+                        margin: 32px 0 !important;
+                    }
+
+                    .empty-value-elegant {
+                        background: linear-gradient(45deg, rgba(148, 163, 184, 0.1), rgba(203, 213, 225, 0.05));
+                        padding: 2px 8px;
+                        border-radius: 6px;
+                        border: 1px dashed rgba(148, 163, 184, 0.3);
+                        display: inline-block;
+                        min-width: 32px;
+                        text-align: center;
+                        transition: all 0.2s ease;
+                    }
+
+                    .empty-value-elegant:hover {
+                        background: linear-gradient(45deg, rgba(148, 163, 184, 0.15), rgba(203, 213, 225, 0.08));
+                        border-color: rgba(148, 163, 184, 0.4);
+                        transform: translateY(-1px);
+                    }
+
+                    .ant-table-tbody > tr > td .empty-value-elegant {
+                        margin: 0;
+                        font-size: 0.85em;
+                        opacity: 0.7;
+                    }
+
+                    .ant-form-item .empty-value-elegant {
+                        font-size: 0.9em;
+                        opacity: 0.6;
                     }
 
                     /* Notification Animations */
@@ -1446,51 +1934,6 @@ function KeKhaiGiangDayForm() {
 
                     .shadow-3xl {
                         box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
-                    }
-
-                    /* Enhanced card styling */
-                    .ant-card {
-                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-                    }
-
-                    .ant-card:hover {
-                        transform: translateY(-2px) !important;
-                        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
-                    }                    /* Divider styling */
-                    .ant-divider {
-                        border-color: rgba(59, 130, 246, 0.1) !important;
-                        margin: 32px 0 !important;
-                    }
-
-                    /* Enhanced empty value styling */
-                    .empty-value-elegant {
-                        background: linear-gradient(45deg, rgba(148, 163, 184, 0.1), rgba(203, 213, 225, 0.05));
-                        padding: 2px 8px;
-                        border-radius: 6px;
-                        border: 1px dashed rgba(148, 163, 184, 0.3);
-                        display: inline-block;
-                        min-width: 32px;
-                        text-align: center;
-                        transition: all 0.2s ease;
-                    }
-
-                    .empty-value-elegant:hover {
-                        background: linear-gradient(45deg, rgba(148, 163, 184, 0.15), rgba(203, 213, 225, 0.08));
-                        border-color: rgba(148, 163, 184, 0.4);
-                        transform: translateY(-1px);
-                    }
-
-                    /* Table cell empty values */
-                    .ant-table-tbody > tr > td .empty-value-elegant {
-                        margin: 0;
-                        font-size: 0.85em;
-                        opacity: 0.7;
-                    }
-
-                    /* Form input empty values */
-                    .ant-form-item .empty-value-elegant {
-                        font-size: 0.9em;
-                        opacity: 0.6;
                     }
                 `}</style>
             </div>

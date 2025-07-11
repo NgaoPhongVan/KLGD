@@ -2,7 +2,7 @@
 
 namespace App\Mail;
 
-use App\Models\HocKy;
+use App\Models\NamHoc;
 use App\Models\KeKhaiThoiGian;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -15,14 +15,14 @@ class ReminderNotification extends Mailable
 
     public $title;
     public $content;
-    public $hocKy;
+    public $namHoc;
     public $keKhaiThoiGian;
 
-    public function __construct($title, $content, HocKy $hocKy, $keKhaiThoiGian = null)
+    public function __construct($title, $content, NamHoc $namHoc, $keKhaiThoiGian = null)
     {
         $this->title = $title;
         $this->content = $content;
-        $this->hocKy = $hocKy;
+        $this->namHoc = $namHoc;
         $this->keKhaiThoiGian = $keKhaiThoiGian;
     }
 
@@ -34,7 +34,7 @@ class ReminderNotification extends Mailable
                         ->with([
                             'title' => $this->title,
                             'content' => $this->content,
-                            'hocKy' => $this->hocKy,
+                            'namHoc' => $this->namHoc,
                             'keKhaiThoiGian' => $this->keKhaiThoiGian,
                         ]);
         } catch (\Exception $e) {

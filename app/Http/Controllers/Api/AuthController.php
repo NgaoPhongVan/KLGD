@@ -2,6 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
+// ========================
+// AuthController - Controller xác thực và phân quyền người dùng
+// ========================
+// Chức năng: Đăng nhập, đăng xuất, dashboard theo vai trò, quên mật khẩu, đặt lại mật khẩu, xác thực vai trò.
+// Lưu ý:
+// - Sử dụng chuẩn Laravel Sanctum cho API Token
+// - Validation dữ liệu đầu vào chặt chẽ, trả về lỗi rõ ràng
+// - Đảm bảo bảo mật: kiểm tra trạng thái tài khoản, không tiết lộ thông tin nhạy cảm
+// - Ghi log các sự kiện quan trọng (login, gửi mail, lỗi...)
+// - Các API trả về JSON, dùng cho frontend SPA/mobile
+// - Không thay đổi logic code, chỉ bổ sung/chỉnh sửa ghi chú
+// ========================
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -90,11 +103,9 @@ class AuthController extends Controller
         }
 
         try {
-            // Enhanced mail configuration check
             $mailConfig = config('mail');
             $currentDriver = config('mail.default');
             
-            // Check if we're in testing mode
             if ($currentDriver === 'log' || $currentDriver === 'array') {
                 Log::warning('Mail is configured for testing', [
                     'driver' => $currentDriver,
@@ -112,7 +123,6 @@ class AuthController extends Controller
                 ], 200);
             }
 
-            // Check SMTP configuration for production
             if ($currentDriver === 'smtp') {
                 $smtpConfig = $mailConfig['mailers']['smtp'] ?? [];
                 $missingConfigs = [];
@@ -124,11 +134,6 @@ class AuthController extends Controller
                 if (empty($mailConfig['from']['address'])) $missingConfigs[] = 'MAIL_FROM_ADDRESS';
                 
                 if (!empty($missingConfigs)) {
-                    Log::error('SMTP configuration incomplete', [
-                        'missing_configs' => $missingConfigs,
-                        'email' => $request->email
-                    ]);
-                    
                     return response()->json([
                         'message' => 'Cấu hình email chưa hoàn tất. Vui lòng liên hệ quản trị viên.',
                         'status' => 'error',
@@ -138,25 +143,11 @@ class AuthController extends Controller
                         ] : null
                     ], 500);
                 }
-
-                // Basic SMTP configuration validation
-                Log::info('SMTP configuration check', [
-                    'host' => $smtpConfig['host'],
-                    'port' => $smtpConfig['port'],
-                    'encryption' => $smtpConfig['encryption'] ?? 'none',
-                    'username_set' => !empty($smtpConfig['username'])
-                ]);
             }
 
-            // Additional check for Gmail specific issues
             if (strpos(config('mail.mailers.smtp.host'), 'gmail.com') !== false) {
                 $password = config('mail.mailers.smtp.password');
                 if (strlen($password) < 16 || !preg_match('/^[a-z]{16}$/', $password)) {
-                    Log::warning('Gmail configuration may need App Password', [
-                        'email' => $request->email,
-                        'password_length' => strlen($password)
-                    ]);
-                    
                     return response()->json([
                         'message' => 'Cấu hình Gmail có vẻ không đúng. Vui lòng đảm bảo sử dụng App Password thay vì mật khẩu thường.',
                         'status' => 'warning',
@@ -174,13 +165,6 @@ class AuthController extends Controller
             );
 
             if ($status === Password::RESET_LINK_SENT) {
-                Log::info('Password reset link sent successfully', [
-                    'email' => $request->email,
-                    'timestamp' => now(),
-                    'user_id' => $user->id,
-                    'mail_driver' => $currentDriver
-                ]);
-
                 return response()->json([
                     'message' => 'Liên kết đặt lại mật khẩu đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư (bao gồm cả thư mục spam) và làm theo hướng dẫn.',
                     'status' => 'success',
@@ -192,14 +176,6 @@ class AuthController extends Controller
                     ]
                 ]);
             } else {
-                Log::error('Password reset failed', [
-                    'email' => $request->email,
-                    'status' => $status,
-                    'user_id' => $user->id,
-                    'timestamp' => now(),
-                    'mail_driver' => $currentDriver
-                ]);
-
                 return response()->json([
                     'message' => 'Không thể gửi email đặt lại mật khẩu. Vui lòng thử lại sau.',
                     'status' => 'error',
@@ -215,16 +191,6 @@ class AuthController extends Controller
                 ], 500);
             }
         } catch (\Exception $e) {
-            Log::error('Exception occurred while sending password reset email', [
-                'email' => $request->email,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'user_id' => $user->id ?? null,
-                'timestamp' => now(),
-                'mail_driver' => config('mail.default')
-            ]);
-
-            // Check for specific mail-related errors
             $errorMessage = 'Đã xảy ra lỗi khi gửi email đặt lại mật khẩu.';
             $suggestions = [
                 'Kiểm tra kết nối internet',
@@ -232,7 +198,6 @@ class AuthController extends Controller
                 'Thử lại sau 5-10 phút'
             ];
 
-            // Enhanced error detection
             $errorLower = strtolower($e->getMessage());
             
             if (strpos($errorLower, 'connection') !== false || strpos($errorLower, 'refused') !== false) {
@@ -313,13 +278,7 @@ class AuthController extends Controller
             ? response()->json(['message' => 'Mật khẩu đã được đặt lại thành công'])
             : response()->json(['message' => 'Link reset không hợp lệ'], 400);
     }
-    
-    /**
-     * Verify if the authenticated user has the specified role
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public function verifyRole(Request $request)
     {
         $user = $request->user();
@@ -332,7 +291,6 @@ class AuthController extends Controller
             ], 401);
         }
         
-        // For 'manager' role, check if vai_tro is 2
         if ($requiredRole === 'manager' && $user->vai_tro === 2) {
             return response()->json([
                 'success' => true,
@@ -341,7 +299,6 @@ class AuthController extends Controller
             ]);
         }
         
-        // For other roles, convert role name to role id
         $roleMapping = [
             'admin' => 1,
             'lecturer' => 3

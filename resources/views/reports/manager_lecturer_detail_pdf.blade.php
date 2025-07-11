@@ -14,10 +14,19 @@
         }
         
         .header {
-            text-align: center;
+            display: table;
+            width: 100%;
             margin-bottom: 20px;
-            border-bottom: 2px solid #000;
+            border-bottom: 2px solid #2c3e50;
             padding-bottom: 10px;
+        }
+        
+        .header-left,
+        .header-right {
+            display: table-cell;
+            width: 50%;
+            text-align: center;
+            vertical-align: top;
         }
         
         .header h1 {
@@ -42,9 +51,9 @@
         .lecturer-info {
             background-color: #f8f9fa;
             padding: 10px;
-            border-radius: 5px;
+            border-radius: 3px;
             margin-bottom: 15px;
-            border-left: 4px solid #3498db;
+            border-left: 3px solid #6c757d;
         }
         
         .lecturer-info h3 {
@@ -83,7 +92,7 @@
         }
         
         .summary-table th {
-            background-color: #3498db;
+            background-color: #495057;
             color: white;
             font-weight: bold;
             text-align: center;
@@ -94,7 +103,7 @@
         }
         
         .section-title {
-            background-color: #34495e;
+            background-color: #6c757d;
             color: white;
             padding: 8px 10px;
             margin: 20px 0 10px 0;
@@ -111,16 +120,16 @@
         
         .detail-table th,
         .detail-table td {
-            border: 1px solid #bdc3c7;
+            border: 1px solid #dee2e6;
             padding: 5px;
             text-align: center;
             vertical-align: middle;
         }
         
         .detail-table th {
-            background-color: #ecf0f1;
+            background-color: #f8f9fa;
             font-weight: bold;
-            color: #2c3e50;
+            color: #495057;
         }
         
         .detail-table .text-left {
@@ -132,7 +141,7 @@
         }
         
         .highlight {
-            background-color: #fff3cd;
+            background-color: #e9ecef;
             font-weight: bold;
         }
         
@@ -154,17 +163,20 @@
             font-weight: bold;
             margin-bottom: 5px;
             font-size: {{ ($fontSize ?? 10) + 1 }}px;
+            color: #495057;
         }
         
         .signature-subtitle {
             font-style: italic;
             font-size: {{ ($fontSize ?? 10) - 1 }}px;
             margin-bottom: 50px;
+            color: #6c757d;
         }
         
         .signature-name {
             font-weight: bold;
             margin-top: 20px;
+            color: #495057;
         }
         
         .page-break {
@@ -174,7 +186,7 @@
         .no-data {
             text-align: center;
             font-style: italic;
-            color: #7f8c8d;
+            color: #6c757d;
             padding: 20px;
         }
         
@@ -182,21 +194,23 @@
             margin-top: 30px;
             text-align: center;
             font-size: {{ ($fontSize ?? 10) - 1 }}px;
-            color: #7f8c8d;
+            color: #6c757d;
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <div class="header">
-        <p><strong>BỘ NÔNG NGHIỆP & PTNT</strong></p>
-        <p><strong>TRƯỜNG ĐẠI HỌC THỦY LỢI</strong></p>
-        <h1>BÁO CÁO CHI TIẾT KÊ KHAI GIỜ CHUẨN</h1>
-        <h2>NĂM HỌC {{ $namHoc->ten_nam_hoc ?? 'N/A' }}</h2>
-        <p>Bộ môn: {{ $boMon->ten_bo_mon ?? 'N/A' }}</p>
+        <div class="header-left">
+            <h1><strong>BỘ NÔNG NGHIỆP & PTNT</strong></h1>
+            <h1><strong>TRƯỜNG ĐẠI HỌC THỦY LỢI</strong></h1>
+        </div>
+        <div class="header-right">
+            <h1>BÁO CÁO CHI TIẾT KÊ KHAI GIỜ CHUẨN</h1>
+            <h2>NĂM HỌC {{ $namHoc->ten_nam_hoc ?? 'N/A' }}</h2>
+            <p>Bộ môn: {{ $boMon->ten_bo_mon ?? 'N/A' }}</p>
+        </div>
     </div>
 
-    <!-- Lecturer Information -->
     <div class="lecturer-info">
         <h3>Thông tin Giảng viên</h3>
         <div class="info-grid">
@@ -215,7 +229,6 @@
         </div>
     </div>
 
-    <!-- Summary Table -->
     <table class="summary-table">
         <thead>
             <tr>
@@ -258,7 +271,6 @@
         </tbody>
     </table>
 
-    <!-- Detailed breakdown sections - Only show sections with data -->
     @foreach([
         'gd_lop_dh_trong_bm' => '1. GIẢNG DẠY LỚP ĐẠI HỌC TRONG BỘ MÔN',
         'gd_lop_dh_ngoai_bm' => '2. GIẢNG DẠY LỚP ĐẠI HỌC NGOÀI BỘ MÔN',
@@ -283,7 +295,6 @@
             <div class="section-title">{{ $sectionTitle }}</div>
             
             @if(in_array($sectionKey, ['gd_lop_dh_trong_bm', 'gd_lop_dh_ngoai_bm', 'gd_lop_dh_ngoai_cs']))
-                {{-- Teaching sections --}}
                 <table class="detail-table">
                     <thead>
                         <tr>
@@ -312,7 +323,6 @@
                 </table>
                 
             @elseif(in_array($sectionKey, ['gd_lop_ths', 'gd_lop_ts']))
-                {{-- Graduate teaching sections --}}
                 <table class="detail-table">
                     <thead>
                         <tr>
@@ -339,7 +349,6 @@
                 </table>
                 
             @elseif($sectionKey === 'hd_datn_daihoc')
-                {{-- Thesis supervision --}}
                 <table class="detail-table">
                     <thead>
                         <tr>
@@ -383,7 +392,6 @@
                 </table>
                 
             @elseif(in_array($sectionKey, ['hd_lv_thacsi', 'hd_la_tiensi', 'dg_hp_tn_daihoc', 'dg_lv_thacsi']))
-                {{-- Supervision and evaluation sections --}}
                 <table class="detail-table">
                     <thead>
                         <tr>
@@ -410,7 +418,6 @@
                 </table>
                 
             @elseif(in_array($sectionKey, ['khao_thi_dh_trong_bm', 'khao_thi_dh_ngoai_bm', 'khao_thi_thacsi', 'khao_thi_tiensi']))
-                {{-- Examination sections --}}
                 <table class="detail-table">
                     <thead>
                         <tr>
@@ -451,7 +458,6 @@
                 </table>
                 
             @else
-                {{-- Generic sections --}}
                 <table class="detail-table">
                     <thead>
                         <tr>
@@ -504,13 +510,11 @@
         @endif
     @endforeach
 
-    <!-- If no sections have data, show a message -->
     @if(empty(array_filter($keKhaiData['ke_khai_details'], function($section) { return !empty($section); })))
         <div class="section-title">THÔNG BÁO</div>
         <div class="no-data">Giảng viên chưa có dữ liệu kê khai chi tiết hoặc tất cả các mục đều trống.</div>
     @endif
 
-    <!-- Comments Section -->
     @if($keKhaiData['ghi_chu_giang_vien'] || $keKhaiData['ghi_chu_quan_ly'])
     <div class="section-title">GHI CHÚ</div>
     <table class="detail-table">
@@ -531,7 +535,6 @@
     </table>
     @endif
 
-    <!-- Signature Section -->
     <div class="signature-section">
         <div class="signature-block">
             <div class="signature-title">NGƯỜI KÊ KHAI</div>
@@ -545,7 +548,6 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <div class="footer">
         <p><em>Báo cáo được tạo tự động từ hệ thống kê khai giờ chuẩn - {{ date('d/m/Y H:i:s') }}</em></p>
     </div>

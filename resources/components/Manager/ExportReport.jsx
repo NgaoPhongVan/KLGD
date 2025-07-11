@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import {
     Card,
     Select,
@@ -10,14 +10,14 @@ import {
     Col,
     Form,
     Alert,
-    message,
     Spin,
     Radio,
     InputNumber,
     Tooltip,
     Divider,
-    Tag
-} from 'antd';
+    Tag,
+    Skeleton,
+} from "antd";
 import {
     DownloadOutlined,
     FileExcelOutlined,
@@ -27,10 +27,12 @@ import {
     FilterOutlined,
     InfoCircleOutlined,
     ExportOutlined,
-    DashboardOutlined,
     SyncOutlined,
-    SearchOutlined
-} from '@ant-design/icons';
+    SearchOutlined,
+    QuestionCircleOutlined,
+    BarChartOutlined,
+    TableOutlined
+} from "@ant-design/icons";
 
 const { Option } = Select;
 const { Title, Text, Paragraph } = Typography;
@@ -43,32 +45,82 @@ function ExportReport() {
     const [isExporting, setIsExporting] = useState(false);
     const [isPreviewing, setIsPreviewing] = useState(false);
     const [previewData, setPreviewData] = useState(null);
-    const [exportFormat, setExportFormat] = useState('excel');
+    const [exportFormat, setExportFormat] = useState("excel");
+
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+    const [notificationList, setNotificationList] = useState([]);
+    const notificationId = useRef(0);
+
+    const showNotification = (type, title, message, duration = 4000) => {
+        const id = notificationId.current++;
+        const newNotification = {
+            id,
+            type,
+            title,
+            message,
+            timestamp: new Date(),
+            visible: true,
+        };
+
+        setNotificationList((prev) => [...prev, newNotification]);
+
+        setTimeout(() => {
+            setNotificationList((prev) =>
+                prev.map((n) => (n.id === id ? { ...n, visible: false } : n))
+            );
+            setTimeout(() => {
+                setNotificationList((prev) => prev.filter((n) => n.id !== id));
+            }, 300);
+        }, duration);
+    };
+
+    const removeNotification = (id) => {
+        setNotificationList((prev) =>
+            prev.map((n) => (n.id === id ? { ...n, visible: false } : n))
+        );
+        setTimeout(() => {
+            setNotificationList((prev) => prev.filter((n) => n.id !== id));
+        }, 300);
+    };
 
     useEffect(() => {
         fetchNamHocList();
     }, []);
 
     const fetchNamHocList = async () => {
-        setIsLoadingNamHoc(true);
-        const token = localStorage.getItem("token");
         try {
+            setIsLoadingNamHoc(true);
+            setIsInitialLoading(true);
+
+            const token = localStorage.getItem("token");
             const response = await axios.get("/api/manager/nam-hoc-list", {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${token}` },
             });
+
             const namHocs = response.data || [];
             setNamHocList(namHocs);
-            
-            // Auto-select current academic year
-            const currentNamHoc = namHocs.find(nh => nh.la_nam_hien_hanh === 1);
+
+            const currentNamHoc = namHocs.find(
+                (nh) => nh.la_nam_hien_hanh === 1
+            );
             if (currentNamHoc) {
                 setSelectedNamHocId(currentNamHoc.id.toString());
-                form.setFieldsValue({ nam_hoc_id: currentNamHoc.id.toString() });
+                form.setFieldsValue({
+                    nam_hoc_id: currentNamHoc.id.toString(),
+                });
             }
+
+            showNotification(
+                "success",
+                "Thành công",
+                "Đã tải danh sách năm học thành công"
+            );
         } catch (error) {
-            message.error("Không thể tải danh sách năm học.");
+            showNotification("error", "Lỗi", "Không thể tải danh sách năm học");
         } finally {
             setIsLoadingNamHoc(false);
+            setTimeout(() => setIsInitialLoading(false), 800);
         }
     };
 
@@ -77,22 +129,30 @@ function ExportReport() {
             const values = await form.validateFields();
             setIsPreviewing(true);
             const token = localStorage.getItem("token");
-            
+
             const response = await axios.get("/api/manager/export-report", {
                 headers: { Authorization: `Bearer ${token}` },
                 params: {
                     ...values,
-                    preview: 'true'
-                }
+                    preview: "true",
+                },
             });
-            
+
             setPreviewData(response.data);
-            message.success("Đã tải xem trước thành công!");
+            showNotification(
+                "success",
+                "Thành công",
+                "Đã tải xem trước thành công!"
+            );
         } catch (error) {
             if (error.response?.data?.message) {
-                message.error(error.response.data.message);
+                showNotification("error", "Lỗi", error.response.data.message);
             } else {
-                message.error("Lỗi khi tải xem trước dữ liệu.");
+                showNotification(
+                    "error",
+                    "Lỗi",
+                    "Lỗi khi tải xem trước dữ liệu."
+                );
             }
         } finally {
             setIsPreviewing(false);
@@ -104,128 +164,157 @@ function ExportReport() {
             const values = await form.validateFields();
             setIsExporting(true);
             const token = localStorage.getItem("token");
-            
-            message.loading({ content: 'Đang xuất báo cáo...', key: 'exporting', duration: 0 });
-            
+
+            showNotification("info", "Đang xử lý", "Đang xuất báo cáo...", 0);
+
             const response = await axios.get("/api/manager/export-report", {
                 headers: { Authorization: `Bearer ${token}` },
                 params: values,
-                responseType: 'blob'
+                responseType: "blob",
             });
-            
+
             // Handle file download
-            const contentType = response.headers['content-type'];
-            const contentDisposition = response.headers['content-disposition'];
-            
+            const contentType = response.headers["content-type"];
+            const contentDisposition = response.headers["content-disposition"];
+
             let fileName = `BaoCaoKeKhai_${Date.now()}`;
             if (contentDisposition) {
-                const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                const fileNameMatch = contentDisposition.match(
+                    /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+                );
                 if (fileNameMatch && fileNameMatch[1]) {
-                    fileName = fileNameMatch[1].replace(/['"]/g, '');
+                    fileName = fileNameMatch[1].replace(/['"]/g, "");
                 }
             }
-            
-            // Determine file extension
-            if (values.format === 'excel') {
-                fileName = fileName.endsWith('.xlsx') ? fileName : fileName + '.xlsx';
-            } else if (values.format === 'pdf') {
-                fileName = fileName.endsWith('.zip') ? fileName : fileName + '.zip';
+
+            if (values.format === "excel") {
+                fileName = fileName.endsWith(".xlsx") ? fileName : fileName + ".xlsx";
+            } else if (values.format === "pdf") {
+                fileName = fileName.endsWith(".zip") ? fileName : fileName + ".zip";
             }
-            
+
             const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
+            const link = document.createElement("a");
             link.href = url;
-            link.setAttribute('download', fileName);
+            link.setAttribute("download", fileName);
             document.body.appendChild(link);
             link.click();
             link.remove();
             window.URL.revokeObjectURL(url);
-            
-            message.success({ content: 'Xuất báo cáo thành công!', key: 'exporting', duration: 3 });
+
+            showNotification(
+                "success",
+                "Thành công",
+                "Xuất báo cáo thành công!"
+            );
         } catch (error) {
-            console.error('Export error:', error);
             if (error.response?.data?.message) {
-                message.error({ content: error.response.data.message, key: 'exporting', duration: 5 });
+                showNotification("error", "Lỗi", error.response.data.message);
             } else {
-                message.error({ content: 'Lỗi khi xuất báo cáo.', key: 'exporting', duration: 5 });
+                showNotification("error", "Lỗi", "Lỗi khi xuất báo cáo.");
             }
         } finally {
             setIsExporting(false);
         }
     };
 
-    // Add a function to render preview data as HTML table
-    const renderPreviewTable = (data) => {
-        if (!data || data.length === 0) return <div>Không có dữ liệu để hiển thị</div>;
+    const NotificationContainer = () => (
+        <div className="fixed top-6 right-6 z-50 space-y-3">
+            {notificationList.map((notif) => (
+                <div
+                    key={notif.id}
+                    className={`transform transition-all duration-300 ease-out ${ notif.visible ? "translate-x-0 opacity-100 scale-100" : "translate-x-full opacity-0 scale-95" }`}
+                >
+                    <div
+                        className={`
+                        min-w-80 max-w-md bg-white/95 backdrop-blur-xl rounded-xl shadow-lg border p-4
+                        ${ notif.type === "success" ? "border-l-4 border-l-emerald-500" : "" }
+                        ${ notif.type === "error" ? "border-l-4 border-l-red-500" : "" }
+                        ${ notif.type === "warning" ? "border-l-4 border-l-amber-500" : "" }
+                        ${ notif.type === "info" ? "border-l-4 border-l-blue-500" : "" }
+                        hover:shadow-xl transition-all duration-200
+                    `}
+                    >
+                        <div className="flex items-start space-x-3">
+                            <div
+                                className={`
+                                flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium
+                                ${ notif.type === "success" ? "bg-emerald-500" : "" }
+                                ${ notif.type === "error" ? "bg-red-500" : ""}
+                                ${ notif.type === "warning" ? "bg-amber-500" : "" }
+                                ${ notif.type === "info" ? "bg-blue-500" : ""}
+                            `}
+                            >
+                                {notif.type === "success" && "✓"}
+                                {notif.type === "error" && "✕"}
+                                {notif.type === "warning" && "!"}
+                                {notif.type === "info" && "i"}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <Text
+                                    strong
+                                    className="text-sm text-gray-900 block mb-1"
+                                >
+                                    {notif.title}
+                                </Text>
+                                <Text className="text-sm text-gray-600">
+                                    {notif.message}
+                                </Text>
+                            </div>
+                            <button
+                                onClick={() => removeNotification(notif.id)}
+                                className="flex-shrink-0 w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors duration-150 text-xs"
+                            >
+                                ×
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
 
+    if (isInitialLoading) {
         return (
-            <div className="overflow-x-auto">
-                <table className="min-w-full border-collapse border border-gray-300 elegant-preview-table">
-                    <thead className="bg-gradient-to-r from-gray-50 to-slate-50">
-                        <tr>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">STT</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Mã GV</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Họ đệm</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Tên</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Học hàm</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Học vị</th>
-                            <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">Định mức KHCN</th>
-                            <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">Định mức GD</th>
-                            <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">Thực hiện KHCN</th>
-                            <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">Thực hiện GD</th>
-                            <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">GD xa trường</th>
-                            <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">Số tiết vượt</th>
-                            <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">Mức lương CB</th>
-                            <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">HD LA</th>
-                            <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">HD LV</th>
-                            <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">HD ĐA/KL</th>
-                            <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">Thành tiền</th>
-                            <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Trạng thái</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {data.map((item, index) => (
-                            <tr key={index} className={index % 2 === 0 ? 'bg-white hover:bg-blue-50/50' : 'bg-gray-50/50 hover:bg-blue-50/50'}>
-                                <td className="border border-gray-300 px-4 py-3 text-center font-medium">{index + 1}</td>
-                                <td className="border border-gray-300 px-4 py-3 font-medium text-blue-600">{item.ma_gv || 'N/A'}</td>
-                                <td className="border border-gray-300 px-4 py-3">{item.ho_dem || ''}</td>
-                                <td className="border border-gray-300 px-4 py-3 font-medium">{item.ten || ''}</td>
-                                <td className="border border-gray-300 px-4 py-3">{item.hoc_ham || ''}</td>
-                                <td className="border border-gray-300 px-4 py-3">{item.hoc_vi || ''}</td>
-                                <td className="border border-gray-300 px-4 py-3 text-right font-mono">{Number(item.dinhmuc_khcn || 0).toFixed(2)}</td>
-                                <td className="border border-gray-300 px-4 py-3 text-right font-mono">{Number(item.dinhmuc_gd || 0).toFixed(2)}</td>
-                                <td className="border border-gray-300 px-4 py-3 text-right font-mono">{Number(item.thuc_hien_khcn || 0).toFixed(2)}</td>
-                                <td className="border border-gray-300 px-4 py-3 text-right font-mono">{Number(item.thuc_hien_gd || 0).toFixed(2)}</td>
-                                <td className="border border-gray-300 px-4 py-3 text-right font-mono">{Number(item.gd_xa_truong || 0).toFixed(2)}</td>
-                                <td className="border border-gray-300 px-4 py-3 text-right font-mono">{Number(item.so_tiet_vuot || 0).toFixed(2)}</td>
-                                <td className="border border-gray-300 px-4 py-3 text-right font-mono">{Number(item.muc_luong_co_ban || 0).toLocaleString('vi-VN')}</td>
-                                <td className="border border-gray-300 px-4 py-3 text-right font-mono">{item.hd_la || 0}</td>
-                                <td className="border border-gray-300 px-4 py-3 text-right font-mono">{item.hd_lv || 0}</td>
-                                <td className="border border-gray-300 px-4 py-3 text-right font-mono">{item.hd_da_kl || 0}</td>
-                                <td className="border border-gray-300 px-4 py-3 text-right font-bold text-emerald-600 font-mono">
-                                    {Number(item.thanh_tien || 0).toLocaleString('vi-VN')}
-                                </td>
-                                <td className="border border-gray-300 px-4 py-3">
-                                    <Tag 
-                                        color={
-                                            item.trang_thai === 3 ? 'green' : 
-                                            item.trang_thai === 1 ? 'blue' : 
-                                            item.trang_thai === 4 ? 'orange' : 'default'
-                                        }
-                                        className="rounded-lg"
-                                    >
-                                        {item.trang_thai === 3 ? 'Đã duyệt' : 
-                                         item.trang_thai === 1 ? 'Chờ duyệt' : 
-                                         item.trang_thai === 4 ? 'BM trả lại' : 'Nháp'}
-                                    </Tag>
-                                </td>
-                            </tr>
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 relative overflow-hidden flex items-center justify-center">
+                 <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-blue-400/10 to-indigo-400/10 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-purple-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+                </div>
+
+                 <div className="relative z-10 text-center space-y-8">
+                    <div className="relative">
+                         <div className="w-24 h-24 bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 rounded-3xl shadow-2xl flex items-center justify-center mx-auto mb-6 animate-bounce">
+                            <ExportOutlined className="text-4xl text-white" />
+                        </div>
+
+                         <div className="absolute -top-2 -right-8 w-4 h-4 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full animate-ping"></div>
+                        <div className="absolute -bottom-2 -left-8 w-3 h-3 bg-gradient-to-r from-orange-400 to-red-500 rounded-full animate-pulse delay-300"></div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-800 via-slate-700 to-gray-800 bg-clip-text text-transparent">
+                            Đang khởi tạo hệ thống xuất báo cáo
+                        </h2>
+                        <p className="text-lg text-gray-600 max-w-md mx-auto">
+                            Vui lòng chờ trong giây lát, chúng tôi đang tải dữ
+                            liệu cho bạn...
+                        </p>
+                    </div>
+
+                     <div className="flex justify-center space-x-2">
+                        {[...Array(3)].map((_, i) => (
+                            <div
+                                key={i}
+                                className="w-3 h-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full animate-bounce"
+                                style={{ animationDelay: `${i * 0.2}s` }}
+                            />
                         ))}
-                    </tbody>
-                </table>
+                    </div>
+                </div>
             </div>
         );
-    };
+    }
 
     if (isLoadingNamHoc) {
         return (
@@ -234,7 +323,9 @@ function ExportReport() {
                     <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg border border-gray-200/50 mx-auto">
                         <Spin size="large" />
                     </div>
-                    <Text className="text-lg text-gray-600">Đang tải dữ liệu xuất báo cáo...</Text>
+                    <Text className="text-lg text-gray-600">
+                        Đang tải dữ liệu xuất báo cáo...
+                    </Text>
                 </div>
             </div>
         );
@@ -242,7 +333,8 @@ function ExportReport() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 relative overflow-hidden">
-            {/* Enhanced animated background */}
+            <NotificationContainer />
+
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-blue-400/8 to-indigo-400/8 rounded-full blur-3xl animate-pulse"></div>
                 <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-purple-400/8 to-pink-400/8 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -250,55 +342,35 @@ function ExportReport() {
             </div>
 
             <div className="relative z-10 p-6 space-y-6">
-                {/* Enhanced Header */}
-                <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl shadow-blue-500/10" style={{ borderRadius: '24px' }}>
-                    <div className="relative overflow-hidden bg-gradient-to-r from-slate-50/90 via-blue-50/60 to-indigo-50/90 px-8 py-6 -mx-6 -mt-6 mb-8 rounded-t-3xl border-b border-gray-200/50">
-                        {/* Header decoration */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-indigo-600/5 to-purple-600/5"></div>
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
-                        
-                        <div className="relative flex items-center justify-between">
-                            <div className="flex items-center space-x-8">
-                                <div className="relative group">
-                                    <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 via-green-600 to-teal-600 rounded-3xl shadow-2xl flex items-center justify-center transform rotate-3 group-hover:rotate-0 transition-all duration-500 ease-out">
-                                        <ExportOutlined className="text-3xl text-white" />
+                <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl shadow-blue-500/10" style={{ borderRadius: "24px" }} >
+                    <div className="bg-gradient-to-r from-slate-50 via-blue-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-6">
+                                <div className="relative">
+                                    <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl shadow-lg flex items-center justify-center transform rotate-3 hover:rotate-0 transition-transform duration-300">
+                                        <BarChartOutlined className="text-2xl text-white" />
                                     </div>
-                                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full border-3 border-white shadow-lg animate-bounce"></div>
-                                    <div className="absolute -bottom-1 -left-1 w-4 h-4 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full border-2 border-white shadow-md"></div>
+                                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white shadow-md"></div>
                                 </div>
-                                <div className="space-y-3">
-                                    <Title level={1} style={{ margin: 0 }} className="text-4xl font-bold bg-gradient-to-r from-gray-800 via-slate-700 to-gray-800 bg-clip-text text-transparent">
-                                        Xuất Báo cáo Bộ môn
+                                <div className="space-y-2">
+                                    <Title level={2} style={{ margin: 0 }} className="text-3xl font-bold bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 bg-clip-text text-transparent">
+                                        Xuẩt báo cáo thống kê 
                                     </Title>
-                                    <div className="flex items-center space-x-4">
-                                        <div className="flex items-center space-x-2">
-                                            <div className="w-2 h-2 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full animate-pulse"></div>
-                                            <Text type="secondary" className="text-base">
-                                                Xuất báo cáo tổng hợp khối lượng công việc toàn diện
-                                            </Text>
-                                        </div>
-                                        <div className="hidden sm:flex items-center space-x-2 px-3 py-1 bg-white/60 rounded-full border border-emerald-200/50">
-                                            <DownloadOutlined className="text-emerald-500 text-sm" />
-                                            <Text className="text-sm font-medium text-gray-700">
-                                                Export System
-                                            </Text>
-                                        </div>
+                                    <div className="flex items-center space-x-2">
+                                        <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
+                                        <Text type="secondary">
+                                            Xuất báo cáo tổng hợp khối lượng công việc toàn diện
+                                        </Text>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Enhanced Export Configuration Form */}
                     <Form
                         form={form}
                         layout="vertical"
-                        initialValues={{
-                            format: 'excel',
-                            trang_thai: '',
-                            font_size: 10,
-                            paper_size: 'a4'
-                        }}
+                        initialValues={{ format: "excel", trang_thai: "", font_size: 10, }}
                         className="space-y-6"
                     >
                         <div className="mb-8">
@@ -307,46 +379,61 @@ function ExportReport() {
                                     <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
                                         <FilterOutlined className="text-white text-sm" />
                                     </div>
-                                    <Title level={4} className="mb-0 text-gray-800">
+                                    <Title
+                                        level={4}
+                                        className="mb-0 text-gray-800"
+                                    >
                                         Cấu hình xuất báo cáo
                                     </Title>
                                 </div>
-                            </div>
-
-                            <Row gutter={[24, 24]}>
+                            </div>{" "}
+                            <Row gutter={[20, 20]}>
                                 <Col xs={24} md={8}>
                                     <Form.Item
                                         name="nam_hoc_id"
                                         label={
                                             <span className="flex items-center space-x-2 font-medium text-gray-700">
                                                 <CalendarOutlined className="text-blue-500" />
-                                                <span>Năm học <Text type="danger">*</Text></span>
+                                                <span> Năm học{" "} <Text type="danger">*</Text>
+                                                </span>
                                             </span>
                                         }
-                                        rules={[{ required: true, message: 'Vui lòng chọn năm học!' }]}
-                                        style={{marginBottom: 0}}
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message: "Vui lòng chọn năm học!",
+                                            },
+                                        ]}
+                                        style={{ marginBottom: 0 }}
                                     >
-                                        <Select
-                                            placeholder="Chọn năm học"
-                                            size="large"
-                                            showSearch
-                                            filterOption={(input, option) =>
-                                                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                            }
-                                            className="custom-select"
-                                            onChange={(value) => setSelectedNamHocId(value)}
-                                        >
-                                            {namHocList.map(nh => (
-                                                <Option key={nh.id} value={nh.id.toString()}>
-                                                    <div className="flex items-center justify-between">
-                                                        <span>{nh.ten_nam_hoc}</span>
-                                                        {nh.la_nam_hien_hanh && (
-                                                            <Tag color="green" size="small">Hiện tại</Tag>
-                                                        )}
-                                                    </div>
-                                                </Option>
-                                            ))}
-                                        </Select>
+                                        {isLoadingNamHoc ? (
+                                            <Skeleton.Input
+                                                active
+                                                size="large"
+                                                style={{ width: "100%", height: "40px", borderRadius: "8px", }}
+                                            />
+                                        ) : (
+                                            <Select
+                                                placeholder="Chọn năm học"
+                                                size="large"
+                                                className="custom-select"
+                                                onChange={(value) => setSelectedNamHocId(value)}
+                                            >
+                                                {namHocList.map((nh) => (
+                                                    <Option
+                                                        key={nh.id}
+                                                        value={nh.id.toString()}
+                                                    >
+                                                        <div className="flex items-center justify-between">
+                                                            <span> {nh.ten_nam_hoc} </span>
+                                                            {nh.la_nam_hien_hanh && (
+                                                                <Tag color="green" size="small">Hiện tại</Tag>
+                                                            )}
+                                                        </div>
+                                                    </Option>
+                                                ))}
+                                            </Select>
+                                        )}
                                     </Form.Item>
                                 </Col>
 
@@ -359,7 +446,7 @@ function ExportReport() {
                                                 <span>Trạng thái kê khai</span>
                                             </span>
                                         }
-                                        style={{marginBottom: 0}}
+                                        style={{ marginBottom: 0 }}
                                     >
                                         <Select
                                             placeholder="Tất cả trạng thái"
@@ -385,37 +472,32 @@ function ExportReport() {
                                                 <span>Tìm kiếm giảng viên</span>
                                             </span>
                                         }
-                                        style={{marginBottom: 0}}
+                                        style={{ marginBottom: 0 }}
                                     >
                                         <Select
                                             mode="tags"
                                             placeholder="Nhập tên hoặc mã GV"
                                             size="large"
                                             className="custom-select"
-                                            tokenSeparators={[',']}
+                                            tokenSeparators={[","]}
                                             maxTagCount={2}
                                         />
                                     </Form.Item>
                                 </Col>
                             </Row>
                         </div>
-
-                        <Divider className="border-gray-200/60" />
-
-                        {/* Enhanced Format Selection */}
-                        <div className="mb-8">
-                            <div className="flex items-center justify-between mb-6">
+                        <Divider className="border-gray-200/60" />{" "}
+                        <div className="mb-6">
+                            <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center space-x-3">
                                     <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-green-600 rounded-lg flex items-center justify-center">
                                         <DownloadOutlined className="text-white text-sm" />
                                     </div>
-                                    <Title level={4} className="mb-0 text-gray-800">
-                                        Định dạng xuất báo cáo
-                                    </Title>
+                                    <Title level={4} className="mb-0 text-gray-800">Định dạng xuất báo cáo</Title>
                                 </div>
                             </div>
 
-                            <Row gutter={[24, 24]}>
+                            <Row gutter={[20, 20]}>
                                 <Col xs={24} md={12}>
                                     <Form.Item
                                         name="format"
@@ -423,329 +505,663 @@ function ExportReport() {
                                     >
                                         <Radio.Group
                                             size="large"
-                                            onChange={(e) => setExportFormat(e.target.value)}
+                                            onChange={(e) =>
+                                                setExportFormat(e.target.value)
+                                            }
                                             className="w-full"
                                         >
-                                            <Space direction="vertical" className="w-full">
-                                                <Radio 
-                                                    value="excel" 
-                                                    className="w-full p-4 border-2 border-gray-200/60 rounded-xl hover:border-emerald-300 hover:bg-emerald-50/50 transition-all duration-300"
+                                            <Space
+                                                direction="vertical"
+                                                className="w-full"
+                                            >
+                                                <Radio
+                                                    value="excel"
+                                                    className="w-full p-4 border border-gray-200 rounded-lg hover:border-emerald-300 hover:bg-emerald-50/50 transition-all duration-300"
                                                 >
-                                                    <div className="flex items-center space-x-4">
-                                                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-                                                            <FileExcelOutlined className="text-white text-lg" />
+                                                    <div className="flex items-center space-x-3">
+                                                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg flex items-center justify-center">
+                                                            <FileExcelOutlined className="text-white" />
                                                         </div>
                                                         <div>
-                                                            <Text strong className="text-gray-800 text-base">Excel (.xlsx)</Text>
+                                                            <Text
+                                                                strong
+                                                                className="text-gray-800"
+                                                            >
+                                                                Excel (.xlsx)
+                                                            </Text>
                                                             <br />
-                                                            <Text type="secondary" className="text-sm">1 file với nhiều sheet, dễ dàng xử lý dữ liệu</Text>
+                                                            <Text
+                                                                type="secondary"
+                                                                className="text-sm"
+                                                            >
+                                                                1 file với nhiều
+                                                                sheet, dễ dàng
+                                                                xử lý dữ liệu
+                                                            </Text>
                                                         </div>
                                                     </div>
                                                 </Radio>
-                                                <Radio 
-                                                    value="pdf" 
-                                                    className="w-full p-4 border-2 border-gray-200/60 rounded-xl hover:border-red-300 hover:bg-red-50/50 transition-all duration-300"
+                                                <Radio
+                                                    value="pdf"
+                                                    className="w-full p-4 border border-gray-200 rounded-lg hover:border-red-300 hover:bg-red-50/50 transition-all duration-300"
                                                 >
-                                                    <div className="flex items-center space-x-4">
-                                                        <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl flex items-center justify-center shadow-lg">
-                                                            <FilePdfOutlined className="text-white text-lg" />
+                                                    <div className="flex items-center space-x-3">
+                                                        <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-rose-600 rounded-lg flex items-center justify-center">
+                                                            <FilePdfOutlined className="text-white" />
                                                         </div>
                                                         <div>
-                                                            <Text strong className="text-gray-800 text-base">PDF (.zip)</Text>
+                                                            <Text
+                                                                strong
+                                                                className="text-gray-800"
+                                                            >
+                                                                PDF (.zip)
+                                                            </Text>
                                                             <br />
-                                                            <Text type="secondary" className="text-sm">Nhiều file PDF trong 1 thư mục nén, sẵn sàng in ấn</Text>
+                                                            <Text
+                                                                type="secondary"
+                                                                className="text-sm"
+                                                            >
+                                                                Nhiều file PDF
+                                                                trong 1 thư mục
+                                                                nén, sẵn sàng in
+                                                                ấn
+                                                            </Text>
                                                         </div>
                                                     </div>
                                                 </Radio>
                                             </Space>
                                         </Radio.Group>
                                     </Form.Item>
-                                </Col>
-
-                                {exportFormat === 'pdf' && (
+                                </Col>{" "}
+                                {exportFormat === "pdf" && (
                                     <Col xs={24} md={12}>
-                                        <div className="bg-gray-50/80 p-6 rounded-2xl border border-gray-200/50">
-                                            <Title level={5} className="mb-4 text-gray-700">Tùy chọn PDF</Title>
-                                            <Space direction="vertical" className="w-full" size="large">
-                                                <Form.Item
-                                                    name="font_size"
-                                                    label={<Text strong>Cỡ chữ PDF</Text>}
-                                                    style={{marginBottom: 0}}
-                                                >
-                                                    <InputNumber
-                                                        min={8}
-                                                        max={16}
-                                                        size="large"
-                                                        className="w-full custom-input-number"
-                                                        addonAfter="px"
-                                                    />
-                                                </Form.Item>
-                                                <Form.Item
-                                                    name="paper_size"
-                                                    label={<Text strong>Khổ giấy</Text>}
-                                                    style={{marginBottom: 0}}
-                                                >
-                                                    <Select size="large" className="custom-select">
-                                                        <Option value="a4">A4 (210 × 297 mm)</Option>
-                                                        <Option value="a3">A3 (297 × 420 mm)</Option>
-                                                        <Option value="letter">Letter (216 × 279 mm)</Option>
-                                                    </Select>
-                                                </Form.Item>
-                                            </Space>
-                                        </div>
+                                        <Row gutter={[16, 16]}>
+                                            <Col xs={24} lg={14}>
+                                                <div className="bg-gray-50/80 p-4 rounded-lg border border-gray-200/50">
+                                                    <Title
+                                                        level={5}
+                                                        className="mb-3 text-gray-700"
+                                                    >
+                                                        Cấu hình font chữ PDF
+                                                    </Title>
+                                                    <Space
+                                                        direction="vertical"
+                                                        className="w-full"
+                                                        size="middle"
+                                                    >
+                                                        <Form.Item
+                                                            name="font_size"
+                                                            label={
+                                                                <Text strong>
+                                                                    Cỡ chữ PDF
+                                                                </Text>
+                                                            }
+                                                            style={{
+                                                                marginBottom: 0,
+                                                            }}
+                                                        >
+                                                            <InputNumber
+                                                                min={8}
+                                                                max={16}
+                                                                size="large"
+                                                                className="w-full custom-input-number"
+                                                                addonAfter="px"
+                                                                onChange={(
+                                                                    value
+                                                                ) => {
+                                                                    const fontSize =
+                                                                        value ||
+                                                                        10;
+                                                                    form.setFieldsValue(
+                                                                        {
+                                                                            font_size: fontSize,
+                                                                        }
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </Form.Item>
+                                                    </Space>
+                                                </div>
+                                            </Col>
+
+                                            <Col xs={24} lg={10}>
+                                                <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                                                    <Title
+                                                        level={5}
+                                                        className="mb-3 text-gray-700 text-center"
+                                                    >
+                                                        <span className="flex items-center justify-center space-x-2">
+                                                            <EyeOutlined />
+                                                            <span>
+                                                                Xem trước cỡ chữ
+                                                            </span>
+                                                            <Tooltip title="Xem trước kích thước font chữ sẽ được sử dụng trong PDF">
+                                                                <QuestionCircleOutlined className="text-gray-400 text-sm cursor-help" />
+                                                            </Tooltip>
+                                                        </span>
+                                                    </Title>
+                                                    <Form.Item
+                                                        dependencies={["font_size"]}
+                                                        noStyle
+                                                    >
+                                                        {({ getFieldValue }) => {
+                                                            const fontSize = getFieldValue("font_size") || 10;
+
+                                                            return (
+                                                                <div className="flex flex-col items-center space-y-3">
+                                                                    <div className="w-full h-48 bg-white border-2 border-gray-300 shadow-lg relative overflow-hidden rounded-lg p-3">
+                                                                        <div className="text-center mb-2">
+                                                                            <div 
+                                                                                className="font-bold text-gray-800 text-xs leading-tight"
+                                                                                style={{ fontSize: `${Math.min(Math.max(fontSize * 0.8, 8), 12)}px` }}
+                                                                            >
+                                                                                BẢNG TỔNG HỢP KHỐI LƯỢNG
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="border border-gray-300 rounded text-xs mb-2">
+                                                                            <div className="bg-gray-50 p-1 border-b border-gray-300">
+                                                                                <div 
+                                                                                    className="font-semibold text-gray-700 text-center leading-tight"
+                                                                                    style={{ fontSize: `${Math.min(fontSize * 0.7, 10)}px` }}
+                                                                                >
+                                                                                    STT | Mã GV | Họ tên | Giờ
+                                                                                </div>
+                                                                            </div>
+                                                                            
+                                                                            {[1, 2].map(i => (
+                                                                                <div key={i} className="p-1 border-b border-gray-200 last:border-b-0">
+                                                                                    <div 
+                                                                                        className="text-gray-600 leading-tight"
+                                                                                        style={{ fontSize: `${Math.min(fontSize * 0.7, 10)}px` }}
+                                                                                    >
+                                                                                        {i} | GV00{i} | Nguyễn V.A | 320.5
+                                                                                    </div>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+
+                                                                        <div 
+                                                                            className="text-gray-600 leading-tight overflow-hidden"
+                                                                            style={{ 
+                                                                                fontSize: `${Math.min(fontSize * 0.7, 10)}px`,
+                                                                                display: '-webkit-box',
+                                                                                WebkitLineClamp: 3,
+                                                                                WebkitBoxOrient: 'vertical'
+                                                                            }}
+                                                                        >
+                                                                            Báo cáo này tổng hợp khối lượng công việc của các giảng viên trong năm học, 
+                                                                            bao gồm giảng dạy, nghiên cứu khoa học và các hoạt động khác.
+                                                                            Dữ liệu được trình bày theo định dạng PDF với font chữ đã cấu hình.
+                                                                        </div>
+
+                                                                        <div className="absolute bottom-1 right-1">
+                                                                            <div className="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs">
+                                                                                Preview
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="text-center">
+                                                                        <Text className="text-sm text-gray-600 block font-medium">
+                                                                            Cỡ chữ: {fontSize}px
+                                                                        </Text>
+                                                                        <Text className="text-xs text-gray-500 block">
+                                                                            PDF xuất theo chiều dọc
+                                                                        </Text>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        }}
+                                                    </Form.Item>
+                                                </div>
+                                            </Col>
+                                        </Row>
                                     </Col>
                                 )}
                             </Row>
                         </div>
-
-                        {/* Enhanced Action Buttons */}
-                        <div className="flex justify-center space-x-6 pt-6">
+                        <div className="flex justify-center space-x-4 pt-4">
                             <Button
                                 type="default"
-                                icon={<EyeOutlined />}
+                                icon={
+                                    isPreviewing ? (
+                                        <SyncOutlined spin />
+                                    ) : (
+                                        <EyeOutlined />
+                                    )
+                                }
                                 size="large"
                                 onClick={handlePreview}
                                 loading={isPreviewing}
-                                disabled={!selectedNamHocId}
-                                className="px-8 h-12 bg-white/80 border-blue-200/60 hover:border-blue-400 hover:bg-blue-50/80 shadow-lg hover:shadow-xl transition-all duration-300"
-                                style={{ borderRadius: '12px' }}
+                                disabled={!selectedNamHocId || isPreviewing || isExporting}
+                                className="px-6 h-10 bg-white border-gray-300 hover:border-blue-400 hover:bg-blue-50 shadow-sm hover:shadow-md transition-all duration-300 font-medium"
+                                style={{ borderRadius: "8px" }}
                             >
-                                <span className="font-medium">Xem trước</span>
+                                <span className="font-medium">
+                                    {isPreviewing ? "Đang tải..." : "Xem trước"}
+                                </span>
                             </Button>
                             <Button
                                 type="primary"
-                                icon={<DownloadOutlined />}
+                                icon={
+                                    isExporting ? (
+                                        <SyncOutlined spin />
+                                    ) : (
+                                        <DownloadOutlined />
+                                    )
+                                }
                                 size="large"
                                 onClick={handleExport}
                                 loading={isExporting}
-                                disabled={!selectedNamHocId}
-                                className="px-8 h-12 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 border-none shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-                                style={{ borderRadius: '12px' }}
+                                disabled={!selectedNamHocId || isPreviewing || isExporting}
+                                className="px-6 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 border-0 shadow-md hover:shadow-lg transition-all duration-300 font-medium"
+                                style={{ borderRadius: "8px" }}
                             >
-                                <span className="font-medium">Xuất báo cáo</span>
-                            </Button>
+                                <span className="font-medium">
+                                    {isExporting
+                                        ? "Đang xuất..."
+                                        : "Xuất báo cáo"}
+                                </span>
+                            </Button>{" "}
                         </div>
                     </Form>
                 </Card>
-
-                {/* Enhanced Report Structure Information */}
-                <Card className="bg-white/80 backdrop-blur-sm border border-gray-200/50 shadow-lg" style={{ borderRadius: '20px' }}>
-                    <div className="flex items-center space-x-3 mb-6">
+                <Card
+                    className="border-0 shadow-lg bg-white/90 backdrop-blur-sm"
+                    style={{ borderRadius: "16px" }}
+                >
+                    <div className="flex items-center space-x-3 mb-4">
                         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
                             <InfoCircleOutlined className="text-white text-sm" />
                         </div>
-                        <Title level={4} className="mb-0 text-gray-800">Cấu trúc báo cáo</Title>
+                        <Title level={4} className="mb-0 text-gray-800">
+                            Cấu trúc báo cáo
+                        </Title>
                     </div>
-                    
+
                     <Alert
                         message="Báo cáo tổng hợp bao gồm các phần sau:"
                         type="info"
                         showIcon
-                        className="rounded-xl mb-6 border-blue-200/60 bg-blue-50/80"
+                        className="rounded-lg mb-4 border-blue-200 bg-blue-50"
                     />
-                    
-                    <Row gutter={[24, 24]}>
+
+                    <Row gutter={[20, 20]}>
                         <Col xs={24} md={8}>
-                            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border-l-4 border-blue-500 hover:shadow-lg transition-all duration-300">
-                                <div className="flex items-center space-x-3 mb-3">
-                                    <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                                        <span className="text-white font-bold text-sm">1</span>
+                            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-lg border-l-4 border-blue-500 hover:shadow-md transition-all duration-300">
+                                <div className="flex items-center space-x-3 mb-2">
+                                    <div className="w-6 h-6 bg-blue-500 rounded-lg flex items-center justify-center">
+                                        <span className="text-white font-bold text-xs">
+                                            1
+                                        </span>
                                     </div>
-                                    <Text strong className="text-blue-700 text-base">BẢNG TỔNG HỢP KHỐI LƯỢNG TÍNH VƯỢT GIỜ</Text>
+                                    <Text strong className="text-blue-700">
+                                        BẢNG TỔNG HỢP KHỐI LƯỢNG TÍNH VƯỢT GIỜ
+                                    </Text>
                                 </div>
-                                <Paragraph type="secondary" className="text-sm mb-0 leading-relaxed">
-                                    Trang đầu tiên chứa thông tin vượt giờ, đơn giá và thành tiền của từng giảng viên
-                                </Paragraph>
+                                <Text type="secondary" className="text-sm">
+                                    Trang đầu tiên chứa thông tin vượt giờ, đơn
+                                    giá và thành tiền của từng giảng viên
+                                </Text>
                             </div>
                         </Col>
                         <Col xs={24} md={8}>
-                            <div className="bg-gradient-to-br from-emerald-50 to-green-50 p-6 rounded-2xl border-l-4 border-emerald-500 hover:shadow-lg transition-all duration-300">
-                                <div className="flex items-center space-x-3 mb-3">
-                                    <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
-                                        <span className="text-white font-bold text-sm">2</span>
+                            <div className="bg-gradient-to-br from-emerald-50 to-green-50 p-4 rounded-lg border-l-4 border-emerald-500 hover:shadow-md transition-all duration-300">
+                                <div className="flex items-center space-x-3 mb-2">
+                                    <div className="w-6 h-6 bg-emerald-500 rounded-lg flex items-center justify-center">
+                                        <span className="text-white font-bold text-xs">
+                                            2
+                                        </span>
                                     </div>
-                                    <Text strong className="text-emerald-700 text-base">BẢNG TỔNG HỢP KHỐI LƯỢNG CÔNG TÁC</Text>
+                                    <Text strong className="text-emerald-700">
+                                        BẢNG TỔNG HỢP KHỐI LƯỢNG CÔNG TÁC
+                                    </Text>
                                 </div>
-                                <Paragraph type="secondary" className="text-sm mb-0 leading-relaxed">
-                                    Trang thứ hai chứa tổng hợp khối lượng công việc theo các hạng mục
-                                </Paragraph>
+                                <Text type="secondary" className="text-sm">
+                                    Trang thứ hai chứa tổng hợp khối lượng công
+                                    việc theo các hạng mục
+                                </Text>
                             </div>
                         </Col>
                         <Col xs={24} md={8}>
-                            <div className="bg-gradient-to-br from-purple-50 to-violet-50 p-6 rounded-2xl border-l-4 border-purple-500 hover:shadow-lg transition-all duration-300">
-                                <div className="flex items-center space-x-3 mb-3">
-                                    <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
-                                        <span className="text-white font-bold text-sm">3</span>
+                            <div className="bg-gradient-to-br from-purple-50 to-violet-50 p-4 rounded-lg border-l-4 border-purple-500 hover:shadow-md transition-all duration-300">
+                                <div className="flex items-center space-x-3 mb-2">
+                                    {" "}
+                                    <div className="w-6 h-6 bg-purple-500 rounded-lg flex items-center justify-center">
+                                        <span className="text-white font-bold text-xs">
+                                            3
+                                        </span>
                                     </div>
-                                    <Text strong className="text-purple-700 text-base">CHI TIẾT TỪNG GIẢNG VIÊN</Text>
+                                    <Text strong className="text-purple-700">
+                                        CHI TIẾT TỪNG GIẢNG VIÊN
+                                    </Text>
                                 </div>
-                                <Paragraph type="secondary" className="text-sm mb-0 leading-relaxed">
-                                    Các trang tiếp theo chứa kê khai chi tiết của từng giảng viên
-                                </Paragraph>
+                                <Text type="secondary" className="text-sm">
+                                    Các trang tiếp theo chứa kê khai chi tiết
+                                    của từng giảng viên
+                                </Text>
                             </div>
                         </Col>
                     </Row>
                 </Card>
-
-                {/* Enhanced Preview Data */}
-                {previewData && (
-                    <Card className="bg-white/80 backdrop-blur-sm border border-emerald-200/50 shadow-lg" style={{ borderRadius: '20px' }}>
-                        <div className="flex items-center space-x-3 mb-6">
+                {previewData ? (
+                    <Card
+                        className="border-0 shadow-lg bg-white/90 backdrop-blur-sm"
+                        style={{ borderRadius: "16px" }}
+                    >
+                        <div className="flex items-center space-x-3 mb-4">
                             <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg flex items-center justify-center">
                                 <EyeOutlined className="text-white text-sm" />
                             </div>
                             <Title level={4} className="mb-0 text-gray-800">
-                                Xem trước dữ liệu ({previewData.total_records} bản ghi)
+                                Xem trước dữ liệu ({previewData.total_records}{" "} bản ghi)
                             </Title>
                         </div>
-                        
                         <Alert
                             message={`Dự kiến xuất ${previewData.total_records} bản ghi kê khai`}
                             type="success"
                             showIcon
-                            className="mb-6 rounded-xl border-emerald-200/60 bg-emerald-50/80"
+                            className="mb-4 rounded-lg border-emerald-200 bg-emerald-50"
                         />
-                        
                         <div className="mb-4">
-                            <Title level={5} className="text-gray-700 mb-4 flex items-center space-x-2">
-                                <span>📊</span>
-                                <span>Bảng tổng hợp khối lượng tính vượt giờ (Hiển thị {Math.min(previewData.reportData?.length || 0, 10)} bản ghi đầu tiên):</span>
+                            <Title
+                                level={5}
+                                className="text-gray-700 mb-3 flex items-center space-x-2"
+                            >
+                                <TableOutlined />
+                                <span>
+                                    Bảng tổng hợp khối lượng tính vượt giờ (Hiển thị{" "}
+                                    {Math.min( previewData.reportData?.length || 0, 10 )}{" "} bản ghi đầu tiên):
+                                </span>
                             </Title>
-                            <div className="bg-gray-50/80 rounded-2xl p-6 border-2 border-dashed border-gray-300/60 max-h-96 overflow-auto">
+                            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 max-h-96 overflow-auto">
                                 {previewData.reportData && previewData.reportData.length > 0 ? (
                                     <div className="overflow-x-auto">
                                         <table className="min-w-full border-collapse border border-gray-300 elegant-preview-table">
                                             <thead className="bg-gradient-to-r from-gray-50 to-slate-50">
                                                 <tr>
-                                                    <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">STT</th>
-                                                    <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Mã GV</th>
-                                                    <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Họ đệm</th>
-                                                    <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Tên</th>
-                                                    <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Học hàm</th>
-                                                    <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Học vị</th>
-                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">Định mức KHCN</th>
-                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">Định mức GD</th>
-                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">Thực hiện KHCN</th>
-                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">Thực hiện GD</th>
-                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">GD xa trường</th>
-                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">Số tiết vượt</th>
-                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">Mức lương CB</th>
-                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">HD LA</th>
-                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">HD LV</th>
-                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">HD ĐA/KL</th>
-                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">Thành tiền</th>
-                                                    <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">Trạng thái</th>
+                                                    <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700 text-sm">
+                                                        STT
+                                                    </th>
+                                                    <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700 text-sm">
+                                                        Mã GV
+                                                    </th>
+                                                    <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700 text-sm">
+                                                        Họ đệm
+                                                    </th>
+                                                    <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700 text-sm">
+                                                        Tên
+                                                    </th>
+                                                    <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700 text-sm">
+                                                        Học hàm
+                                                    </th>
+                                                    <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700 text-sm">
+                                                        Học vị
+                                                    </th>
+                                                    <th className="border border-gray-300 px-3 py-2 text-right font-semibold text-gray-700 text-sm">
+                                                        Định mức KHCN
+                                                    </th>
+                                                    <th className="border border-gray-300 px-3 py-2 text-right font-semibold text-gray-700 text-sm">
+                                                        Định mức GD
+                                                    </th>
+                                                    <th className="border border-gray-300 px-3 py-2 text-right font-semibold text-gray-700 text-sm">
+                                                        Thực hiện KHCN
+                                                    </th>
+                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">
+                                                        Thực hiện GD
+                                                    </th>
+                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">
+                                                        GD xa trường
+                                                    </th>
+                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">
+                                                        Số tiết vượt
+                                                    </th>
+                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">
+                                                        Mức lương CB
+                                                    </th>
+                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">
+                                                        HD LA
+                                                    </th>
+                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">
+                                                        HD LV
+                                                    </th>
+                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">
+                                                        HD ĐA/KL
+                                                    </th>
+                                                    <th className="border border-gray-300 px-4 py-3 text-right font-semibold text-gray-700">
+                                                        Thành tiền
+                                                    </th>
+                                                    <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-700">
+                                                        Trạng thái
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {previewData.reportData.slice(0, 10).map((item, index) => (
-                                                    <tr key={index} className={index % 2 === 0 ? 'bg-white hover:bg-blue-50/50' : 'bg-gray-50/50 hover:bg-blue-50/50'}>
-                                                        <td className="border border-gray-300 px-4 py-3 text-center font-medium">{index + 1}</td>
-                                                        <td className="border border-gray-300 px-4 py-3 font-medium text-blue-600">{item.ma_gv || 'N/A'}</td>
-                                                        <td className="border border-gray-300 px-4 py-3">{item.ho_dem || ''}</td>
-                                                        <td className="border border-gray-300 px-4 py-3 font-medium">{item.ten || ''}</td>
-                                                        <td className="border border-gray-300 px-4 py-3">{item.hoc_ham || ''}</td>
-                                                        <td className="border border-gray-300 px-4 py-3">{item.hoc_vi || ''}</td>
-                                                        <td className="border border-gray-300 px-4 py-3 text-right font-mono">{Number(item.dinhmuc_khcn || 0).toFixed(2)}</td>
-                                                        <td className="border border-gray-300 px-4 py-3 text-right font-mono">{Number(item.dinhmuc_gd || 0).toFixed(2)}</td>
-                                                        <td className="border border-gray-300 px-4 py-3 text-right font-mono">{Number(item.thuc_hien_khcn || 0).toFixed(2)}</td>
-                                                        <td className="border border-gray-300 px-4 py-3 text-right font-mono">{Number(item.thuc_hien_gd || 0).toFixed(2)}</td>
-                                                        <td className="border border-gray-300 px-4 py-3 text-right font-mono">{Number(item.gd_xa_truong || 0).toFixed(2)}</td>
-                                                        <td className="border border-gray-300 px-4 py-3 text-right font-mono">{Number(item.so_tiet_vuot || 0).toFixed(2)}</td>
-                                                        <td className="border border-gray-300 px-4 py-3 text-right font-mono">{Number(item.muc_luong_co_ban || 0).toLocaleString('vi-VN')}</td>
-                                                        <td className="border border-gray-300 px-4 py-3 text-right font-mono">{item.hd_la || 0}</td>
-                                                        <td className="border border-gray-300 px-4 py-3 text-right font-mono">{item.hd_lv || 0}</td>
-                                                        <td className="border border-gray-300 px-4 py-3 text-right font-mono">{item.hd_da_kl || 0}</td>
-                                                        <td className="border border-gray-300 px-4 py-3 text-right font-bold text-emerald-600 font-mono">
-                                                            {Number(item.thanh_tien || 0).toLocaleString('vi-VN')}
-                                                        </td>
-                                                        <td className="border border-gray-300 px-4 py-3">
-                                                            <Tag 
-                                                                color={
-                                                                    item.trang_thai === 3 ? 'green' : 
-                                                                    item.trang_thai === 1 ? 'blue' : 
-                                                                    item.trang_thai === 4 ? 'orange' : 'default'
-                                                                }
-                                                                className="rounded-lg"
-                                                            >
-                                                                {item.trang_thai === 3 ? 'Đã duyệt' : 
-                                                                 item.trang_thai === 1 ? 'Chờ duyệt' : 
-                                                                 item.trang_thai === 4 ? 'BM trả lại' : 'Nháp'}
-                                                            </Tag>
-                                                        </td>
-                                                    </tr>
-                                                ))}
+                                                {previewData.reportData
+                                                    .slice(0, 10)
+                                                    .map((item, index) => (
+                                                        <tr
+                                                            key={index}
+                                                            className={
+                                                                index % 2 === 0
+                                                                    ? "bg-white hover:bg-blue-50/50"
+                                                                    : "bg-gray-50/50 hover:bg-blue-50/50"
+                                                            }
+                                                        >
+                                                            <td className="border border-gray-300 px-4 py-3 text-center font-medium">
+                                                                {index + 1}
+                                                            </td>
+                                                            <td className="border border-gray-300 px-4 py-3 font-medium text-blue-600">
+                                                                {item.ma_gv ||
+                                                                    "N/A"}
+                                                            </td>
+                                                            <td className="border border-gray-300 px-4 py-3">
+                                                                {item.ho_dem ||
+                                                                    ""}
+                                                            </td>
+                                                            <td className="border border-gray-300 px-4 py-3 font-medium">
+                                                                {item.ten || ""}
+                                                            </td>
+                                                            <td className="border border-gray-300 px-4 py-3">
+                                                                {item.hoc_ham ||
+                                                                    ""}
+                                                            </td>
+                                                            <td className="border border-gray-300 px-4 py-3">
+                                                                {item.hoc_vi ||
+                                                                    ""}
+                                                            </td>
+                                                            <td className="border border-gray-300 px-4 py-3 text-right font-mono">
+                                                                {Number(
+                                                                    item.dinhmuc_khcn ||
+                                                                        0
+                                                                ).toFixed(2)}
+                                                            </td>
+                                                            <td className="border border-gray-300 px-4 py-3 text-right font-mono">
+                                                                {Number(
+                                                                    item.dinhmuc_gd ||
+                                                                        0
+                                                                ).toFixed(2)}
+                                                            </td>
+                                                            <td className="border border-gray-300 px-4 py-3 text-right font-mono">
+                                                                {Number(
+                                                                    item.thuc_hien_khcn ||
+                                                                        0
+                                                                ).toFixed(2)}
+                                                            </td>
+                                                            <td className="border border-gray-300 px-4 py-3 text-right font-mono">
+                                                                {Number(
+                                                                    item.thuc_hien_gd ||
+                                                                        0
+                                                                ).toFixed(2)}
+                                                            </td>
+                                                            <td className="border border-gray-300 px-4 py-3 text-right font-mono">
+                                                                {Number(
+                                                                    item.gd_xa_truong ||
+                                                                        0
+                                                                ).toFixed(2)}
+                                                            </td>
+                                                            <td className="border border-gray-300 px-4 py-3 text-right font-mono">
+                                                                {Number(
+                                                                    item.so_tiet_vuot ||
+                                                                        0
+                                                                ).toFixed(2)}
+                                                            </td>
+                                                            <td className="border border-gray-300 px-4 py-3 text-right font-mono">
+                                                                {Number(
+                                                                    item.muc_luong_co_ban ||
+                                                                        0
+                                                                ).toLocaleString(
+                                                                    "vi-VN"
+                                                                )}
+                                                            </td>
+                                                            <td className="border border-gray-300 px-4 py-3 text-right font-mono">
+                                                                {item.hd_la ||
+                                                                    0}
+                                                            </td>
+                                                            <td className="border border-gray-300 px-4 py-3 text-right font-mono">
+                                                                {item.hd_lv ||
+                                                                    0}
+                                                            </td>
+                                                            <td className="border border-gray-300 px-4 py-3 text-right font-mono">
+                                                                {item.hd_da_kl ||
+                                                                    0}
+                                                            </td>
+                                                            <td className="border border-gray-300 px-4 py-3 text-right font-bold text-emerald-600 font-mono">
+                                                                {Number(
+                                                                    item.thanh_tien ||
+                                                                        0
+                                                                ).toLocaleString(
+                                                                    "vi-VN"
+                                                                )}
+                                                            </td>
+                                                            <td className="border border-gray-300 px-4 py-3">
+                                                                <Tag
+                                                                    color={
+                                                                        item.trang_thai ===
+                                                                        3
+                                                                            ? "green"
+                                                                            : item.trang_thai ===
+                                                                              1
+                                                                            ? "blue"
+                                                                            : item.trang_thai ===
+                                                                              4
+                                                                            ? "orange"
+                                                                            : "default"
+                                                                    }
+                                                                    className="rounded-lg"
+                                                                >
+                                                                    {item.trang_thai ===
+                                                                    3
+                                                                        ? "Đã duyệt"
+                                                                        : item.trang_thai ===
+                                                                          1
+                                                                        ? "Chờ duyệt"
+                                                                        : item.trang_thai ===
+                                                                          4
+                                                                        ? "BM trả lại"
+                                                                        : "Nháp"}
+                                                                </Tag>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
                                             </tbody>
                                         </table>
                                     </div>
                                 ) : (
                                     <div className="text-center py-12 text-gray-500">
                                         <EyeOutlined className="text-6xl mb-4 text-gray-300" />
-                                        <p className="text-lg">Không có dữ liệu để hiển thị</p>
+                                        <p className="text-lg">
+                                            Không có dữ liệu để hiển thị
+                                        </p>
                                     </div>
                                 )}
                             </div>
-                        </div>
-
-                        {previewData.reportData && previewData.reportData.length > 10 && (
-                            <Alert
-                                message={`Và ${previewData.reportData.length - 10} bản ghi khác sẽ được bao gồm trong báo cáo đầy đủ`}
-                                type="info"
-                                showIcon
-                                className="rounded-xl border-blue-200/60 bg-blue-50/80"
-                            />
-                        )}
+                        </div>{" "}
+                        {previewData.reportData &&
+                            previewData.reportData.length > 10 && (
+                                <Alert
+                                    message={`Và ${
+                                        previewData.reportData.length - 10
+                                    } bản ghi khác sẽ được bao gồm trong báo cáo đầy đủ`}
+                                    type="info"
+                                    showIcon
+                                    className="rounded-lg border-blue-200 bg-blue-50"
+                                />
+                            )}
                     </Card>
-                )}
-
-                {/* Enhanced Custom Styles */}
+                ) : (
+                    <Card
+                        className="border-0 shadow-lg bg-white/90 backdrop-blur-sm"
+                        style={{ borderRadius: "16px" }}
+                    >
+                        <div className="text-center py-12">
+                            <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center">
+                                <EyeOutlined className="text-3xl text-gray-400" />
+                            </div>
+                            <Title level={4} className="text-gray-600 mb-2">
+                                Chưa có dữ liệu xem trước
+                            </Title>
+                            <Text className="text-gray-500 mb-4 block">
+                                Nhấn nút "Xem trước" để tải và hiển thị dữ liệu
+                                mẫu trước khi xuất báo cáo hoàn chỉnh.
+                            </Text>
+                            <Button
+                                type="primary"
+                                icon={<EyeOutlined />}
+                                size="large"
+                                onClick={handlePreview}
+                                loading={isPreviewing}
+                                disabled={!selectedNamHocId || isPreviewing}
+                                className="px-6 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 border-0"
+                                style={{ borderRadius: "8px" }}
+                            >
+                                Xem trước dữ liệu
+                            </Button>
+                        </div>
+                    </Card>
+                )}{" "}
                 <style>{`
-                    /* Enhanced Form Controls */
                     .custom-select .ant-select-selector {
-                        border-radius: 12px !important;
-                        border: 2px solid #e2e8f0 !important;
-                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04) !important;
-                        transition: all 0.3s ease !important;
-                        background: rgba(255, 255, 255, 0.8) !important;
-                        backdrop-filter: blur(8px) !important;
+                        border-radius: 8px !important;
+                        border: 1px solid #d1d5db !important;
+                        transition: all 0.2s ease !important;
+                        background: #ffffff !important;
                     }
                     
                     .custom-select .ant-select-selector:hover {
                         border-color: #3b82f6 !important;
-                        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important;
-                        transform: translateY(-1px) !important;
+                        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1) !important;
                     }
 
                     .custom-select.ant-select-focused .ant-select-selector {
                         border-color: #3b82f6 !important;
-                        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1) !important;
-                        transform: translateY(-2px) !important;
+                        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
                     }
 
                     .custom-input-number .ant-input-number {
-                        border-radius: 12px !important;
-                        border: 2px solid #e2e8f0 !important;
-                        transition: all 0.3s ease !important;
+                        border-radius: 8px !important;
+                        border: 1px solid #d1d5db !important;
+                        transition: all 0.2s ease !important;
                     }
 
                     .custom-input-number .ant-input-number:hover {
                         border-color: #3b82f6 !important;
-                        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important;
+                        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1) !important;
                     }
 
                     .custom-input-number .ant-input-number-focused {
                         border-color: #3b82f6 !important;
-                        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1) !important;
+                        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
                     }
 
-                    /* Enhanced Radio Styling */
                     .ant-radio-wrapper {
-                        transition: all 0.3s ease !important;
+                        transition: all 0.2s ease !important;
                     }
 
                     .ant-radio-wrapper:hover {
-                        transform: translateY(-2px) !important;
-                        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+                        transform: translateY(-1px) !important;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
                     }
 
                     .ant-radio-checked + .ant-radio-wrapper {
@@ -753,15 +1169,14 @@ function ExportReport() {
                         border-color: #10b981 !important;
                     }
 
-                    /* Enhanced Preview Table */
                     .elegant-preview-table {
-                        border-radius: 12px !important;
+                        border-radius: 8px !important;
                         overflow: hidden !important;
-                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
                     }
 
                     .elegant-preview-table th {
-                        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+                        background: #f8fafc !important;
                         transition: all 0.2s ease !important;
                     }
 
@@ -770,24 +1185,55 @@ function ExportReport() {
                     }
 
                     .elegant-preview-table tbody tr:hover {
-                        transform: translateY(-1px) !important;
-                        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1) !important;
+                        background: #f8fafc !important;
                     }
 
-                    /* Card enhancements */
                     .ant-card {
-                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                        transition: all 0.2s ease !important;
                     }
 
                     .ant-card:hover {
-                        transform: translateY(-2px) !important;
+                        transform: translateY(-1px) !important;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
                     }
 
-                    /* Animation enhancements */
-                    @keyframes subtleSlideIn {
+                    .ant-btn {
+                        transition: all 0.2s ease !important;
+                    }
+
+                    .ant-btn:hover {
+                        transform: translateY(-1px) !important;
+                    }
+
+                    .ant-btn:active {
+                        transform: translateY(0) !important;
+                    }                    
+                    @media (max-width: 768px) {
+                        .elegant-preview-table th,
+                        .elegant-preview-table td {
+                            padding: 6px 4px !important;
+                            font-size: 12px !important;
+                        }
+                    }
+
+                    .pdf-preview-paper {
+                        transition: all 0.3s ease !important;
+                        position: relative !important;
+                    }
+
+                    .pdf-preview-paper:hover {
+                        transform: scale(1.05) !important;
+                        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+                    }
+
+                    .pdf-preview-content {
+                        animation: fadeInContent 0.5s ease-out !important;
+                    }
+
+                    @keyframes fadeInContent {
                         from {
                             opacity: 0;
-                            transform: translateY(8px);
+                            transform: translateY(4px);
                         }
                         to {
                             opacity: 1;
@@ -795,17 +1241,20 @@ function ExportReport() {
                         }
                     }
 
-                    .ant-card {
-                        animation: subtleSlideIn 0.3s ease-out !important;
+                    .ant-radio-wrapper {
+                        border-radius: 6px !important;
+                        padding: 4px 8px !important;
+                        margin: 0 !important;
+                        transition: all 0.2s ease !important;
                     }
 
-                    /* Responsive adjustments */
-                    @media (max-width: 768px) {
-                        .elegant-preview-table th,
-                        .elegant-preview-table td {
-                            padding: 8px 4px !important;
-                            font-size: 12px !important;
-                        }
+                    .ant-radio-wrapper:hover {
+                        background: rgba(59, 130, 246, 0.05) !important;
+                    }
+
+                    .ant-radio-wrapper.ant-radio-wrapper-checked {
+                        background: rgba(59, 130, 246, 0.1) !important;
+                        border: 1px solid rgba(59, 130, 246, 0.2) !important;
                     }
                 `}</style>
             </div>

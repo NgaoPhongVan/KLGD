@@ -1,0 +1,63 @@
+# Rà soát Model và Database (tự động bởi AI ngày 25/06/2025)
+
+## 1. Model CẦN GIỮ LẠI (chuẩn, còn dùng trong controller/service và có bảng DB)
+- User
+- BoMon
+- Khoa
+- NamHoc
+- HocKy
+- KeKhaiTongHopNamHoc
+- KeKhaiThoiGian
+- DinhMucCaNhanTheoNam
+- DmHeSoChung
+- MienGiamDinhMuc
+- LuongGiangVien
+- LichSuPheDuyet
+- Notification
+- MinhChung
+- KekhaiGdLopDhTrongbm
+- KekhaiGdLopDhNgoaibm
+- KekhaiGdLopDhNgoaics
+- KekhaiGdLopThs
+- KekhaiGdLopTs
+- KekhaiHdDatnDaihoc
+- KekhaiHdLvThacsi
+- KekhaiHdLaTiensi
+- KekhaiDgHpTnDaihoc
+- KekhaiDgLvThacsi
+- KekhaiDgLaTiensiDot
+- KekhaiDgLaTiensiNhiemvu
+- KekhaiKhaothiDaihocTrongbm
+- KekhaiKhaothiDaihocNgoaibm
+- KekhaiKhaothiThacsi
+- KekhaiKhaothiTiensi
+- KekhaiXdCtdtVaKhacGd
+- KekhaiNckhNamHoc
+- KekhaiCongtacKhacNamHoc
+
+## 2. Model NÊN XÓA (không còn dùng hoặc không còn bảng DB)
+- DmDinhMucVaiTroDanhGia
+- DmDinhMucVaiTroHdThs
+- DmDinhMucVaiTroHdTs
+- DinhMucGioChuan
+- ChucDanhGv
+- ChucDanh
+- DmHoatDongGiangDayKhac
+- DmHeSoHuongDan
+
+> Nếu các model này không còn dùng trong controller/service hoặc không còn bảng DB, hãy xóa để tránh thừa thãi.
+
+## 3. Model CẦN KIỂM TRA LẠI (danh mục, lookup, hoặc dùng cho import/export)
+- Nếu còn dùng cho lookup, import/export, hãy giữ lại. Nếu không, hãy xóa.
+
+## 4. So sánh với Database (file Doan.txt)
+- Các bảng như `ke_khai_giang_day`, `ke_khai_hoat_dong_gd_khac_chung`, ... là bảng cũ, nếu không còn dùng, hãy xóa model tương ứng.
+- Các bảng mới dạng `kekhai_*` đều đã có model tương ứng và được sử dụng.
+
+## 5. Đề xuất hành động
+- **Xóa** các model không còn dùng hoặc không còn bảng DB.
+- **Giữ lại** các model còn liên kết với controller/service và bảng DB.
+- **Kiểm tra lại** các model danh mục, chỉ giữ nếu thực sự cần.
+
+---
+# Danh sách model và bảng thực tế đã được rà soát, bạn nên backup trước khi xóa!

@@ -172,9 +172,7 @@ function KeKhaiThoiGianManagement() {
         setDeleteModalVisible(true);
     };
 
-    const confirmDelete = async () => {
-        console.log("Confirm delete clicked, deleting ID:", deletingId); // Debug log
-        
+    const confirmDelete = async () => {        
         if (!deletingId) {
             message.error("Không thể xác định thời gian kê khai cần xóa");
             return;
@@ -182,21 +180,16 @@ function KeKhaiThoiGianManagement() {
 
         setIsDeleting(true);
         
-        try {
-            console.log("Making DELETE request to:", `/api/admin/ke-khai-thoi-gian/${deletingId}`); // Debug log
-            
+        try {            
             const response = await axios.delete(`/api/admin/ke-khai-thoi-gian/${deletingId}`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
             });
             
-            console.log("Delete response:", response); // Debug log
             message.success("Xóa thời gian kê khai thành công");
             
-            // Close modal and reset state
             setDeleteModalVisible(false);
             setDeletingId(null);
             
-            // Refresh data after successful deletion
             await fetchKeKhaiThoiGian();
             
         } catch (error) {
@@ -210,7 +203,6 @@ function KeKhaiThoiGianManagement() {
                 errorMessage = "Bạn không có quyền xóa thời gian kê khai này.";
             } else if (error.response?.status === 404) {
                 errorMessage = "Thời gian kê khai không tồn tại hoặc đã được xóa.";
-                // Refresh data to update the list
                 await fetchKeKhaiThoiGian();
             } else if (error.response?.status === 422) {
                 errorMessage = error.response?.data?.message || "Không thể xóa thời gian kê khai này vì có ràng buộc dữ liệu!";
@@ -227,7 +219,6 @@ function KeKhaiThoiGianManagement() {
     };
 
     const cancelDelete = () => {
-        console.log("Delete cancelled"); // Debug log
         setDeleteModalVisible(false);
         setDeletingId(null);
     };
@@ -257,7 +248,6 @@ function KeKhaiThoiGianManagement() {
     };
 
     const downloadSampleFile = () => {
-        // Tạo dữ liệu mẫu CSV với cấu trúc đúng cho thời gian kê khai
         const csvHeaders = [
             'hoc_ky_id',
             'thoi_gian_bat_dau',
@@ -265,51 +255,35 @@ function KeKhaiThoiGianManagement() {
             'ghi_chu'
         ];
 
-        // Dữ liệu mẫu với các giá trị ví dụ thực tế
         const sampleData = [
             [
                 '1',
                 '2024-01-15 08:00:00',
                 '2024-01-30 23:59:59',
-                'Thời gian kê khai cho học kỳ 1 năm học 2023-2024'
+                'Thời gian kê khai cho năm học 2023-2024'
             ],
             [
                 '2',
                 '2024-02-01 08:00:00',
                 '2024-02-15 23:59:59',
-                'Thời gian kê khai cho học kỳ 2 năm học 2023-2024'
+                'Thời gian kê khai cho năm học 2023-2024'
             ],
             [
                 '3',
-                '2024-06-01 08:00:00',
-                '2024-06-15 23:59:59',
-                'Thời gian kê khai cho học kỳ hè năm học 2023-2024'
-            ],
-            [
-                '4',
                 '2024-08-15 08:00:00',
                 '2024-08-30 23:59:59',
-                'Thời gian kê khai cho học kỳ 1 năm học 2024-2025'
-            ],
-            [
-                '5',
-                '2024-12-01 08:00:00',
-                '2024-12-15 23:59:59',
-                'Thời gian kê khai cho học kỳ 2 năm học 2024-2025'
+                'Thời gian kê khai cho năm học 2024-2025'
             ]
         ];
 
-        // Tạo nội dung CSV
         const csvContent = [
             csvHeaders.join(','),
             ...sampleData.map(row => row.join(','))
         ].join('\n');
 
-        // Thêm BOM để hỗ trợ UTF-8 trong Excel
         const BOM = '\uFEFF';
         const finalContent = BOM + csvContent;
 
-        // Tạo và tải xuống file
         const blob = new Blob([finalContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
@@ -364,7 +338,7 @@ function KeKhaiThoiGianManagement() {
                 return false;
             }
             setFile(file);
-            return false; // Prevent auto upload
+            return false;
         },
         onRemove: () => {
             setFile(null);
@@ -374,7 +348,7 @@ function KeKhaiThoiGianManagement() {
 
     const columns = [
         {
-            title: 'Thông tin học kỳ',
+            title: 'Thông tin năm học',
             key: 'hoc_ky_info',
             width: 250,
             render: (_, record) => (
@@ -384,24 +358,13 @@ function KeKhaiThoiGianManagement() {
                     </div>
                     <div className="min-w-0 flex-1">
                         <Text className="text-sm font-medium text-gray-800 block truncate">
-                            {record.hoc_ky?.ten_hoc_ky || "-"}
+                            {record.nam_hoc?.ten_nam_hoc || "-"}
                         </Text>
                         <Text className="text-xs text-gray-500 block truncate">
                             ID: {record.id}
                         </Text>
                     </div>
                 </div>
-            ),
-        },
-        {
-            title: 'Năm học',
-            dataIndex: ['hoc_ky', 'nam_hoc', 'ten_nam_hoc'],
-            key: 'nam_hoc',
-            width: 150,
-            render: (namHoc) => (
-                <Tag color="blue" className="font-medium">
-                    {namHoc || 'N/A'}
-                </Tag>
             ),
         },
         {
@@ -495,7 +458,6 @@ function KeKhaiThoiGianManagement() {
             key: 'actions',
             width: 120,
             render: (_, record) => {
-                console.log("Rendering action buttons for record:", record); // Debug log
                 return (
                     <Space>
                         <Tooltip title="Chỉnh sửa">
@@ -579,7 +541,7 @@ function KeKhaiThoiGianManagement() {
 
     const fetchHocKy = async () => {
         try {
-            const response = await axios.get("/api/admin/hoc-ky", {
+            const response = await axios.get("/api/admin/nam-hoc", {
                 headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
                 params: {
                     per_page: 100,
@@ -595,14 +557,12 @@ function KeKhaiThoiGianManagement() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40 relative">
-            {/* Enhanced background decoration */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-blue-400/5 to-indigo-400/5 rounded-full blur-3xl"></div>
                 <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-purple-400/5 to-pink-400/5 rounded-full blur-3xl"></div>
             </div>
 
             <div className="relative z-10 p-8 space-y-6">
-                {/* Enhanced Header */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-6">
@@ -633,7 +593,6 @@ function KeKhaiThoiGianManagement() {
                     </div>
                 </Card>
 
-                {/* Enhanced Search Section */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-blue-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
@@ -686,7 +645,6 @@ function KeKhaiThoiGianManagement() {
                     </div>
                 </Card>
 
-                {/* Enhanced Form Section */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-purple-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
@@ -713,21 +671,21 @@ function KeKhaiThoiGianManagement() {
                             <Col xs={24} sm={12} lg={8}>
                                 <Form.Item
                                     name="hoc_ky_id"
-                                    label={<Text strong>Học kỳ</Text>}
-                                    rules={[{ required: true, message: 'Vui lòng chọn học kỳ' }]}
+                                    label={<Text strong>Năm học</Text>}
+                                    rules={[{ required: true, message: 'Vui lòng chọn năm học' }]}
                                 >
                                     <Select
                                         size="large"
-                                        placeholder="Chọn học kỳ"
+                                        placeholder="Chọn năm học"
                                         className="custom-select"
                                         showSearch
                                         filterOption={(input, option) =>
                                             option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                         }
                                     >
-                                        {hocKyList.map((hocKy) => (
-                                            <Option key={hocKy.id} value={hocKy.id}>
-                                                {`${hocKy.ten_hoc_ky} (${hocKy.nam_hoc?.ten_nam_hoc || "-"})`}
+                                        {hocKyList.map((namHoc) => (
+                                            <Option key={namHoc.id} value={namHoc.id}>
+                                                {`${namHoc.ten_nam_hoc}`}
                                             </Option>
                                         ))}
                                     </Select>
@@ -822,7 +780,6 @@ function KeKhaiThoiGianManagement() {
                     </Form>
                 </Card>
 
-                {/* Enhanced Import Section */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-emerald-50/50 to-teal-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
@@ -856,7 +813,7 @@ function KeKhaiThoiGianManagement() {
                                         <Text className="block mt-1">File phải có cấu trúc đúng với các cột theo thứ tự: hoc_ky_id, thoi_gian_bat_dau, thoi_gian_ket_thuc, ghi_chu</Text>
                                         <div className="mt-3 flex items-center justify-between">
                                             <Text className="text-blue-700">
-                                                <strong>Lưu ý:</strong> hoc_ky_id phải tồn tại trong hệ thống, thời gian theo định dạng YYYY-MM-DD HH:mm:ss
+                                                <strong>Lưu ý:</strong> nam_hoc_id phải tồn tại trong hệ thống, thời gian theo định dạng YYYY-MM-DD HH:mm:ss
                                             </Text>
                                             <Button
                                                 type="link"
@@ -872,7 +829,6 @@ function KeKhaiThoiGianManagement() {
                                 </div>
                             </div>
 
-                            {/* Additional help section */}
                             <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
                                 <div className="flex items-start">
                                     <div className="w-4 h-4 bg-amber-400 rounded-full mt-0.5 mr-2 flex-shrink-0"></div>
@@ -881,7 +837,7 @@ function KeKhaiThoiGianManagement() {
                                         <ul className="list-disc list-inside mt-1 space-y-1">
                                             <li>Tải xuống file mẫu để xem cấu trúc chính xác</li>
                                             <li>Thay thế dữ liệu mẫu bằng thông tin thực tế</li>
-                                            <li>Đảm bảo hoc_ky_id tương ứng với ID trong hệ thống</li>
+                                            <li>Đảm bảo nam_hoc_id tương ứng với ID trong hệ thống</li>
                                             <li>Thời gian phải theo định dạng: YYYY-MM-DD HH:mm:ss</li>
                                             <li>Thời gian kết thúc phải sau thời gian bắt đầu</li>
                                             <li>Ghi chú có thể để trống</li>
@@ -891,18 +847,17 @@ function KeKhaiThoiGianManagement() {
                                 </div>
                             </div>
 
-                            {/* Hoc Ky reference section */}
                             {hocKyList.length > 0 && (
                                 <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
                                     <div className="flex items-start">
                                         <div className="w-4 h-4 bg-green-400 rounded-full mt-0.5 mr-2 flex-shrink-0"></div>
                                         <div className="text-xs text-green-800">
-                                            <Text strong className="block">Danh sách ID học kỳ hiện tại:</Text>
+                                            <Text strong className="block">Danh sách ID năm học hiện tại:</Text>
                                             <div className="mt-2 grid grid-cols-1 gap-2 max-h-40 overflow-y-auto">
-                                                {hocKyList.slice(0, 10).map((hocKy) => (
-                                                    <div key={hocKy.id} className="flex items-center space-x-1">
-                                                        <span className="font-mono text-green-700">{hocKy.id}:</span>
-                                                        <span className="truncate">{hocKy.ten_hoc_ky} ({hocKy.nam_hoc?.ten_nam_hoc || 'N/A'})</span>
+                                                {hocKyList.slice(0, 10).map((namHoc) => (
+                                                    <div key={namHoc.id} className="flex items-center space-x-1">
+                                                        <span className="font-mono text-green-700">{namHoc.id}:</span>
+                                                        <span className="truncate">{namHoc.ten_nam_hoc}</span>
                                                     </div>
                                                 ))}
                                             </div>
@@ -916,7 +871,6 @@ function KeKhaiThoiGianManagement() {
                                 </div>
                             )}
 
-                            {/* Time Format Examples */}
                             <div className="mt-3 p-3 bg-indigo-50 rounded-lg border border-indigo-200">
                                 <div className="flex items-start">
                                     <div className="w-4 h-4 bg-indigo-400 rounded-full mt-0.5 mr-2 flex-shrink-0"></div>
@@ -960,7 +914,6 @@ function KeKhaiThoiGianManagement() {
                     </Row>
                 </Card>
 
-                {/* Enhanced Table Section */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-purple-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center justify-between">
@@ -1070,7 +1023,6 @@ function KeKhaiThoiGianManagement() {
                     )}
                 </Card>
 
-                {/* Delete Confirmation Modal */}
                 <Modal
                     title={
                         <div className="flex items-center">
@@ -1091,9 +1043,7 @@ function KeKhaiThoiGianManagement() {
                     <p>Bạn có chắc chắn muốn xóa thời gian kê khai này? Hành động này không thể hoàn tác.</p>
                 </Modal>
 
-                {/* Enhanced Custom Styles */}
                 <style>{`
-                    /* Base Ant Design Component Styles */
                     .custom-select .ant-select-selector {
                         border-radius: 8px !important;
                         border: 1px solid #e2e8f0 !important;
@@ -1147,7 +1097,6 @@ function KeKhaiThoiGianManagement() {
                         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important;
                     }
                     
-                    /* Table styling */
                     .custom-table .ant-table {
                         border-radius: 12px !important;
                         overflow: hidden !important;
@@ -1170,7 +1119,6 @@ function KeKhaiThoiGianManagement() {
                         background: rgba(59, 130, 246, 0.05) !important;
                     }
                     
-                    /* Button styling enhancements */
                     .ant-btn-primary {
                         border-radius: 12px !important;
                         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25) !important;
@@ -1193,7 +1141,6 @@ function KeKhaiThoiGianManagement() {
                         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
                     }
                     
-                    /* Pagination styling */
                     .custom-pagination .ant-pagination-item {
                         border-radius: 8px !important;
                         border: 1px solid #e2e8f0 !important;
@@ -1208,20 +1155,17 @@ function KeKhaiThoiGianManagement() {
                         color: white !important;
                     }
                     
-                    /* Form styling */
                     .ant-form-item-label > label {
                         font-weight: 500 !important;
                         color: #374151 !important;
                     }
                     
-                    /* Tag styling */
                     .ant-tag {
                         border-radius: 6px !important;
                         font-weight: 500 !important;
                         padding: 2px 8px !important;
                     }
                     
-                    /* DatePicker dropdown styling */
                     .ant-picker-dropdown {
                         border-radius: 8px !important;
                         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;

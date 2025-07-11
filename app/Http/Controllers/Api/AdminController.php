@@ -7,39 +7,36 @@ use App\Models\User;
 use App\Models\Khoa;
 use App\Models\BoMon;
 use App\Models\NamHoc;
-use App\Models\HocKy; // Giữ lại nếu vẫn dùng ở đâu đó
+use App\Models\HocKy;
 use App\Models\KeKhaiThoiGian;
 use App\Models\AdminLog;
-use App\Models\DinhMucCaNhanTheoNam; // Model mới
-use App\Models\DmHeSoChung; // Model mới
-use App\Models\MienGiamDinhMuc; // Model miễn giảm định mức
-use App\Models\LuongGiangVien; // Model lương giảng viên
 
+use App\Models\DinhMucCaNhanTheoNam;
+use App\Models\DmHeSoChung;
+use App\Models\MienGiamDinhMuc;
+use App\Models\LuongGiangVien;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
 use App\Imports\UsersImport;
 use App\Imports\KhoaImport;
 use App\Imports\BoMonImport;
 use App\Imports\NamHocImport;
-use App\Imports\HocKyImport; // Nếu còn dùng import học kỳ
-use App\Imports\KeKhaiThoiGianImport; // Sẽ import theo năm học
-use App\Imports\DinhMucCaNhanImport; // Import mới
-use App\Imports\DmHeSoChungImport; // Import mới
-use App\Imports\MienGiamImport; // Import miễn giảm
-use App\Imports\LuongGiangVienImport; // Import lương giảng viên
-
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use App\Imports\HocKyImport;
+use App\Imports\KeKhaiThoiGianImport;
+use App\Imports\DinhMucCaNhanImport;
+use App\Imports\DmHeSoChungImport;
+use App\Imports\MienGiamImport;
+use App\Imports\LuongGiangVienImport;
 
 class AdminController extends Controller
 {
-    /**
-     * Ghi log hoạt động admin
-     */
     private function logActivity($action, $description, $tableName = null, $recordId = null, $recordName = null, $oldData = null, $newData = null)
     {
         try {
@@ -58,16 +55,10 @@ class AdminController extends Controller
                 'description' => $description,
             ];
 
-            // Debug: ghi log để kiểm tra dữ liệu
-            Log::info('Creating admin log:', $logData);
 
             $adminLog = AdminLog::create($logData);
-
-            // Debug: kiểm tra log đã được tạo thành công
-            Log::info('Admin log created with ID: ' . $adminLog->id);
         } catch (\Exception $e) {
-            // Log error chi tiết hơn
-            Log::error('Failed to log admin activity: ' . $e->getMessage(), [
+            Log::error('Lỗi' . $e->getMessage(), [
                 'action' => $action,
                 'description' => $description,
                 'user_id' => Auth::id(),
@@ -76,9 +67,7 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * Cập nhật action map để hỗ trợ logging cho các module mới
-     */
+    // Mapping action codes thành tên bảng
     private function getTableNameFromAction($action)
     {
         $actionMap = [
@@ -127,7 +116,6 @@ class AdminController extends Controller
         return response()->json($request->user()->load('boMon.khoa'));
     }
 
-    // Quản lý Người dùng
     public function getUsers(Request $request)
     {
         $perPage = $request->query('per_page', 10);
@@ -135,7 +123,6 @@ class AdminController extends Controller
 
         $query = User::with('boMon.khoa');
 
-        // Thêm điều kiện tìm kiếm nếu có tham số search
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('ma_gv', 'LIKE', '%' . $search . '%')
@@ -203,7 +190,6 @@ class AdminController extends Controller
             'trang_thai' => $request->trang_thai,
         ]);
 
-        // Log hoạt động
         $this->logActivity(
             'CREATE_USER',
             "Tạo người dùng mới: {$user->ho_ten} ({$user->ma_gv})",
@@ -257,7 +243,6 @@ class AdminController extends Controller
             $user->save();
         }
 
-        // Log hoạt động
         $this->logActivity(
             'UPDATE_USER',
             "Cập nhật người dùng: {$user->ho_ten} ({$user->ma_gv})",
@@ -278,7 +263,6 @@ class AdminController extends Controller
 
         $user->delete();
 
-        // Log hoạt động
         $this->logActivity(
             'DELETE_USER',
             "Xóa người dùng: {$userData['ho_ten']} ({$userData['ma_gv']})",
@@ -292,7 +276,6 @@ class AdminController extends Controller
         return response()->json(['message' => 'Xóa người dùng thành công']);
     }
 
-    // Quản lý Khoa
     public function getKhoa(Request $request)
     {
         $perPage = $request->query('per_page', 10);
@@ -300,7 +283,6 @@ class AdminController extends Controller
 
         $query = Khoa::with('boMons');
 
-        // Thêm điều kiện tìm kiếm nếu có tham số search
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('ma_khoa', 'LIKE', '%' . $search . '%')
@@ -343,7 +325,6 @@ class AdminController extends Controller
 
         $khoa = Khoa::create($request->only('ma_khoa', 'ten_khoa'));
 
-        // Log hoạt động
         $this->logActivity(
             'CREATE_KHOA',
             "Tạo khoa mới: {$khoa->ten_khoa} ({$khoa->ma_khoa})",
@@ -380,7 +361,6 @@ class AdminController extends Controller
 
         $khoa->update($request->only('ma_khoa', 'ten_khoa'));
 
-        // Log hoạt động
         $this->logActivity(
             'UPDATE_KHOA',
             "Cập nhật khoa: {$khoa->ten_khoa} ({$khoa->ma_khoa})",
@@ -404,7 +384,6 @@ class AdminController extends Controller
         $khoaData = $khoa->toArray();
         $khoa->delete();
 
-        // Log hoạt động
         $this->logActivity(
             'DELETE_KHOA',
             "Xóa khoa: {$khoaData['ten_khoa']} ({$khoaData['ma_khoa']})",
@@ -418,7 +397,6 @@ class AdminController extends Controller
         return response()->json(['message' => 'Xóa khoa thành công']);
     }
 
-    // Quản lý Bộ môn
     public function getBoMon(Request $request)
     {
         $perPage = $request->query('per_page', 10);
@@ -426,7 +404,6 @@ class AdminController extends Controller
 
         $query = BoMon::with('khoa');
 
-        // Thêm điều kiện tìm kiếm nếu có tham số search
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('ma_bo_mon', 'LIKE', '%' . $search . '%')
@@ -475,7 +452,6 @@ class AdminController extends Controller
 
         $boMon = BoMon::create($request->only('ma_bo_mon', 'ten_bo_mon', 'khoa_id'));
 
-        // Log hoạt động
         $this->logActivity(
             'CREATE_BOMON',
             "Tạo bộ môn mới: {$boMon->ten_bo_mon} ({$boMon->ma_bo_mon})",
@@ -515,7 +491,6 @@ class AdminController extends Controller
 
         $boMon->update($request->only('ma_bo_mon', 'ten_bo_mon', 'khoa_id'));
 
-        // Log hoạt động
         $this->logActivity(
             'UPDATE_BOMON',
             "Cập nhật bộ môn: {$boMon->ten_bo_mon} ({$boMon->ma_bo_mon})",
@@ -539,7 +514,6 @@ class AdminController extends Controller
         $boMonData = $boMon->toArray();
         $boMon->delete();
 
-        // Log hoạt động
         $this->logActivity(
             'DELETE_BOMON',
             "Xóa bộ môn: {$boMonData['ten_bo_mon']} ({$boMonData['ma_bo_mon']})",
@@ -553,7 +527,6 @@ class AdminController extends Controller
         return response()->json(['message' => 'Xóa bộ môn thành công']);
     }
 
-    // Quản lý Năm học
     public function getNamHoc(Request $request)
     {
         $perPage = $request->query('per_page', 10);
@@ -561,7 +534,6 @@ class AdminController extends Controller
 
         $query = NamHoc::with('hocKys');
 
-        // Thêm điều kiện tìm kiếm nếu có tham số search
         if ($search) {
             $query->where('ten_nam_hoc', 'LIKE', '%' . $search . '%');
         }
@@ -606,10 +578,9 @@ class AdminController extends Controller
 
         $namHoc = NamHoc::create($request->only('ten_nam_hoc', 'la_nam_hien_hanh'));
 
-        // Log hoạt động
         $this->logActivity(
             'CREATE_NAMHOC',
-            "Tạo năm học mới: {$namHoc->ten_nam_hoc}",
+            "Tạo năm học mới: {$namHoc->ten_nam_hoc}" . ($namHoc->la_nam_hien_hanh ? ' (Hiện hành)' : ''),
             'nam_hoc',
             $namHoc->id,
             $namHoc->ten_nam_hoc,
@@ -648,7 +619,6 @@ class AdminController extends Controller
 
         $namHoc->update($request->only('ten_nam_hoc', 'la_nam_hien_hanh'));
 
-        // Log hoạt động
         $this->logActivity(
             'UPDATE_NAMHOC',
             "Cập nhật năm học: {$namHoc->ten_nam_hoc}",
@@ -672,7 +642,6 @@ class AdminController extends Controller
         $namHocData = $namHoc->toArray();
         $namHoc->delete();
 
-        // Log hoạt động
         $this->logActivity(
             'DELETE_NAMHOC',
             "Xóa năm học: {$namHocData['ten_nam_hoc']}",
@@ -686,7 +655,6 @@ class AdminController extends Controller
         return response()->json(['message' => 'Xóa năm học thành công']);
     }
 
-    // Quản lý Học kỳ
     public function getHocKy(Request $request)
     {
         $perPage = $request->query('per_page', 10);
@@ -694,7 +662,6 @@ class AdminController extends Controller
 
         $query = HocKy::with('namHoc');
 
-        // Thêm điều kiện tìm kiếm nếu có tham số search
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('ten_hoc_ky', 'LIKE', '%' . $search . '%')
@@ -746,7 +713,6 @@ class AdminController extends Controller
 
         $hocKy = HocKy::create($request->only('ten_hoc_ky', 'nam_hoc_id', 'la_ky_hien_hanh'));
 
-        // Log hoạt động
         $this->logActivity(
             'CREATE_HOCKY',
             "Tạo học kỳ mới: {$hocKy->ten_hoc_ky}",
@@ -790,7 +756,6 @@ class AdminController extends Controller
 
         $hocKy->update($request->only('ten_hoc_ky', 'nam_hoc_id', 'la_ky_hien_hanh'));
 
-        // Log hoạt động
         $this->logActivity(
             'UPDATE_HOCKY',
             "Cập nhật học kỳ: {$hocKy->ten_hoc_ky}",
@@ -811,29 +776,20 @@ class AdminController extends Controller
 
         $hocKy->delete();
 
-        // Log hoạt động
         $this->logActivity(
-            'DELETE_HOCKY',
-            "Xóa học kỳ: {$hocKyData['ten_hoc_ky']}",
-            'hoc_ky',
-            $id,
-            $hocKyData['ten_hoc_ky'],
-            $hocKyData,
-            null
+            'DELETE_HOCKY', "Xóa học kỳ: {$hocKyData['ten_hoc_ky']}", 'hoc_ky', $id, $hocKyData['ten_hoc_ky'], $hocKyData, null
         );
 
         return response()->json(['message' => 'Xóa học kỳ thành công']);
     }
 
-
-    // Quản lý Thời gian Kê khai
     public function getKeKhaiThoiGian(Request $request)
     {
         $perPage = $request->query('per_page', 10);
-        $search = $request->query('search'); // Tìm theo tên năm học hoặc ghi chú
+        $search = $request->query('search');
         $query = KeKhaiThoiGian::with('namHoc');
 
-        if ($request->has('nam_hoc_id')) { // Lọc theo nam_hoc_id
+        if ($request->has('nam_hoc_id')) {
             $query->where('nam_hoc_id', $request->nam_hoc_id);
         }
         if ($search) {
@@ -849,7 +805,7 @@ class AdminController extends Controller
     public function createKeKhaiThoiGian(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nam_hoc_id' => 'required|exists:nam_hoc,id|unique:ke_khai_thoi_gian,nam_hoc_id', // Đổi thành nam_hoc_id
+            'nam_hoc_id' => 'required|exists:nam_hoc,id|unique:ke_khai_thoi_gian,nam_hoc_id',
             'thoi_gian_bat_dau' => 'required|date|before_or_equal:thoi_gian_ket_thuc',
             'thoi_gian_ket_thuc' => 'required|date|after_or_equal:thoi_gian_bat_dau',
             'ghi_chu' => 'nullable|string|max:1000',
@@ -862,6 +818,7 @@ class AdminController extends Controller
         $this->logActivity('CREATE_KEKHAITHOIGIAN', "Tạo thời gian kê khai cho năm học ID: {$keKhaiThoiGian->nam_hoc_id}", 'ke_khai_thoi_gian', $keKhaiThoiGian->id, null, null, $keKhaiThoiGian->toArray());
         return response()->json(['message' => 'Tạo thời gian kê khai thành công', 'data' => $keKhaiThoiGian->load('namHoc')], 201);
     }
+
     public function getKeKhaiThoiGianById($id)
     {
         $keKhaiThoiGian = KeKhaiThoiGian::with('namHoc')->findOrFail($id);
@@ -878,7 +835,8 @@ class AdminController extends Controller
             'thoi_gian_bat_dau' => 'required|date|before_or_equal:thoi_gian_ket_thuc',
             'thoi_gian_ket_thuc' => 'required|date|after_or_equal:thoi_gian_bat_dau',
         ]);
-        if ($validator->fails()) { /* ... */
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Dữ liệu không hợp lệ', 'errors' => $validator->errors()], 422);
         }
         $keKhaiThoiGian->update($request->all());
         $this->logActivity('UPDATE_KEKHAITHOIGIAN', "Cập nhật thời gian kê khai cho năm học ID: {$keKhaiThoiGian->nam_hoc_id}", 'ke_khai_thoi_gian', $id, null, $oldData, $keKhaiThoiGian->fresh()->toArray());
@@ -887,7 +845,6 @@ class AdminController extends Controller
     public function deleteKeKhaiThoiGian($id)
     {
         $keKhaiThoiGian = KeKhaiThoiGian::findOrFail($id);
-        // Kiểm tra ràng buộc với KeKhaiTongHopNamHoc
         $hasKeKhai = \App\Models\KeKhaiTongHopNamHoc::where('nam_hoc_id', $keKhaiThoiGian->nam_hoc_id)->exists();
         if ($hasKeKhai) {
             return response()->json(['message' => 'Không thể xóa, đã có kê khai trong năm học này.'], 400);
@@ -898,18 +855,17 @@ class AdminController extends Controller
         return response()->json(['message' => 'Xóa thành công']);
     }
 
-    // Quản lý Định mức Cá nhân theo Năm
     public function getDinhMucCaNhan(Request $request)
     {
         $perPage = $request->query('per_page', 10);
-        $search = $request->query('search');
+        $search = $request->query('search_gv');
         $query = DinhMucCaNhanTheoNam::with(['nguoiDung:id,ho_ten,ma_gv', 'namHoc:id,ten_nam_hoc']);
 
         if ($request->filled('nam_hoc_id')) $query->where('nam_hoc_id', $request->nam_hoc_id);
         if ($search) {
             $query->whereHas('nguoiDung', function ($q) use ($search) {
                 $q->where('ho_ten', 'like', "%{$search}%")
-                  ->orWhere('ma_gv', 'like', "%{$search}%");
+                    ->orWhere('ma_gv', 'like', "%{$search}%");
             });
         }
 
@@ -988,7 +944,7 @@ class AdminController extends Controller
     {
         $validator = Validator::make($request->all(), ['file' => 'required|mimes:xlsx,xls,csv|max:2048']);
         if ($validator->fails()) return response()->json(['message' => 'File không hợp lệ', 'errors' => $validator->errors()], 422);
-        
+
         try {
             Excel::import(new DinhMucCaNhanImport, $request->file('file'));
             $this->logActivity('IMPORT_DINHMUCCANHAN', 'Import dữ liệu định mức cá nhân từ Excel', 'dinh_muc_ca_nhan_theo_nam');
@@ -1001,7 +957,6 @@ class AdminController extends Controller
         }
     }
 
-    // Quản lý Hệ số chung
     public function getDmHeSoChung(Request $request)
     {
         $perPage = $request->query('per_page', 10);
@@ -1011,8 +966,8 @@ class AdminController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('ma_he_so', 'like', "%{$search}%")
-                  ->orWhere('ten_he_so', 'like', "%{$search}%")
-                  ->orWhere('mo_ta', 'like', "%{$search}%");
+                    ->orWhere('ten_he_so', 'like', "%{$search}%")
+                    ->orWhere('mo_ta', 'like', "%{$search}%");
             });
         }
 
@@ -1080,7 +1035,7 @@ class AdminController extends Controller
     {
         $validator = Validator::make($request->all(), ['file' => 'required|mimes:xlsx,xls,csv|max:2048']);
         if ($validator->fails()) return response()->json(['message' => 'File không hợp lệ', 'errors' => $validator->errors()], 422);
-        
+
         try {
             Excel::import(new DmHeSoChungImport, $request->file('file'));
             $this->logActivity('IMPORT_DMHESOCHUNG', 'Import dữ liệu hệ số chung từ Excel', 'dm_he_so_chung');
@@ -1093,7 +1048,6 @@ class AdminController extends Controller
         }
     }
 
-    // Quản lý Miễn giảm định mức
     public function getMienGiamDinhMuc(Request $request)
     {
         $perPage = $request->query('per_page', 10);
@@ -1103,17 +1057,17 @@ class AdminController extends Controller
         if ($request->filled('nam_hoc_id')) {
             $query->where('nam_hoc_id', $request->nam_hoc_id);
         }
-        
+
         if ($search) {
             $query->whereHas('nguoiDung', function ($q) use ($search) {
                 $q->where('ho_ten', 'like', "%{$search}%")
-                  ->orWhere('ma_gv', 'like', "%{$search}%");
+                    ->orWhere('ma_gv', 'like', "%{$search}%");
             });
         }
 
         $mienGiamList = $query->orderBy('nam_hoc_id', 'desc')->orderBy('nguoi_dung_id')->paginate($perPage);
         return response()->json([
-            'data' => $mienGiamList->items(), 
+            'data' => $mienGiamList->items(),
             'pagination' => $this->transformPagination($mienGiamList)
         ]);
     }
@@ -1144,24 +1098,24 @@ class AdminController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'Dữ liệu không hợp lệ', 
+                'message' => 'Dữ liệu không hợp lệ',
                 'errors' => $validator->errors()
             ], 422);
         }
 
         $mienGiam = MienGiamDinhMuc::create($request->all());
         $this->logActivity(
-            'CREATE_MIENGIAMDINHMUC', 
-            "Tạo miễn giảm cho GV ID: {$mienGiam->nguoi_dung_id}, Năm học ID: {$mienGiam->nam_hoc_id}", 
-            'mien_giam_dinh_muc', 
-            $mienGiam->id, 
-            null, 
-            null, 
+            'CREATE_MIENGIAMDINHMUC',
+            "Tạo miễn giảm cho GV ID: {$mienGiam->nguoi_dung_id}, Năm học ID: {$mienGiam->nam_hoc_id}",
+            'mien_giam_dinh_muc',
+            $mienGiam->id,
+            null,
+            null,
             $mienGiam->toArray()
         );
-        
+
         return response()->json([
-            'message' => 'Tạo miễn giảm định mức thành công', 
+            'message' => 'Tạo miễn giảm định mức thành công',
             'data' => $mienGiam->load(['nguoiDung', 'namHoc'])
         ], 201);
     }
@@ -1183,24 +1137,24 @@ class AdminController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'Dữ liệu không hợp lệ', 
+                'message' => 'Dữ liệu không hợp lệ',
                 'errors' => $validator->errors()
             ], 422);
         }
 
         $mienGiam->update($request->all());
         $this->logActivity(
-            'UPDATE_MIENGIAMDINHMUC', 
-            "Cập nhật miễn giảm ID: {$id}", 
-            'mien_giam_dinh_muc', 
-            $id, 
-            null, 
-            $oldData, 
+            'UPDATE_MIENGIAMDINHMUC',
+            "Cập nhật miễn giảm ID: {$id}",
+            'mien_giam_dinh_muc',
+            $id,
+            null,
+            $oldData,
             $mienGiam->fresh()->toArray()
         );
-        
+
         return response()->json([
-            'message' => 'Cập nhật thành công', 
+            'message' => 'Cập nhật thành công',
             'data' => $mienGiam->load(['nguoiDung', 'namHoc'])
         ]);
     }
@@ -1210,16 +1164,9 @@ class AdminController extends Controller
         $mienGiam = MienGiamDinhMuc::findOrFail($id);
         $data = $mienGiam->toArray();
         $mienGiam->delete();
-        
-        $this->logActivity(
-            'DELETE_MIENGIAMDINHMUC', 
-            "Xóa miễn giảm ID: {$id}", 
-            'mien_giam_dinh_muc', 
-            $id, 
-            null, 
-            $data
-        );
-        
+
+        $this->logActivity('DELETE_MIENGIAMDINHMUC', "Xóa miễn giảm ID: {$id}", 'mien_giam_dinh_muc', $id, null, $data);
+
         return response()->json(['message' => 'Xóa thành công']);
     }
 
@@ -1228,25 +1175,25 @@ class AdminController extends Controller
         $validator = Validator::make($request->all(), [
             'file' => 'required|mimes:xlsx,xls,csv|max:2048'
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'File không hợp lệ', 
+                'message' => 'File không hợp lệ',
                 'errors' => $validator->errors()
             ], 422);
         }
-        
+
         try {
             Excel::import(new MienGiamImport, $request->file('file'));
             $this->logActivity(
-                'IMPORT_MIENGIAMDINHMUC', 
-                'Import dữ liệu miễn giảm định mức từ Excel', 
+                'IMPORT_MIENGIAMDINHMUC',
+                'Import dữ liệu miễn giảm định mức từ Excel',
                 'mien_giam_dinh_muc'
             );
             return response()->json(['message' => 'Nhập dữ liệu miễn giảm định mức thành công']);
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             return response()->json([
-                'message' => 'Có lỗi khi nhập dữ liệu', 
+                'message' => 'Có lỗi khi nhập dữ liệu',
                 'errors' => $this->formatImportErrors($e->failures())
             ], 422);
         } catch (\Exception $e) {
@@ -1282,9 +1229,7 @@ class AdminController extends Controller
             'to' => $paginatedData->lastItem(),
         ];
     }
-    /**
-     * Lấy danh sách log hoạt động admin
-     */
+
     public function getAdminLogs(Request $request)
     {
         $perPage = $request->query('per_page', 10);
@@ -1297,22 +1242,18 @@ class AdminController extends Controller
 
         $query = AdminLog::query();
 
-        // Lọc theo hành động
         if ($action) {
             $query->where('action', $action);
         }
 
-        // Lọc theo bảng
         if ($tableName) {
             $query->where('table_name', $tableName);
         }
 
-        // Lọc theo người dùng
         if ($adminId) {
             $query->where('admin_id', $adminId);
         }
 
-        // Lọc theo khoảng thời gian
         if ($dateFrom) {
             $query->whereDate('created_at', '>=', $dateFrom);
         }
@@ -1320,7 +1261,6 @@ class AdminController extends Controller
             $query->whereDate('created_at', '<=', $dateTo);
         }
 
-        // Tìm kiếm trong mô tả hoặc chi tiết
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('description', 'LIKE', '%' . $search . '%')
@@ -1330,7 +1270,6 @@ class AdminController extends Controller
             });
         }
 
-        // Sắp xếp theo thời gian mới nhất
         $query->orderBy('created_at', 'desc');
 
         $logs = $query->paginate($perPage);
@@ -1348,9 +1287,6 @@ class AdminController extends Controller
         ]);
     }
 
-    /**
-     * Lấy thống kê log hoạt động admin
-     */
     public function getAdminLogStats(Request $request)
     {
         $dateFrom = $request->query('date_from', now()->subDays(30)->format('Y-m-d'));
@@ -1428,7 +1364,6 @@ class AdminController extends Controller
         ]);
     }
 
-    // Quản lý Lương giảng viên
     public function getLuongGiangVien(Request $request)
     {
         $perPage = $request->query('per_page', 10);
@@ -1439,7 +1374,7 @@ class AdminController extends Controller
         if ($search) {
             $query->whereHas('nguoiDung', function ($q) use ($search) {
                 $q->where('ho_ten', 'like', "%{$search}%")
-                  ->orWhere('ma_gv', 'like', "%{$search}%");
+                    ->orWhere('ma_gv', 'like', "%{$search}%");
             });
         }
 
@@ -1526,7 +1461,7 @@ class AdminController extends Controller
     {
         $validator = Validator::make($request->all(), ['file' => 'required|mimes:xlsx,xls,csv|max:2048']);
         if ($validator->fails()) return response()->json(['message' => 'File không hợp lệ', 'errors' => $validator->errors()], 422);
-        
+
         try {
             Excel::import(new LuongGiangVienImport, $request->file('file'));
             $this->logActivity('IMPORT_LUONGGIANGVIEN', 'Import dữ liệu lương giảng viên từ Excel', 'luong_giang_vien');
@@ -1538,4 +1473,101 @@ class AdminController extends Controller
             return response()->json(['message' => 'Có lỗi xảy ra khi nhập dữ liệu: ' . $e->getMessage()], 500);
         }
     }
+
+    public function importUsers(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv',
+        ]);
+        try {
+            $import = new UsersImport();
+            $result = Excel::import($import, $request->file('file'));
+            $this->logActivity('IMPORT_USERS', 'Import danh sách người dùng từ file', 'nguoi_dung');
+            return response()->json(['message' => 'Import người dùng thành công']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Import người dùng thất bại', 'error' => $e->getMessage()], 422);
+        }
+    }
+
+    public function importNamHoc(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv',
+        ]);
+        try {
+            $import = new NamHocImport();
+            $result = Excel::import($import, $request->file('file'));
+            $this->logActivity('IMPORT_NAM_HOC', 'Import danh sách năm học từ file', 'nam_hoc');
+            return response()->json(['message' => 'Import năm học thành công']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Import năm học thất bại', 'error' => $e->getMessage()], 422);
+        }
+    }
+
+    public function importHocKy(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv',
+        ]);
+        try {
+            $import = new HocKyImport();
+            $result = Excel::import($import, $request->file('file'));
+            $this->logActivity('IMPORT_HOC_KY', 'Import danh sách học kỳ từ file', 'hoc_ky');
+            return response()->json(['message' => 'Import học kỳ thành công']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Import học kỳ thất bại', 'error' => $e->getMessage()], 422);
+        }
+    }
+
+    public function importKeKhaiThoiGian(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv',
+        ]);
+        try {
+            $import = new KeKhaiThoiGianImport();
+            $result = Excel::import($import, $request->file('file'));
+            $this->logActivity('IMPORT_KE_KHAI_THOI_GIAN', 'Import thời gian kê khai từ file', 'ke_khai_thoi_gian');
+            return response()->json(['message' => 'Import thời gian kê khai thành công']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Import thời gian kê khai thất bại', 'error' => $e->getMessage()], 422);
+        }
+
+    }
+
+    public function importBoMon(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:xlsx,xls,csv|max:2048'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'File không hợp lệ',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            Excel::import(new BoMonImport, $request->file('file'));
+            $this->logActivity(
+                'IMPORT_BOMON',
+                'Import dữ liệu bộ môn từ Excel',
+                'bo_mon'
+            );
+            return response()->json(['message' => 'Nhập dữ liệu bộ môn thành công']);
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            return response()->json([
+                'message' => 'Có lỗi khi nhập dữ liệu',
+                'errors' => $this->formatImportErrors($e->failures())
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Import bộ môn failed: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Có lỗi xảy ra khi nhập dữ liệu: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    
 }

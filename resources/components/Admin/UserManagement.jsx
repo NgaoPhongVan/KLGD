@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { 
-    Select, 
-    Input, 
-    Button, 
-    Table, 
-    Card, 
-    Row, 
+import {
+    Select,
+    Input,
+    Button,
+    Table,
+    Card,
+    Row,
     Col,
     Form,
     Modal,
@@ -18,8 +18,8 @@ import {
     Typography,
     Space,
     Divider,
-    Tooltip
-} from 'antd';
+    Tooltip,
+} from "antd";
 import {
     SearchOutlined,
     UserAddOutlined,
@@ -32,8 +32,8 @@ import {
     CheckCircleOutlined,
     CloseCircleOutlined,
     TeamOutlined,
-    SettingOutlined
-} from '@ant-design/icons';
+    SettingOutlined,
+} from "@ant-design/icons";
 
 const { Option } = Select;
 const { Text, Title } = Typography;
@@ -100,7 +100,7 @@ function UserManagement() {
             }));
             fetchUsers(1, pagination.per_page, "");
         }
-        
+
         return () => {
             if (debouncedSearch.cancel) {
                 debouncedSearch.cancel();
@@ -108,9 +108,13 @@ function UserManagement() {
         };
     }, [searchTerm, debouncedSearch, pagination.per_page]);
 
-    const fetchUsers = async (page = pagination.current_page, perPage = pagination.per_page, search = searchTerm) => {
+    const fetchUsers = async (
+        page = pagination.current_page,
+        perPage = pagination.per_page,
+        search = searchTerm
+    ) => {
         setIsLoading(true);
-        
+
         try {
             const params = {
                 per_page: perPage,
@@ -129,7 +133,7 @@ function UserManagement() {
             });
 
             if (!response.data || !response.data.data) {
-                throw new Error('Invalid API response structure');
+                throw new Error("Không có dữ liệu người dùng");
             }
 
             setUsers(response.data.data || []);
@@ -141,10 +145,11 @@ function UserManagement() {
                 from: response.data.pagination?.from || null,
                 to: response.data.pagination?.to || null,
             });
-
         } catch (error) {
             if (error.response?.status === 401) {
-                message.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+                message.error(
+                    "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+                );
             } else if (error.response?.status === 403) {
                 message.error("Bạn không có quyền truy cập chức năng này.");
             } else if (error.response?.status === 422) {
@@ -154,7 +159,7 @@ function UserManagement() {
             } else {
                 message.error("Không thể tải dữ liệu người dùng");
             }
-            
+
             setUsers([]);
         } finally {
             setIsLoading(false);
@@ -169,11 +174,10 @@ function UserManagement() {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
                 params: {
-                    per_page: 100, // Get a larger number to have all departments in one request
-                }
+                    per_page: 100, 
+                },
             });
-            
-            // Extract data from the paginated response
+
             setBoMonList(response.data.data || []);
         } catch (error) {
             console.error("Error fetching departments:", error);
@@ -187,14 +191,18 @@ function UserManagement() {
             if (editingId) {
                 await axios.put(`/api/admin/users/${editingId}`, values, {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "token"
+                        )}`,
                     },
                 });
                 message.success("Cập nhật người dùng thành công");
             } else {
                 await axios.post("/api/admin/users", values, {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "token"
+                        )}`,
                     },
                 });
                 message.success("Thêm người dùng mới thành công");
@@ -225,8 +233,6 @@ function UserManagement() {
     };
 
     const handleDelete = (id) => {
-        console.log("handleDelete called with id:", id); // Debug log
-        
         if (!id) {
             console.error("ID is null or undefined");
             message.error("Không thể xác định người dùng cần xóa");
@@ -238,55 +244,54 @@ function UserManagement() {
     };
 
     const confirmDelete = async () => {
-        console.log("Confirm delete clicked, deleting ID:", deletingId); // Debug log
-        
         if (!deletingId) {
             message.error("Không thể xác định người dùng cần xóa");
             return;
         }
 
         setIsDeleting(true);
-        
+
         try {
-            console.log("Making DELETE request to:", `/api/admin/users/${deletingId}`); // Debug log
-            
-            const response = await axios.delete(`/api/admin/users/${deletingId}`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-            });
-            
-            console.log("Delete response:", response); // Debug log
+            const response = await axios.delete(
+                `/api/admin/users/${deletingId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "token"
+                        )}`,
+                    },
+                }
+            );
+
             message.success("Xóa người dùng thành công");
-            
-            // Close modal and reset state
+
             setDeleteModalVisible(false);
             setDeletingId(null);
-            
-            // Refresh data after successful deletion
+
             await fetchUsers();
-            
         } catch (error) {
             console.error("Delete error:", error);
-            
+
             let errorMessage = "Có lỗi xảy ra khi xóa người dùng";
-            
+
             if (error.response?.status === 401) {
-                errorMessage = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+                errorMessage =
+                    "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
             } else if (error.response?.status === 403) {
                 errorMessage = "Bạn không có quyền xóa người dùng này.";
             } else if (error.response?.status === 404) {
                 errorMessage = "Người dùng không tồn tại hoặc đã được xóa.";
-                // Refresh data to update the list
                 await fetchUsers();
             } else if (error.response?.status === 422) {
-                errorMessage = error.response?.data?.message || "Không thể xóa người dùng này vì có ràng buộc dữ liệu!";
+                errorMessage =
+                    error.response?.data?.message ||
+                    "Không thể xóa người dùng này vì có ràng buộc dữ liệu!";
             } else if (error.response?.status >= 500) {
                 errorMessage = "Lỗi máy chủ. Vui lòng thử lại sau.";
             } else if (error.response?.data?.message) {
                 errorMessage = error.response.data.message;
             }
-            
+
             message.error(errorMessage);
         } finally {
             setIsDeleting(false);
@@ -294,7 +299,6 @@ function UserManagement() {
     };
 
     const cancelDelete = () => {
-        console.log("Delete cancelled"); // Debug log
         setDeleteModalVisible(false);
         setDeletingId(null);
     };
@@ -309,12 +313,18 @@ function UserManagement() {
         formData.append("file", file);
 
         try {
-            const response = await axios.post("/api/admin/users/import", formData, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    "Content-Type": "multipart/form-data",
-                },
-            });
+            const response = await axios.post(
+                "/api/admin/users/import",
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "token"
+                        )}`,
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            );
             message.success(response.data.message);
             fetchUsers();
             setFile(null);
@@ -354,15 +364,17 @@ function UserManagement() {
 
     const uploadProps = {
         beforeUpload: (file) => {
-            const isValidType = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || 
-                               file.type === 'application/vnd.ms-excel' ||
-                               file.type === 'text/csv';
+            const isValidType =
+                file.type ===
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+                file.type === "application/vnd.ms-excel" ||
+                file.type === "text/csv";
             if (!isValidType) {
-                message.error('Chỉ hỗ trợ file Excel (.xlsx, .xls) và CSV!');
+                message.error("Chỉ hỗ trợ file Excel (.xlsx, .xls) và CSV!");
                 return false;
             }
             setFile(file);
-            return false; // Prevent auto upload
+            return false;
         },
         onRemove: () => {
             setFile(null);
@@ -371,78 +383,75 @@ function UserManagement() {
     };
 
     const downloadSampleFile = () => {
-        // Tạo dữ liệu mẫu CSV với cấu trúc đúng
         const csvHeaders = [
-            'ma_gv',
-            'ho_ten', 
-            'email',
-            'password',
-            'vai_tro',
-            'bo_mon_id',
-            'trang_thai'
+            "ma_gv",
+            "ho_ten",
+            "email",
+            "password",
+            "vai_tro",
+            "bo_mon_id",
+            "trang_thai",
         ];
 
-        // Dữ liệu mẫu với các giá trị ví dụ
         const sampleData = [
             [
-                'GV001',
-                'Nguyễn Văn An',
-                'nguyenvanan@tlu.edu.vn',
-                'password123',
-                '3',
-                '1',
-                '1'
+                "GV001",
+                "Nguyễn Văn An",
+                "nguyenvanan@tlu.edu.vn",
+                "password123",
+                "3",
+                "1",
+                "1",
             ],
             [
-                'GV002', 
-                'Trần Thị Bình',
-                'tranthibinh@tlu.edu.vn',
-                'password456',
-                '3',
-                '2',
-                '1'
+                "GV002",
+                "Trần Thị Bình",
+                "tranthibinh@tlu.edu.vn",
+                "password456",
+                "3",
+                "2",
+                "1",
             ],
             [
-                'QL001',
-                'Lê Văn Cường',
-                'levancuong@tlu.edu.vn',
-                'manager123',
-                '2',
-                '1',
-                '1'
-            ]
+                "QL001",
+                "Lê Văn Cường",
+                "levancuong@tlu.edu.vn",
+                "manager123",
+                "2",
+                "1",
+                "1",
+            ],
         ];
 
-        // Tạo nội dung CSV
         const csvContent = [
-            csvHeaders.join(','),
-            ...sampleData.map(row => row.join(','))
-        ].join('\n');
+            csvHeaders.join(","),
+            ...sampleData.map((row) => row.join(",")),
+        ].join("\n");
 
-        // Thêm BOM để hỗ trợ UTF-8 trong Excel
-        const BOM = '\uFEFF';
+        const BOM = "\uFEFF";
         const finalContent = BOM + csvContent;
 
-        // Tạo và tải xuống file
-        const blob = new Blob([finalContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
+        const blob = new Blob([finalContent], {
+            type: "text/csv;charset=utf-8;",
+        });
+        const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
-        
-        link.setAttribute('href', url);
-        link.setAttribute('download', 'mau_danh_sach_nguoi_dung.csv');
-        link.style.visibility = 'hidden';
-        
+
+        link.setAttribute("href", url);
+        link.setAttribute("download", "mau_danh_sach_nguoi_dung.csv");
+        link.style.visibility = "hidden";
+
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
-        message.success('Đã tải xuống file mẫu thành công!');
+
+        message.success("Đã tải xuống file mẫu thành công!");
     };
 
     const columns = [
         {
-            title: 'Thông tin cơ bản',
-            key: 'basic_info',
+            title: "Thông tin cơ bản",
+            key: "basic_info",
             width: 280,
             render: (_, record) => (
                 <div className="flex items-center space-x-3">
@@ -463,28 +472,31 @@ function UserManagement() {
             ),
         },
         {
-            title: 'Vai trò',
-            dataIndex: 'vai_tro',
-            key: 'vai_tro',
+            title: "Vai trò",
+            dataIndex: "vai_tro",
+            key: "vai_tro",
             width: 120,
             render: (vai_tro) => {
                 const roleConfig = {
-                    1: { color: 'purple', text: 'Admin' },
-                    2: { color: 'blue', text: 'Manager' },
-                    3: { color: 'green', text: 'Lecturer' }
+                    1: { color: "purple", text: "Quản trị viên" },
+                    2: { color: "blue", text: "Quản lý" },
+                    3: { color: "green", text: "Giẩng viên" },
                 };
-                const config = roleConfig[vai_tro] || { color: 'default', text: 'Unknown' };
+                const config = roleConfig[vai_tro] || {
+                    color: "default",
+                    text: "Unknown",
+                };
                 return <Tag color={config.color}>{config.text}</Tag>;
             },
         },
         {
-            title: 'Bộ môn',
-            key: 'bo_mon',
+            title: "Bộ môn",
+            key: "bo_mon",
             width: 200,
             render: (_, record) => (
                 <div>
                     <Text className="text-sm text-gray-800 block">
-                        {record.bo_mon?.ten_bo_mon || 'N/A'}
+                        {record.bo_mon?.ten_bo_mon || "___"}
                     </Text>
                     {record.bo_mon?.khoa && (
                         <Text className="text-xs text-gray-500">
@@ -495,11 +507,11 @@ function UserManagement() {
             ),
         },
         {
-            title: 'Trạng thái',
-            dataIndex: 'trang_thai',
-            key: 'trang_thai',
+            title: "Trạng thái",
+            dataIndex: "trang_thai",
+            key: "trang_thai",
             width: 120,
-            render: (trang_thai) => (
+            render: (trang_thai) =>
                 trang_thai ? (
                     <Tag color="green" icon={<CheckCircleOutlined />}>
                         Hoạt động
@@ -508,15 +520,13 @@ function UserManagement() {
                     <Tag color="red" icon={<CloseCircleOutlined />}>
                         Khóa
                     </Tag>
-                )
-            ),
+                ),
         },
         {
-            title: 'Thao tác',
-            key: 'actions',
+            title: "Thao tác",
+            key: "actions",
             width: 120,
             render: (_, record) => {
-                console.log("Rendering action buttons for record:", record); // Debug log
                 return (
                     <Space>
                         <Tooltip title="Chỉnh sửa">
@@ -526,7 +536,10 @@ function UserManagement() {
                                 onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    console.log("Edit button clicked for:", record);
+                                    console.log(
+                                        "Edit button clicked for:",
+                                        record
+                                    );
                                     handleEdit(record);
                                 }}
                                 className="text-blue-600 hover:bg-blue-50"
@@ -539,7 +552,10 @@ function UserManagement() {
                                 onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    console.log("Delete button clicked for record ID:", record.id);
+                                    console.log(
+                                        "Delete button clicked for record ID:",
+                                        record.id
+                                    );
                                     handleDelete(record.id);
                                 }}
                                 className="text-red-600 hover:bg-red-50"
@@ -554,15 +570,16 @@ function UserManagement() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40 relative">
-            {/* Enhanced background decoration */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-blue-400/5 to-indigo-400/5 rounded-full blur-3xl"></div>
                 <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-purple-400/5 to-pink-400/5 rounded-full blur-3xl"></div>
             </div>
 
             <div className="relative z-10 p-8 space-y-6">
-                {/* Enhanced Header */}
-                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+                <Card
+                    className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl"
+                    style={{ borderRadius: "16px" }}
+                >
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-6">
                             <div className="relative">
@@ -572,40 +589,64 @@ function UserManagement() {
                                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white shadow-md"></div>
                             </div>
                             <div className="space-y-2">
-                                <Title level={2} style={{ margin: 0 }} className="text-3xl font-bold bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 bg-clip-text text-transparent">
+                                <Title
+                                    level={2}
+                                    style={{ margin: 0 }}
+                                    className="text-3xl font-bold bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 bg-clip-text text-transparent"
+                                >
                                     Quản lý người dùng
                                 </Title>
                                 <div className="flex items-center space-x-2">
                                     <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
-                                    <Text type="secondary">Quản lý tài khoản và phân quyền hệ thống</Text>
+                                    <Text type="secondary">
+                                        Quản lý tài khoản và phân quyền hệ thống
+                                    </Text>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div className="flex items-center space-x-2 text-xs text-gray-400">
                             <span>Dashboard</span>
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            <svg
+                                className="w-3 h-3"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 5l7 7-7 7"
+                                />
                             </svg>
-                            <span className="text-purple-600 font-medium">Quản lý người dùng</span>
+                            <span className="text-purple-600 font-medium">
+                                Quản lý người dùng
+                            </span>
                         </div>
                     </div>
                 </Card>
 
-                {/* Enhanced Search Section */}
-                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+                <Card
+                    className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl"
+                    style={{ borderRadius: "16px" }}
+                >
                     <div className="bg-gradient-to-r from-slate-50 via-blue-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
                             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-md flex items-center justify-center mr-4">
                                 <SearchOutlined className="text-white text-lg" />
                             </div>
                             <div>
-                                <Title level={4} style={{ margin: 0 }}>Tìm kiếm người dùng</Title>
-                                <Text type="secondary" className="text-sm">Tìm kiếm theo tên, email hoặc mã giảng viên</Text>
+                                <Title level={4} style={{ margin: 0 }}>
+                                    Tìm kiếm người dùng
+                                </Title>
+                                <Text type="secondary" className="text-sm">
+                                    Tìm kiếm theo tên, email hoặc mã giảng viên
+                                </Text>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div className="relative">
                         <Input
                             size="large"
@@ -623,41 +664,49 @@ function UserManagement() {
                                     >
                                         ✕
                                     </Button>
-                                ) : null
+                                ) : null,
                             }}
                             prefix={
                                 <div className="w-5 h-5 bg-gray-100 rounded flex items-center justify-center mr-2">
                                     <SearchOutlined className="text-gray-500 text-xs" />
                                 </div>
                             }
-                            suffix={
-                                isSearching && (
-                                    <Spin size="small" />
-                                )
-                            }
+                            suffix={isSearching && <Spin size="small" />}
                         />
-                        
+
                         {searchTerm && (
                             <div className="mt-2 text-xs text-gray-500">
-                                {isSearching ? "Đang tìm kiếm..." : `Tìm kiếm với từ khóa: "${searchTerm}"`}
+                                {isSearching
+                                    ? "Đang tìm kiếm..."
+                                    : `Tìm kiếm với từ khóa: "${searchTerm}"`}
                             </div>
                         )}
                     </div>
                 </Card>
 
-                {/* Enhanced Form Section */}
-                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+                <Card
+                    className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl"
+                    style={{ borderRadius: "16px" }}
+                >
                     <div className="bg-gradient-to-r from-slate-50 via-purple-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
                             <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl shadow-md flex items-center justify-center mr-4">
-                                {editingId ? <EditOutlined className="text-white text-lg" /> : <UserAddOutlined className="text-white text-lg" />}
+                                {editingId ? (
+                                    <EditOutlined className="text-white text-lg" />
+                                ) : (
+                                    <UserAddOutlined className="text-white text-lg" />
+                                )}
                             </div>
                             <div>
                                 <Title level={4} style={{ margin: 0 }}>
-                                    {editingId ? "Cập nhật người dùng" : "Thêm người dùng mới"}
+                                    {editingId
+                                        ? "Cập nhật người dùng"
+                                        : "Thêm người dùng mới"}
                                 </Title>
                                 <Text type="secondary" className="text-sm">
-                                    {editingId ? "Chỉnh sửa thông tin người dùng" : "Tạo tài khoản mới cho hệ thống"}
+                                    {editingId
+                                        ? "Chỉnh sửa thông tin người dùng"
+                                        : "Tạo tài khoản mới cho hệ thống"}
                                 </Text>
                             </div>
                         </div>
@@ -668,7 +717,7 @@ function UserManagement() {
                         layout="vertical"
                         onFinish={handleSubmit}
                         initialValues={{
-                            trang_thai: "1"
+                            trang_thai: "1",
                         }}
                     >
                         <Row gutter={[24, 24]}>
@@ -676,7 +725,13 @@ function UserManagement() {
                                 <Form.Item
                                     name="ma_gv"
                                     label={<Text strong>Mã giảng viên</Text>}
-                                    rules={[{ required: true, message: 'Vui lòng nhập mã giảng viên' }]}
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message:
+                                                "Vui lòng nhập mã giảng viên",
+                                        },
+                                    ]}
                                 >
                                     <Input
                                         size="large"
@@ -690,7 +745,12 @@ function UserManagement() {
                                 <Form.Item
                                     name="ho_ten"
                                     label={<Text strong>Họ và tên</Text>}
-                                    rules={[{ required: true, message: 'Vui lòng nhập họ và tên' }]}
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: "Vui lòng nhập họ và tên",
+                                        },
+                                    ]}
                                 >
                                     <Input
                                         size="large"
@@ -705,8 +765,14 @@ function UserManagement() {
                                     name="email"
                                     label={<Text strong>Email</Text>}
                                     rules={[
-                                        { required: true, message: 'Vui lòng nhập email' },
-                                        { type: 'email', message: 'Email không hợp lệ' }
+                                        {
+                                            required: true,
+                                            message: "Vui lòng nhập email",
+                                        },
+                                        {
+                                            type: "email",
+                                            message: "Email không hợp lệ",
+                                        },
                                     ]}
                                 >
                                     <Input
@@ -720,8 +786,24 @@ function UserManagement() {
                             <Col xs={24} sm={12} lg={8}>
                                 <Form.Item
                                     name="password"
-                                    label={<Text strong>{editingId ? "Mật khẩu mới (tùy chọn)" : "Mật khẩu"}</Text>}
-                                    rules={editingId ? [] : [{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
+                                    label={
+                                        <Text strong>
+                                            {editingId
+                                                ? "Mật khẩu mới (tùy chọn)"
+                                                : "Mật khẩu"}
+                                        </Text>
+                                    }
+                                    rules={
+                                        editingId
+                                            ? []
+                                            : [
+                                                  {
+                                                      required: true,
+                                                      message:
+                                                          "Vui lòng nhập mật khẩu",
+                                                  },
+                                              ]
+                                    }
                                 >
                                     <Input.Password
                                         size="large"
@@ -735,7 +817,12 @@ function UserManagement() {
                                 <Form.Item
                                     name="vai_tro"
                                     label={<Text strong>Vai trò</Text>}
-                                    rules={[{ required: true, message: 'Vui lòng chọn vai trò' }]}
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: "Vui lòng chọn vai trò",
+                                        },
+                                    ]}
                                 >
                                     <Select
                                         size="large"
@@ -744,19 +831,34 @@ function UserManagement() {
                                     >
                                         <Option value="1">
                                             <div className="flex items-center">
-                                                <Tag color="purple" className="mr-2">Admin</Tag>
+                                                <Tag
+                                                    color="purple"
+                                                    className="mr-2"
+                                                >
+                                                    Admin
+                                                </Tag>
                                                 Quản trị viên
                                             </div>
                                         </Option>
                                         <Option value="2">
                                             <div className="flex items-center">
-                                                <Tag color="blue" className="mr-2">Manager</Tag>
+                                                <Tag
+                                                    color="blue"
+                                                    className="mr-2"
+                                                >
+                                                    Manager
+                                                </Tag>
                                                 Quản lý
                                             </div>
                                         </Option>
                                         <Option value="3">
                                             <div className="flex items-center">
-                                                <Tag color="green" className="mr-2">Lecturer</Tag>
+                                                <Tag
+                                                    color="green"
+                                                    className="mr-2"
+                                                >
+                                                    Lecturer
+                                                </Tag>
                                                 Giảng viên
                                             </div>
                                         </Option>
@@ -768,7 +870,12 @@ function UserManagement() {
                                 <Form.Item
                                     name="bo_mon_id"
                                     label={<Text strong>Bộ môn</Text>}
-                                    rules={[{ required: true, message: 'Vui lòng chọn bộ môn' }]}
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: "Vui lòng chọn bộ môn",
+                                        },
+                                    ]}
                                 >
                                     <Select
                                         size="large"
@@ -776,12 +883,19 @@ function UserManagement() {
                                         className="custom-select"
                                         showSearch
                                         filterOption={(input, option) =>
-                                            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                            option.children
+                                                .toLowerCase()
+                                                .indexOf(input.toLowerCase()) >=
+                                            0
                                         }
                                     >
                                         {boMonList.map((boMon) => (
-                                            <Option key={boMon.id} value={boMon.id}>
-                                                {boMon.ten_bo_mon} ({boMon.khoa?.ten_khoa})
+                                            <Option
+                                                key={boMon.id}
+                                                value={boMon.id}
+                                            >
+                                                {boMon.ten_bo_mon} (
+                                                {boMon.khoa?.ten_khoa})
                                             </Option>
                                         ))}
                                     </Select>
@@ -792,7 +906,12 @@ function UserManagement() {
                                 <Form.Item
                                     name="trang_thai"
                                     label={<Text strong>Trạng thái</Text>}
-                                    rules={[{ required: true, message: 'Vui lòng chọn trạng thái' }]}
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: "Vui lòng chọn trạng thái",
+                                        },
+                                    ]}
                                 >
                                     <Select
                                         size="large"
@@ -800,14 +919,26 @@ function UserManagement() {
                                     >
                                         <Option value="1">
                                             <div className="flex items-center">
-                                                <Tag color="green" icon={<CheckCircleOutlined />} className="mr-2">
+                                                <Tag
+                                                    color="green"
+                                                    icon={
+                                                        <CheckCircleOutlined />
+                                                    }
+                                                    className="mr-2"
+                                                >
                                                     Hoạt động
                                                 </Tag>
                                             </div>
                                         </Option>
                                         <Option value="0">
                                             <div className="flex items-center">
-                                                <Tag color="red" icon={<CloseCircleOutlined />} className="mr-2">
+                                                <Tag
+                                                    color="red"
+                                                    icon={
+                                                        <CloseCircleOutlined />
+                                                    }
+                                                    className="mr-2"
+                                                >
                                                     Tạm khóa
                                                 </Tag>
                                             </div>
@@ -837,7 +968,13 @@ function UserManagement() {
                                 size="large"
                                 htmlType="submit"
                                 loading={isLoading}
-                                icon={editingId ? <EditOutlined /> : <UserAddOutlined />}
+                                icon={
+                                    editingId ? (
+                                        <EditOutlined />
+                                    ) : (
+                                        <UserAddOutlined />
+                                    )
+                                }
                                 className="px-6 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 border-0 rounded-xl shadow-lg hover:shadow-xl"
                             >
                                 {editingId ? "Cập nhật" : "Thêm mới"}
@@ -846,16 +983,23 @@ function UserManagement() {
                     </Form>
                 </Card>
 
-                {/* Enhanced Import Section */}
-                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+                <Card
+                    className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl"
+                    style={{ borderRadius: "16px" }}
+                >
                     <div className="bg-gradient-to-r from-slate-50 via-emerald-50/50 to-teal-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
                             <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-md flex items-center justify-center mr-4">
                                 <UploadOutlined className="text-white text-lg" />
                             </div>
                             <div>
-                                <Title level={4} style={{ margin: 0 }}>Nhập dữ liệu từ file</Title>
-                                <Text type="secondary" className="text-sm">Tải lên file Excel hoặc CSV để thêm nhiều người dùng</Text>
+                                <Title level={4} style={{ margin: 0 }}>
+                                    Nhập dữ liệu từ file
+                                </Title>
+                                <Text type="secondary" className="text-sm">
+                                    Tải lên file Excel hoặc CSV để thêm nhiều
+                                    người dùng
+                                </Text>
                             </div>
                         </div>
                     </div>
@@ -868,7 +1012,9 @@ function UserManagement() {
                                     icon={<UploadOutlined />}
                                     className="w-full h-12 bg-gray-50 hover:bg-gray-100 border-2 border-dashed border-gray-300 hover:border-emerald-400 rounded-xl"
                                 >
-                                    {file ? "Thay đổi file" : "Chọn file để tải lên"}
+                                    {file
+                                        ? "Thay đổi file"
+                                        : "Chọn file để tải lên"}
                                 </Button>
                             </Upload>
 
@@ -876,11 +1022,22 @@ function UserManagement() {
                                 <div className="flex items-start">
                                     <ExclamationCircleOutlined className="text-blue-600 mt-0.5 mr-2 flex-shrink-0" />
                                     <div className="text-xs text-blue-800 flex-1">
-                                        <Text strong className="block">Định dạng hỗ trợ: .xlsx, .xls, .csv</Text>
-                                        <Text className="block mt-1">File phải có cấu trúc đúng với các cột: ma_gv, ho_ten, email, password, vai_tro, bo_mon_id, trang_thai</Text>
+                                        <Text strong className="block">
+                                            Định dạng hỗ trợ: .xlsx, .xls, .csv
+                                        </Text>
+                                        <Text className="block mt-1">
+                                            File phải có cấu trúc đúng với các
+                                            cột: ma_gv, ho_ten, email, password,
+                                            vai_tro, bo_mon_id, trang_thai
+                                        </Text>
                                         <div className="mt-3 flex items-center justify-between">
                                             <Text className="text-blue-700">
-                                                <strong>Ghi chú về giá trị:</strong> vai_tro (1=Admin, 2=Manager, 3=Lecturer), trang_thai (0=Khóa, 1=Hoạt động)
+                                                <strong>
+                                                    Ghi chú về giá trị:
+                                                </strong>{" "}
+                                                vai_tro (1=Admin, 2=Manager,
+                                                3=Lecturer), trang_thai (0=Khóa,
+                                                1=Hoạt động)
                                             </Text>
                                             <Button
                                                 type="link"
@@ -896,16 +1053,26 @@ function UserManagement() {
                                 </div>
                             </div>
 
-                            {/* Additional help section */}
                             <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
                                 <div className="flex items-start">
                                     <div className="w-4 h-4 bg-amber-400 rounded-full mt-0.5 mr-2 flex-shrink-0"></div>
                                     <div className="text-xs text-amber-800">
-                                        <Text strong className="block">Hướng dẫn sử dụng file mẫu:</Text>
+                                        <Text strong className="block">
+                                            Hướng dẫn sử dụng file mẫu:
+                                        </Text>
                                         <ul className="list-disc list-inside mt-1 space-y-1">
-                                            <li>Tải xuống file mẫu để xem cấu trúc chính xác</li>
-                                            <li>Thay thế dữ liệu mẫu bằng thông tin thực tế</li>
-                                            <li>Đảm bảo bo_mon_id tồn tại trong hệ thống</li>
+                                            <li>
+                                                Tải xuống file mẫu để xem cấu
+                                                trúc chính xác
+                                            </li>
+                                            <li>
+                                                Thay thế dữ liệu mẫu bằng thông
+                                                tin thực tế
+                                            </li>
+                                            <li>
+                                                Đảm bảo bo_mon_id tồn tại trong
+                                                hệ thống
+                                            </li>
                                             <li>Không thay đổi tên các cột</li>
                                         </ul>
                                     </div>
@@ -924,7 +1091,7 @@ function UserManagement() {
                                 >
                                     Tải file mẫu CSV
                                 </Button>
-                                
+
                                 <Button
                                     type="primary"
                                     size="large"
@@ -941,8 +1108,10 @@ function UserManagement() {
                     </Row>
                 </Card>
 
-                {/* Enhanced Users Table */}
-                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+                <Card
+                    className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl"
+                    style={{ borderRadius: "16px" }}
+                >
                     <div className="bg-gradient-to-r from-slate-50 via-purple-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center">
@@ -950,17 +1119,17 @@ function UserManagement() {
                                     <TeamOutlined className="text-white text-lg" />
                                 </div>
                                 <div>
-                                    <Title level={4} style={{ margin: 0 }}>Danh sách người dùng</Title>
+                                    <Title level={4} style={{ margin: 0 }}>
+                                        Danh sách người dùng
+                                    </Title>
                                     <Text type="secondary" className="text-sm">
-                                        {searchTerm ? (
-                                            `${pagination.total} kết quả tìm kiếm cho "${searchTerm}"`
-                                        ) : (
-                                            `${pagination.total} người dùng trong hệ thống`
-                                        )}
+                                        {searchTerm
+                                            ? `${pagination.total} kết quả tìm kiếm cho "${searchTerm}"`
+                                            : `${pagination.total} người dùng trong hệ thống`}
                                     </Text>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center gap-3">
                                 {searchTerm && (
                                     <Button
@@ -973,7 +1142,7 @@ function UserManagement() {
                                         Xóa bộ lọc
                                     </Button>
                                 )}
-                                
+
                                 <Button
                                     type="default"
                                     size="middle"
@@ -1002,15 +1171,18 @@ function UserManagement() {
                                         <UserOutlined className="text-2xl text-gray-400" />
                                     </div>
                                     <Text className="text-gray-500 font-medium text-lg block">
-                                        {searchTerm ? `Không tìm thấy người dùng với từ khóa "${searchTerm}"` : "Chưa có người dùng nào"}
+                                        {searchTerm
+                                            ? `Không tìm thấy người dùng với từ khóa "${searchTerm}"`
+                                            : "Chưa có người dùng nào"}
                                     </Text>
                                     <Text className="text-gray-400 text-sm">
                                         {searchTerm ? (
                                             <>
-                                                Thử điều chỉnh từ khóa tìm kiếm hoặc{" "}
-                                                <Button 
-                                                    type="link" 
-                                                    size="small" 
+                                                Thử điều chỉnh từ khóa tìm kiếm
+                                                hoặc{" "}
+                                                <Button
+                                                    type="link"
+                                                    size="small"
                                                     onClick={clearSearch}
                                                     className="p-0 h-auto"
                                                 >
@@ -1022,14 +1194,16 @@ function UserManagement() {
                                         )}
                                     </Text>
                                 </div>
-                            )
+                            ),
                         }}
                     />
 
                     {pagination.total > 0 && (
                         <div className="mt-6 flex justify-between items-center">
                             <Text type="secondary">
-                                Hiển thị <Text strong>{pagination.from}</Text> đến <Text strong>{pagination.to}</Text> trên <Text strong>{pagination.total}</Text> kết quả
+                                Hiển thị <Text strong>{pagination.from}</Text>{" "}
+                                đến <Text strong>{pagination.to}</Text> trên{" "}
+                                <Text strong>{pagination.total}</Text> kết quả
                                 {searchTerm && (
                                     <span className="ml-2 text-blue-600">
                                         (tìm kiếm: "{searchTerm}")
@@ -1043,14 +1217,15 @@ function UserManagement() {
                                 showSizeChanger
                                 showQuickJumper
                                 onChange={handlePageChange}
-                                showTotal={(total, range) => `${range[0]}-${range[1]} trên ${total} mục`}
+                                showTotal={(total, range) =>
+                                    `${range[0]}-${range[1]} trên ${total} mục`
+                                }
                                 className="custom-pagination"
                             />
                         </div>
                     )}
                 </Card>
 
-                {/* Delete Confirmation Modal */}
                 <Modal
                     title={
                         <div className="flex items-center">
@@ -1068,12 +1243,13 @@ function UserManagement() {
                     centered
                     width={450}
                 >
-                    <p>Bạn có chắc chắn muốn xóa người dùng này? Hành động này không thể hoàn tác.</p>
+                    <p>
+                        Bạn có chắc chắn muốn xóa người dùng này? Hành động này
+                        không thể hoàn tác.
+                    </p>
                 </Modal>
 
-                {/* Enhanced Custom Styles */}
                 <style>{`
-                    /* Base Ant Design Component Styles */
                     .custom-select .ant-select-selector {
                         border-radius: 8px !important;
                         border: 1px solid #e2e8f0 !important;
@@ -1099,7 +1275,6 @@ function UserManagement() {
                         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important;
                     }
                     
-                    /* Table styling */
                     .custom-table .ant-table {
                         border-radius: 12px !important;
                         overflow: hidden !important;
@@ -1122,7 +1297,6 @@ function UserManagement() {
                         background: rgba(59, 130, 246, 0.05) !important;
                     }
                     
-                    /* Button styling enhancements */
                     .ant-btn-primary {
                         border-radius: 12px !important;
                         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25) !important;
@@ -1143,7 +1317,6 @@ function UserManagement() {
                         transform: translateY(-1px) !important;
                     }
                     
-                    /* Pagination styling */
                     .custom-pagination .ant-pagination-item {
                         border-radius: 8px !important;
                         border: 1px solid #e2e8f0 !important;
@@ -1158,19 +1331,16 @@ function UserManagement() {
                         color: white !important;
                     }
                     
-                    /* Upload styling */
                     .ant-upload-list-item {
                         border-radius: 8px !important;
                         border: 1px solid #e2e8f0 !important;
                     }
                     
-                    /* Form styling */
                     .ant-form-item-label > label {
                         font-weight: 500 !important;
                         color: #374151 !important;
                     }
                     
-                    /* Tag styling */
                     .ant-tag {
                         border-radius: 6px !important;
                         font-weight: 500 !important;

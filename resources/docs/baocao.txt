@@ -1,0 +1,195 @@
+TÓM TẮT ĐỀ TÀI  
+Đề tài tập trung xây dựng một hệ thống phần mềm hỗ trợ quản lý và tính toán khối lượng công việc của giảng viên tại Trường Đại học Thủy Lợi. Hệ thống cho phép giảng viên kê khai các hoạt động giảng dạy, nghiên cứu khoa học, công tác khác; đồng thời hỗ trợ cán bộ quản lý trong việc phê duyệt, tổng hợp, báo cáo và tính lương một cách tự động, minh bạch và chính xác. Sản phẩm hướng tới việc giảm thiểu thao tác thủ công, hạn chế sai sót, nâng cao hiệu quả quản lý và đáp ứng yêu cầu chuyển đổi số trong giáo dục đại học.
+
+CÁC MỤC TIÊU CHÍNH  
+1. Phân tích, mô hình hóa quy trình quản lý khối lượng công việc của giảng viên, bao gồm các hoạt động giảng dạy, nghiên cứu khoa học và công tác khác.
+2. Thiết kế, xây dựng hệ thống phần mềm quản lý tập trung, hỗ trợ kê khai, phê duyệt, tổng hợp, báo cáo và tính lương cho giảng viên.
+3. Đảm bảo hệ thống có tính bảo mật, phân quyền rõ ràng giữa các vai trò (Admin, Trưởng bộ môn, Giảng viên).
+4. Hỗ trợ xuất báo cáo, thống kê phục vụ công tác quản lý, đánh giá và lập kế hoạch nhân sự.
+5. Đảm bảo khả năng mở rộng, tích hợp với các hệ thống quản lý khác của nhà trường trong tương lai.
+
+KẾT QUẢ DỰ KIẾN  
+- Xây dựng thành công hệ thống phần mềm quản lý và tính toán khối lượng công việc giảng viên, triển khai thực tế tại Trường Đại học Thủy Lợi.
+- Giao diện thân thiện, dễ sử dụng, đáp ứng nhu cầu của cả giảng viên và cán bộ quản lý.
+- Quy trình kê khai, phê duyệt, tổng hợp, báo cáo và tính lương được tự động hóa, giảm thiểu thao tác thủ công và sai sót.
+- Dữ liệu được lưu trữ tập trung, bảo mật, dễ dàng truy xuất, phục vụ tốt cho công tác thống kê, đánh giá và lập kế hoạch phát triển nguồn nhân lực.
+
+TIẾN ĐỘ THỰC HIỆN  
+Đề tài được triển khai theo các giai đoạn rõ ràng, đảm bảo tiến độ và chất lượng:
+
+| TT | Thời gian   | Nội dung công việc                        | Kết quả dự kiến đạt được         |
+|----|-------------|-------------------------------------------|----------------------------------|
+| 1  | 1/4-7/4     | Khảo sát thực trạng, thu thập yêu cầu, nghiên cứu tài liệu | Báo cáo khảo sát, tài liệu đặc tả yêu cầu |
+| 2  | 8/4-14/4    | Phân tích nghiệp vụ, thiết kế hệ thống, xây dựng mô hình dữ liệu, sơ đồ use case | Sơ đồ hệ thống, mô hình dữ liệu, tài liệu thiết kế |
+| 3  | 15/4-21/4   | Xây dựng module quản lý người dùng, phân quyền, bảo mật | Chức năng quản lý người dùng, phân quyền |
+| 4  | 22/4-28/4   | Xây dựng module kê khai, phê duyệt, lưu trữ dữ liệu | Chức năng kê khai, phê duyệt, lưu trữ dữ liệu |
+| 5  | 29/4-5/5    | Xây dựng module báo cáo, thống kê, xuất file | Chức năng báo cáo, thống kê, xuất dữ liệu |
+| 6  | 6/5-19/5    | Hoàn thiện các chức năng còn lại, kiểm thử đơn vị, kiểm thử tích hợp | Hệ thống hoàn chỉnh, đảm bảo chất lượng |
+| 7  | 20/5-2/6    | Kiểm thử tổng thể, đánh giá hiệu năng, tối ưu hệ thống | Hệ thống ổn định, hiệu năng cao |
+| 8  | 3/6-16/6    | Viết tài liệu hướng dẫn sử dụng, tài liệu kỹ thuật, hoàn thiện báo cáo | Bộ tài liệu đầy đủ, báo cáo hoàn chỉnh |
+| 9  | 17/6-6/7    | Triển khai thực tế, đào tạo người dùng, nghiệm thu, bảo trì | Hệ thống đưa vào sử dụng, người dùng thành thạo |
+
+LỜI MỞ ĐẦU  
+Chuyển đổi số trong giáo dục đại học là xu hướng tất yếu nhằm nâng cao hiệu quả quản lý, chất lượng đào tạo và nghiên cứu khoa học. Một trong những vấn đề then chốt là quản lý khối lượng công việc của giảng viên một cách khoa học, minh bạch, chính xác và hiệu quả.  
+Tại Trường Đại học Thủy Lợi, việc kê khai, tổng hợp, phê duyệt và tính toán khối lượng công việc của giảng viên còn nhiều bất cập do thực hiện thủ công, thiếu đồng bộ, dễ xảy ra sai sót và mất nhiều thời gian.  
+Đề tài này được thực hiện nhằm xây dựng một hệ thống phần mềm hiện đại, tự động hóa toàn bộ quy trình quản lý, góp phần nâng cao hiệu quả công tác quản lý, giảm tải thủ công, tăng tính minh bạch và chính xác trong công tác kê khai, phê duyệt và tính toán khối lượng giảng dạy.
+
+1. Giới thiệu đề tài  
+Đề tài hướng tới việc xây dựng một hệ thống phần mềm quản lý toàn diện các hoạt động kê khai, phê duyệt, tổng hợp, báo cáo và tính toán khối lượng công việc của giảng viên tại Trường Đại học Thủy Lợi. Hệ thống được thiết kế hiện đại, bảo mật, dễ sử dụng, đáp ứng đầy đủ các yêu cầu nghiệp vụ thực tế, hỗ trợ hiệu quả cho công tác quản lý, đánh giá, trả lương và lập kế hoạch phát triển nguồn nhân lực.
+
+2. Lý do chọn đề tài  
+- Quy trình quản lý khối lượng công việc của giảng viên hiện nay còn thủ công, thiếu minh bạch, dễ sai sót, mất nhiều thời gian.
+- Nhu cầu cấp thiết về một hệ thống phần mềm hiện đại, tự động hóa, đồng bộ, bảo mật, hỗ trợ quản lý hiệu quả, minh bạch, khoa học.
+- Đáp ứng xu thế chuyển đổi số trong giáo dục đại học, góp phần nâng cao chất lượng quản lý, đào tạo và nghiên cứu khoa học.
+- Tạo nền tảng cho việc tích hợp, mở rộng các hệ thống quản lý khác trong tương lai.
+
+3. Mục tiêu của đề tài  
+- Xây dựng hệ thống phần mềm quản lý, kê khai, phê duyệt, tổng hợp, báo cáo và tính toán khối lượng công việc của giảng viên một cách tự động, chính xác, minh bạch.
+- Đảm bảo hệ thống có tính bảo mật cao, phân quyền rõ ràng, giao diện thân thiện, dễ sử dụng cho mọi đối tượng.
+- Hỗ trợ công tác quản lý, đánh giá, trả lương, lập kế hoạch phát triển nguồn nhân lực tại Trường Đại học Thủy Lợi.
+- Đề xuất các giải pháp tối ưu hóa quy trình quản lý, nâng cao hiệu quả công việc, giảm tải thủ công cho cán bộ quản lý và giảng viên.
+
+4. Phương pháp nghiên cứu  
+- Khảo sát thực tế quy trình quản lý, phỏng vấn cán bộ quản lý, giảng viên để thu thập yêu cầu nghiệp vụ.
+- Phân tích, mô hình hóa quy trình nghiệp vụ bằng các công cụ hiện đại (UML, ERD, BPMN...).
+- Thiết kế hệ thống theo hướng module hóa, bảo mật, dễ mở rộng, sử dụng các công nghệ web hiện đại (Laravel, MySQL, RESTful API...).
+- Xây dựng, kiểm thử, đánh giá hệ thống dựa trên phản hồi thực tế của người dùng, liên tục cải tiến để đáp ứng tốt nhất yêu cầu sử dụng.
+
+5. Đối tượng, phạm vi nghiên cứu  
+- Đối tượng nghiên cứu: Giảng viên, cán bộ quản lý (trưởng bộ môn, phòng tổ chức, phòng đào tạo), lãnh đạo nhà trường.
+- Phạm vi nghiên cứu: Quản lý, kê khai, phê duyệt, tổng hợp, báo cáo và tính toán khối lượng giảng dạy, nghiên cứu khoa học, công tác khác của giảng viên tại Trường Đại học Thủy Lợi. Hệ thống có khả năng mở rộng, tích hợp với các hệ thống quản lý khác trong tương lai.
+
+CHƯƠNG 1: CƠ SỞ LÝ THUYẾT
+CHƯƠNG 2: THIẾT KẾ VÀ XÂY DỰNG HỆ THỐNG
+2.3. Chức năng hệ thống
+2.3.1 Biểu đồ Use case tổng quát
+
+Biểu đồ Use case tổng quát mô tả các chức năng chính của hệ thống và mối quan hệ giữa các tác nhân (actor) với các chức năng đó. Hệ thống có ba nhóm người dùng chính: Quản trị viên (Admin), Trưởng bộ môn (Manager), và Giảng viên (Lecturer). Mỗi nhóm người dùng có các quyền và chức năng riêng biệt, đảm bảo phân quyền rõ ràng, bảo mật và thuận tiện trong sử dụng.
+
+Các tác nhân (Actor):
+- Admin: Quản lý hệ thống, người dùng, danh mục, cấu hình, theo dõi hoạt động, xuất báo cáo tổng hợp.
+- Manager (Trưởng bộ môn): Phê duyệt kê khai, thống kê, xuất báo cáo bộ môn, gửi thông báo, quản lý lương giảng viên thuộc bộ môn.
+- Lecturer (Giảng viên): Kê khai khối lượng công việc, cập nhật thông tin cá nhân, xem kết quả phê duyệt, nhận thông báo, xem thống kê cá nhân.
+
+Các chức năng chính (Use case):
+- Đăng nhập/Đăng xuất hệ thống
+- Quản lý thông tin cá nhân
+- Kê khai khối lượng giảng dạy, NCKH, công tác khác (Lecturer)
+- Nộp bản kê khai tổng hợp năm học (Lecturer)
+- Xem trạng thái phê duyệt, nhận thông báo (Lecturer)
+- Phê duyệt hoặc từ chối bản kê khai (Manager)
+- Xem, thống kê, xuất báo cáo bộ môn (Manager)
+- Quản lý lương, cập nhật thông tin lương (Manager)
+- Quản lý người dùng, phân quyền (Admin)
+- Quản lý danh mục, cấu hình hệ thống (Admin)
+- Theo dõi, ghi log hoạt động hệ thống (Admin)
+- Xuất báo cáo tổng hợp toàn trường (Admin)
+
+Mối quan hệ giữa các tác nhân và chức năng:
+- Giảng viên thực hiện kê khai, nộp bản kê khai, nhận phản hồi từ trưởng bộ môn.
+- Trưởng bộ môn phê duyệt, thống kê, xuất báo cáo, gửi thông báo cho giảng viên.
+- Quản trị viên quản lý toàn bộ hệ thống, cấu hình, người dùng, danh mục, theo dõi hoạt động và xuất các báo cáo tổng hợp.
+
+Sơ đồ minh họa (mô tả văn bản):
+[Lecturer] ---> (Kê khai công việc) ---> (Nộp kê khai) ---> [Manager]
+[Manager] ---> (Phê duyệt kê khai) ---> (Thống kê, báo cáo bộ môn)
+[Admin] ---> (Quản lý người dùng, danh mục, cấu hình, báo cáo toàn trường)
+Tất cả các actor đều có thể: (Đăng nhập/Đăng xuất), (Quản lý thông tin cá nhân)
+
+Biểu đồ Use case tổng quát giúp xác định phạm vi chức năng, phân quyền và là cơ sở cho việc thiết kế chi tiết các module chức năng của hệ thống.
+
+2.3.2. Biểu đồ trạng thái
+2.3.3. Biểu đồ tuần tự
+2.3.4. Xây dựng biểu đồ lớp
+2.3.5. Thiết kế cơ sở dữ liệu
+
+Hệ thống sử dụng các bảng dữ liệu chính sau (đã loại bỏ các bảng/model thừa, chỉ giữ lại bảng thực sự sử dụng):
+
+- user (nguoi_dung)
+- bo_mon
+- khoa
+- nam_hoc
+- hoc_ky
+- ke_khai_tong_hop_nam_hoc
+- ke_khai_thoi_gian
+- dinh_muc_ca_nhan_theo_nam
+- dm_he_so_chung
+- mien_giam_dinh_muc
+- luong_giang_vien
+- lich_su_phe_duyet
+- notification
+- minh_chung
+- kekhai_gd_lop_dh_trongbm
+- kekhai_gd_lop_dh_ngoaibm
+- kekhai_gd_lop_dh_ngoaics
+- kekhai_gd_lop_ths
+- kekhai_gd_lop_ts
+- kekhai_hd_datn_daihoc
+- kekhai_hd_lv_thacsi
+- kekhai_hd_la_tiensi
+- kekhai_dg_hp_tn_daihoc
+- kekhai_dg_lv_thacsi
+- kekhai_dg_la_tiensi_dot
+- kekhai_dg_la_tiensi_nhiemvu
+- kekhai_khaothi_daihoc_trongbm
+- kekhai_khaothi_daihoc_ngoaibm
+- kekhai_khaothi_thacsi
+- kekhai_khaothi_tiensi
+- kekhai_xd_ctdt_va_khac_gd
+- kekhai_nckh_nam_hoc
+- kekhai_congtac_khac_nam_hoc
+
+Các model tương ứng trong hệ thống cũng chỉ giữ lại các model thực sự sử dụng, hoàn toàn đồng bộ với các bảng trên. Các model/bảng cũ hoặc không còn dùng đã được loại bỏ để đảm bảo hệ thống gọn nhẹ, dễ bảo trì.
+
+-- =============================
+-- Lệnh SQL xóa các bảng không cần thiết trong database
+-- =============================
+-- Chạy các lệnh này sau khi đã backup dữ liệu!
+
+DROP TABLE IF EXISTS dm_dinh_muc_vai_tro_danh_gia;
+DROP TABLE IF EXISTS dm_dinh_muc_vai_tro_hd_ths;
+DROP TABLE IF EXISTS dm_dinh_muc_vai_tro_hd_ts;
+DROP TABLE IF EXISTS dinh_muc_gio_chuan;
+DROP TABLE IF EXISTS chuc_danh_gv;
+DROP TABLE IF EXISTS chuc_danh;
+DROP TABLE IF EXISTS dm_hoat_dong_giang_day_khac;
+DROP TABLE IF EXISTS dm_he_so_huong_dan;
+-- Các bảng cũ dạng ke_khai_giang_day, ke_khai_hoat_dong_gd_khac_chung, ...
+DROP TABLE IF EXISTS ke_khai_giang_day;
+DROP TABLE IF EXISTS ke_khai_hoat_dong_gd_khac_chung;
+DROP TABLE IF EXISTS ke_khai_hoat_dong_gd_khac_chi_tiet;
+DROP TABLE IF EXISTS ke_khai_nckh;
+DROP TABLE IF EXISTS ke_khai_cong_tac_khac;
+-- (Bổ sung thêm các bảng cũ khác nếu có)
+
+-- Đảm bảo chỉ giữ lại các bảng đã liệt kê ở phần trên!
+
+-- Bổ sung lệnh xóa các bảng kỹ thuật/hệ thống không cần thiết nếu không sử dụng:
+DROP TABLE IF EXISTS failed_jobs;
+DROP TABLE IF EXISTS jobs;
+DROP TABLE IF EXISTS personal_access_tokens;
+DROP TABLE IF EXISTS password_resets;
+DROP TABLE IF EXISTS migrations;
+DROP TABLE IF EXISTS cache;
+DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS telescope_entries;
+DROP TABLE IF EXISTS telescope_entries_tags;
+DROP TABLE IF EXISTS telescope_monitoring;
+DROP TABLE IF EXISTS ke_khai_huong_dan_dai_hoc;
+DROP TABLE IF EXISTS ke_khai_huong_dan_thac_si;
+-- Xóa tất cả các bảng cũ dạng ke_khai_* (trừ ke_khai_tong_hop_nam_hoc nếu còn dùng)
+DROP TABLE IF EXISTS ke_khai_danh_gia_datn_dai_hoc;
+DROP TABLE IF EXISTS ke_khai_danh_gia_la_tien_si;
+DROP TABLE IF EXISTS ke_khai_danh_gia_lv_thac_si;
+DROP TABLE IF EXISTS ke_khai_giang_day;
+DROP TABLE IF EXISTS ke_khai_hoat_dong_gd_khac_chi_tiet;
+DROP TABLE IF EXISTS ke_khai_hoat_dong_gd_khac_chung;
+DROP TABLE IF EXISTS ke_khai_nckh;
+DROP TABLE IF EXISTS ke_khai_cong_tac_khac;
+DROP TABLE IF EXISTS ke_khai_huong_dan_dai_hoc;
+DROP TABLE IF EXISTS ke_khai_huong_dan_thac_si;
+-- Xóa các bảng cũ dạng ke_hoach_* nếu không còn dùng
+DROP TABLE IF EXISTS ke_hoach_chi_tiet_gd_lop_dh_ngoaics;
+DROP TABLE IF EXISTS ke_hoach_chi_tiet_khaothi_ths;
+DROP TABLE IF EXISTS ke_hoach_chi_tiet_khaothi_ts;
+DROP TABLE IF EXISTS ke_hoach_tong_hop_nam_hoc;

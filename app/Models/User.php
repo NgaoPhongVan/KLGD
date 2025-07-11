@@ -12,7 +12,7 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $table = 'nguoi_dung'; // Tên bảng của bạn
+    protected $table = 'nguoi_dung';
     protected $primaryKey = 'id';
     public $incrementing = true;
     protected $fillable = [
@@ -27,16 +27,11 @@ class User extends Authenticatable
     ];
     protected $hidden = ['password', 'remember_token'];
 
-    /**
-     * Send the password reset notification.
-     *
-     * @param  string  $token
-     * @return void
-     */
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new CustomResetPasswordNotification($token));
     }
+    
     public function boMon()
     {
         return $this->belongsTo(BoMon::class, 'bo_mon_id', 'id');

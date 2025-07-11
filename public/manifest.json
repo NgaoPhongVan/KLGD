@@ -1,0 +1,38 @@
+{
+  "name": "Quản lý khối lượng giảng dạy",
+  "short_name": "QLKLGD",
+  "description": "Hệ thống quản lý khối lượng giảng dạy cho giảng viên",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4F46E5",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "images/favicon-simple.svg",
+      "sizes": "16x16",
+      "type": "image/svg+xml",
+      "purpose": "favicon"
+    },
+    {
+      "src": "images/favicon.svg",
+      "sizes": "32x32",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "images/logo-icon.svg",
+      "sizes": "64x64",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "images/app-icon.svg",
+      "sizes": "128x128",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "lang": "vi-VN"
+}

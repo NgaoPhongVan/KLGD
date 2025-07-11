@@ -22,13 +22,11 @@ class MienGiamDinhMuc extends Model
         'updated_at' => 'datetime',
     ];
 
-    // Quan hệ với NguoiDung
     public function nguoiDung()
     {
         return $this->belongsTo(User::class, 'nguoi_dung_id');
     }
 
-    // Quan hệ với NamHoc
     public function namHoc()
     {
         return $this->belongsTo(NamHoc::class, 'nam_hoc_id');

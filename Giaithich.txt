@@ -1,0 +1,463 @@
+# GIẢI THÍCH MÃ NGUỒN FRONTEND - FormGdLop.jsx
+
+## 1. IMPORTS VÀ DEPENDENCIES
+
+```javascript
+import React, { useState, useEffect } from 'react';
+```
+- **React**: Thư viện chính để xây dựng giao diện người dùng
+- **useState**: Hook để quản lý state (trạng thái) trong functional component
+- **useEffect**: Hook để thực hiện side effects (tác động phụ) như gọi API, đăng ký event
+
+```javascript
+import {
+    Button, Form, Input, InputNumber, Table, Space, Tooltip,
+    Popconfirm, Typography, Tag, Modal, message, Select,
+    Row, Col, Upload, Alert, Divider
+} from 'antd';
+```
+- **Ant Design Components**: Các component UI có sẵn, đẹp và dễ sử dụng
+  - `Button`: Nút bấm
+  - `Form`: Form nhập liệu với validation
+  - `Input`: Ô nhập text
+  - `InputNumber`: Ô nhập số
+  - `Table`: Bảng hiển thị dữ liệu
+  - `Modal`: Popup/dialog
+  - `message`: Thông báo toast
+  - `Select`: Dropdown chọn lựa
+  - Và nhiều component khác...
+
+```javascript
+import { PlusOutlined, DeleteOutlined, EditOutlined, ... } from '@ant-design/icons';
+```
+- **Icons**: Các icon có sẵn của Ant Design
+
+## 2. DESTRUCTURING VÀ CONSTANTS
+
+```javascript
+const { Text } = Typography;
+const { Option } = Select;
+```
+- **Destructuring**: Cách rút gọn để lấy ra các component con từ component cha
+- Thay vì viết `Typography.Text`, ta chỉ cần viết `Text`
+
+## 3. COMPONENT FUNCTION VÀ PROPS
+
+```javascript
+function FormGdLop({
+    type,
+    dataSource,
+    setDataSource,
+    formatDisplayValue,
+    EmptyValueDisplay,
+    renderTableCell,
+    renderNotes,
+    renderFileAttachment,
+}) {
+```
+
+**Giải thích:**
+- `FormGdLop` là một **functional component** (thay vì class component cũ)
+- **Props**: Các tham số được truyền từ component cha
+  - `type`: Loại form (gd_lop_dh_trongbm, gd_lop_dh_ngoaibm, etc.)
+  - `dataSource`: Mảng dữ liệu hiển thị trong bảng
+  - `setDataSource`: Hàm để cập nhật dataSource (từ component cha)
+  - `renderTableCell`, `renderNotes`: Các hàm render từ component cha
+
+## 4. STATE MANAGEMENT VỚI useState
+
+```javascript
+const [form] = Form.useForm();
+const [editingItem, setEditingItem] = useState(null);
+const [isModalVisible, setIsModalVisible] = useState(false);
+const [isImportModalVisible, setIsImportModalVisible] = useState(false);
+const [csvPreview, setCsvPreview] = useState([]);
+const [isProcessingCSV, setIsProcessingCSV] = useState(false);
+```
+
+**useState Hook:**
+- **Cú pháp**: `const [state, setState] = useState(initialValue)`
+- **state**: Giá trị hiện tại
+- **setState**: Hàm để cập nhật state
+- **initialValue**: Giá trị khởi tạo
+
+**Các state trong component:**
+- `form`: Instance của Ant Design Form (dùng để điều khiển form)
+- `editingItem`: Lưu thông tin item đang được edit (null = đang thêm mới)
+- `isModalVisible`: Boolean điều khiển hiển thị modal thêm/sửa
+- `isImportModalVisible`: Boolean điều khiển hiển thị modal import CSV
+- `csvPreview`: Mảng dữ liệu preview khi import CSV
+- `isProcessingCSV`: Boolean hiển thị loading khi xử lý CSV
+
+## 5. useEffect HOOK
+
+```javascript
+useEffect(() => {
+    if (isModalVisible && !editingItem) {
+        form.setFieldsValue({
+            don_vi_tinh: 'Tiết', // Giá trị mặc định
+        });
+    }
+}, [isModalVisible, editingItem, form]);
+```
+
+**useEffect Hook:**
+- **Mục đích**: Thực hiện side effects (tác động phụ)
+- **Tham số 1**: Function thực thi
+- **Tham số 2**: Dependency array - useEffect chỉ chạy khi các dependency thay đổi
+
+**Logic ở đây:**
+- Khi modal mở (`isModalVisible = true`) và không phải edit (`editingItem = null`)
+- Thì set giá trị mặc định cho trường "đơn vị tính" = "Tiết"
+
+## 6. HELPER FUNCTIONS
+
+### getTitle()
+```javascript
+const getTitle = () => {
+    switch (type) {
+        case "gd_lop_dh_trongbm": return "Giảng dạy Lớp ĐH (Trong Bộ môn)";
+        case "gd_lop_dh_ngoaibm": return "Giảng dạy Lớp ĐH (Ngoài Bộ môn)";
+        // ...
+    }
+};
+```
+- **Arrow function**: Cú pháp ngắn gọn để khai báo function
+- **Switch statement**: Trả về title khác nhau dựa vào prop `type`
+
+### calculateSoTietQD()
+```javascript
+const calculateSoTietQD = (kl_ke_hoach, he_so_qd) => {
+    const kl = parseFloat(kl_ke_hoach || 0);
+    const hs = parseFloat(he_so_qd || 0);
+    return (kl * hs).toFixed(2);
+};
+```
+- **Logic tính toán**: Số tiết quy đổi = KLKH × Hệ số QĐ
+- `parseFloat()`: Chuyển string thành số thực
+- `|| 0`: Default value nếu giá trị null/undefined
+- `toFixed(2)`: Làm tròn 2 chữ số thập phân
+
+## 7. EVENT HANDLERS
+
+### handleAddItem()
+```javascript
+const handleAddItem = () => {
+    setEditingItem(null);      // Đánh dấu đang thêm mới
+    form.resetFields();        // Xóa hết dữ liệu form
+    setIsModalVisible(true);   // Hiển thị modal
+};
+```
+- **Event handler**: Hàm xử lý sự kiện khi user click nút "Thêm"
+
+### handleEditItem()
+```javascript
+const handleEditItem = (record, index) => {
+    setEditingItem({ index, record });  // Lưu thông tin đang edit
+    form.setFieldsValue({               // Điền dữ liệu vào form
+        ten_lop_hoc_phan: record.ten_lop_hoc_phan,
+        hoc_ky_dien_ra: record.hoc_ky_dien_ra,
+        // ... tất cả các trường
+    });
+    setIsModalVisible(true);            // Hiển thị modal
+};
+```
+- **Tham số**: `record` (dữ liệu dòng), `index` (vị trí trong mảng)
+- `setFieldsValue()`: Ant Design API để điền dữ liệu vào form
+
+### handleModalOk() - Async Function
+```javascript
+const handleModalOk = async () => {
+    try {
+        const values = await form.validateFields();  // Validate form
+        const so_tiet_qd = values.so_tiet_qd || calculateSoTietQD(values.kl_ke_hoach, values.he_so_qd);
+        
+        const newItem = {
+            id_temp: editingItem?.record.id_temp || Date.now() + Math.random(),
+            id_database: editingItem?.record.id_database || null,
+            ...values,    // Spread operator: copy tất cả fields từ form
+            so_tiet_qd: so_tiet_qd,
+        };
+
+        let newData = [...dataSource];  // Copy mảng hiện tại
+        if (editingItem !== null && editingItem.index !== undefined) {
+            // Trường hợp EDIT
+            newData[editingItem.index] = newItem;
+            message.success("Cập nhật thông tin giảng dạy lớp thành công.");
+        } else {
+            // Trường hợp ADD
+            newData.push(newItem);
+            message.success("Thêm mục giảng dạy lớp vào kê khai thành công.");
+        }
+        
+        setDataSource(newData);        // Cập nhật dữ liệu
+        setIsModalVisible(false);      // Đóng modal
+        form.resetFields();            // Reset form
+        setEditingItem(null);          // Reset trạng thái edit
+    } catch (errorInfo) {
+        console.log('Validate Failed:', errorInfo);
+        message.error("Vui lòng kiểm tra lại thông tin đã nhập.");
+    }
+};
+```
+
+**Các khái niệm quan trọng:**
+- **async/await**: Xử lý bất đồng bộ, thay thế cho Promise.then()
+- **try/catch**: Bắt lỗi exception
+- **Optional chaining (?.)**:`editingItem?.record` - tránh lỗi nếu editingItem = null
+- **Spread operator (...)**:`...values` - copy tất cả properties
+- **Array spread**: `[...dataSource]` - tạo copy mới của mảng (immutability)
+
+## 8. VALIDATION LOGIC
+
+### isRowIncomplete()
+```javascript
+const isRowIncomplete = (record) => {
+    let requiredFields = ['hoc_ky_dien_ra', 'kl_ke_hoach', 'he_so_qd'];
+    if (type === 'gd_lop_dh_ngoaics') {
+        requiredFields = ['so_tin_chi', 'khoa_hoc', 'si_so', 'he_so_qd', 'hoc_ky_dien_ra', 'kl_ke_hoach'];
+    } else if (type === 'gd_lop_ths' || type === 'gd_lop_ts') {
+        requiredFields = ['hoc_ky_dien_ra', 'so_tc', 'kl_ke_hoach', 'he_so_qd'];
+    }
+    
+    const missingFields = requiredFields.filter(field => 
+        record[field] === undefined || 
+        record[field] === null || 
+        record[field] === '' || 
+        record[field] === 0
+    );
+    return missingFields.length > 0;
+};
+```
+
+**Array.filter()**: Lọc mảng, trả về mảng mới chỉ chứa elements thỏa điều kiện
+**Logic**: Kiểm tra xem có trường nào bị thiếu không dựa vào loại form
+
+## 9. DYNAMIC COLUMNS VỚI getColumns()
+
+```javascript
+const baseColumns = [
+    { title: 'STT', key: 'stt', width: 50, align: 'center', render: (_, __, index) => index + 1 },
+    { 
+        title: 'Tên Lớp học phần', 
+        dataIndex: 'ten_lop_hoc_phan', 
+        key: 'ten_lop_hoc_phan', 
+        ellipsis: true,
+        render: (text, record) => (
+            <Tooltip title={text}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span>{text}</span>
+                    {isRowIncomplete(record) && (
+                        <Tooltip title={`Thiếu thông tin: ${getMissingFields(record)}`}>
+                            <Tag color="orange" size="small">Chưa đủ</Tag>
+                        </Tooltip>
+                    )}
+                </div>
+            </Tooltip>
+        )
+    },
+];
+```
+
+**Table Columns Config:**
+- **title**: Tiêu đề cột
+- **dataIndex**: Tên field trong data object
+- **key**: Unique identifier cho cột
+- **width**: Độ rộng cột
+- **align**: Căn lề
+- **render**: Custom render function cho cell
+  - **Tham số**: `(text, record, index)` 
+  - `text`: Giá trị của cell
+  - `record`: Object dữ liệu của dòng
+  - `index`: Thứ tự dòng
+
+## 10. CONDITIONAL RENDERING
+
+```javascript
+const getColumns = () => {
+    switch(type) {
+        case 'gd_lop_dh_ngoaics':
+            return [
+                ...baseColumns,
+                { title: 'Cơ sở dạy', dataIndex: 'ten_co_so_day', ... },
+                { title: 'Số TC', dataIndex: 'so_tin_chi', ... },
+                // ... thêm các cột riêng
+                ...finalColumns
+            ];
+        case 'gd_lop_ths':
+        case 'gd_lop_ts':
+            return [
+                ...baseColumns,
+                { title: 'Số TC', dataIndex: 'so_tc', ... },
+                // ... cấu hình khác
+                ...finalColumns
+            ];
+        default:
+            return [
+                ...baseColumns,
+                // ... cấu hình mặc định
+                ...finalColumns
+            ];
+    }
+};
+```
+
+**Spread Operator trong Array**: 
+- `...baseColumns`: Copy tất cả elements từ baseColumns
+- Cho phép tạo mảng columns động dựa vào type
+
+## 11. FORM RENDERING VỚI renderModalFields()
+
+```javascript
+const renderModalFields = () => {
+    switch(type) {
+        case 'gd_lop_dh_ngoaics':
+            return (
+                <>
+                    <Form.Item name="ten_lop_hoc_phan" label="Tên Lớp học phần" 
+                               rules={[{ required: true, message: 'Vui lòng nhập tên lớp học phần!' }]}>
+                        <Input placeholder="Nhập tên lớp học phần" />
+                    </Form.Item>
+                    <Row gutter={16}>
+                        <Col span={8}>
+                            <Form.Item name="so_tin_chi" label="Số tín chỉ" 
+                                       rules={[{ required: true, message: 'Vui lòng nhập số tín chỉ!' }]}>
+                                <InputNumber style={{width: '100%'}} min={0} placeholder="Nhập số tín chỉ" />
+                            </Form.Item>
+                        </Col>
+                        // ... more fields
+                    </Row>
+                </>
+            );
+        // ... other cases
+    }
+};
+```
+
+**React Fragment (<>)**:
+- Wrap multiple elements mà không tạo thêm DOM node
+- Thay thế cho `<div>` wrapper không cần thiết
+
+**Ant Design Form:**
+- **Form.Item**: Wrapper cho mỗi field với label, validation
+- **rules**: Array các rule validation
+- **Row/Col**: Layout system giống Bootstrap grid (24 columns)
+- **gutter**: Khoảng cách giữa các columns
+
+## 12. FILE UPLOAD VÀ CSV PROCESSING
+
+```javascript
+const handleCSVUpload = (file) => {
+    setIsProcessingCSV(true);
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+        try {
+            const csvText = e.target.result;
+            const parsedData = parseCSVContent(csvText);
+            // ... xử lý data
+            setCsvPreview(convertedData);
+            setIsImportModalVisible(true);
+        } catch (error) {
+            message.error('Có lỗi khi xử lý file CSV. Vui lòng kiểm tra định dạng file!');
+        } finally {
+            setIsProcessingCSV(false);
+        }
+    };
+    
+    reader.readAsText(file, 'utf-8');
+    return false; // Ngăn upload tự động
+};
+```
+
+**FileReader API**: Browser API để đọc file
+**Event-driven**: `reader.onload` là callback khi đọc file xong
+**finally block**: Luôn chạy dù success hay error
+
+## 13. COMPONENT RETURN (JSX)
+
+```javascript
+return (
+    <div style={{ marginBottom: "20px", padding: "10px", border: "1px solid #f0f0f0", borderRadius: "8px" }}>
+        <Typography.Title level={5} style={{ marginBottom: 16, color: "#003a8c" }}>
+            <SolutionOutlined style={{ marginRight: 8 }} />
+            {getTitle()}
+        </Typography.Title>
+        
+        <Space style={{ marginBottom: 16 }}>
+            <Button type="dashed" onClick={handleAddItem} icon={<PlusOutlined />}>
+                Thêm Lớp
+            </Button>
+            // ... more buttons
+        </Space>
+        
+        <Table
+            columns={getColumns()}
+            dataSource={dataSource}
+            rowKey="id_temp"
+            pagination={false}
+            bordered
+            size="middle"
+            // ... more props
+        />
+        
+        // ... Modals
+    </div>
+);
+```
+
+**JSX**: JavaScript XML - cú pháp mở rộng cho JavaScript
+**Inline styles**: Object với camelCase properties
+**Event binding**: `onClick={handleAddItem}` - pass function reference
+**Dynamic content**: `{getTitle()}` - chạy JavaScript trong JSX
+
+## 14. KEY CONCEPTS TỔNG KẾT
+
+### State Management
+- **useState**: Quản lý state local trong component
+- **Immutability**: Luôn tạo copy mới thay vì modify trực tiếp
+- **State lifting**: State được quản lý ở component cha, truyền xuống qua props
+
+### Event Handling
+- **Event handlers**: Functions xử lý user interactions
+- **Async operations**: Sử dụng async/await cho các tác vụ bất đồng bộ
+- **Form validation**: Tận dụng Ant Design validation system
+
+### Component Architecture
+- **Reusable components**: Component có thể tái sử dụng với props khác nhau
+- **Conditional rendering**: Hiển thị UI khác nhau dựa vào state/props
+- **Separation of concerns**: Tách logic và presentation
+
+### Performance Considerations
+- **Dependency arrays**: Trong useEffect để tránh re-run không cần thiết
+- **Key prop**: Trong lists để React track changes hiệu quả
+- **Function references**: Stable references để tránh re-render
+
+## 15. ANT DESIGN CONCEPTS
+
+### Form System
+- **Form.useForm()**: Hook tạo form instance
+- **Form.Item**: Wrapper với validation, label
+- **rules**: Declarative validation
+- **setFieldsValue/getFieldValue**: Programmatic form control
+
+### Table System
+- **columns**: Cấu hình cột với render functions
+- **dataSource**: Dữ liệu hiển thị
+- **rowKey**: Unique identifier cho mỗi row
+- **summary**: Tính tổng/thống kê ở cuối bảng
+
+### UI Components
+- **Modal**: Popup dialogs
+- **message**: Toast notifications
+- **Tooltip**: Hover information
+- **Upload**: File upload với custom handling
+
+## 16. BEST PRACTICES ĐƯỢC ÁP DỤNG
+
+1. **Consistent naming**: handleXxx cho event handlers
+2. **Error handling**: try/catch cho async operations
+3. **User feedback**: Loading states, success/error messages
+4. **Accessibility**: Tooltips, proper labels
+5. **Performance**: Conditional rendering, efficient state updates
+6. **Maintainability**: Modular functions, clear separation

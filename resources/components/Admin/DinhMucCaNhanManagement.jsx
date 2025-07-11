@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { 
-    Select, 
-    Input, 
-    Button, 
-    Table, 
-    Card, 
-    Row, 
+import {
+    Select,
+    Input,
+    Button,
+    Table,
+    Card,
+    Row,
     Col,
     Form,
     Modal,
@@ -19,8 +19,8 @@ import {
     Space,
     Divider,
     Tooltip,
-    InputNumber
-} from 'antd';
+    InputNumber,
+} from "antd";
 import {
     SearchOutlined,
     PlusOutlined,
@@ -35,8 +35,8 @@ import {
     SettingOutlined,
     DownloadOutlined,
     FileTextOutlined,
-    BookOutlined
-} from '@ant-design/icons';
+    BookOutlined,
+} from "@ant-design/icons";
 
 const { Option } = Select;
 const { Text, Title } = Typography;
@@ -105,7 +105,7 @@ function DinhMucCaNhanManagement() {
             }));
             fetchDinhMuc(1, pagination.per_page, "", filterNamHoc);
         }
-        
+
         return () => {
             if (debouncedSearch.cancel) {
                 debouncedSearch.cancel();
@@ -121,7 +121,12 @@ function DinhMucCaNhanManagement() {
         fetchDinhMuc(1, pagination.per_page, searchTerm, filterNamHoc);
     }, [filterNamHoc]);
 
-    const fetchDinhMuc = async (page = pagination.current_page, perPage = pagination.per_page, search = searchTerm, namHocFilter = filterNamHoc) => {
+    const fetchDinhMuc = async (
+        page = pagination.current_page,
+        perPage = pagination.per_page,
+        search = searchTerm,
+        namHocFilter = filterNamHoc
+    ) => {
         setIsLoading(true);
         try {
             const params = {
@@ -156,7 +161,9 @@ function DinhMucCaNhanManagement() {
         } catch (error) {
             console.error("Error fetching định mức:", error);
             if (error.response?.status === 401) {
-                message.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+                message.error(
+                    "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+                );
             } else if (error.response?.status === 403) {
                 message.error("Bạn không có quyền truy cập chức năng này.");
             } else if (error.response?.status === 422) {
@@ -250,16 +257,24 @@ function DinhMucCaNhanManagement() {
         setIsLoading(true);
         try {
             if (editingId) {
-                await axios.put(`/api/admin/dinh-muc-ca-nhan/${editingId}`, values, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
-                });
+                await axios.put(
+                    `/api/admin/dinh-muc-ca-nhan/${editingId}`,
+                    values,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem(
+                                "token"
+                            )}`,
+                        },
+                    }
+                );
                 message.success("Cập nhật định mức cá nhân thành công");
             } else {
                 await axios.post("/api/admin/dinh-muc-ca-nhan", values, {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "token"
+                        )}`,
                     },
                 });
                 message.success("Thêm định mức cá nhân mới thành công");
@@ -304,39 +319,41 @@ function DinhMucCaNhanManagement() {
         }
 
         setIsDeleting(true);
-        
+
         try {
             await axios.delete(`/api/admin/dinh-muc-ca-nhan/${deletingId}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
             });
-            
+
             message.success("Xóa định mức cá nhân thành công");
             setDeleteModalVisible(false);
             setDeletingId(null);
             await fetchDinhMuc();
-            
         } catch (error) {
             console.error("Delete error:", error);
-            
+
             let errorMessage = "Có lỗi xảy ra khi xóa định mức cá nhân";
-            
+
             if (error.response?.status === 401) {
-                errorMessage = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+                errorMessage =
+                    "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
             } else if (error.response?.status === 403) {
                 errorMessage = "Bạn không có quyền xóa định mức này.";
             } else if (error.response?.status === 404) {
                 errorMessage = "Định mức không tồn tại hoặc đã được xóa.";
                 await fetchDinhMuc();
             } else if (error.response?.status === 422) {
-                errorMessage = error.response?.data?.message || "Không thể xóa định mức này!";
+                errorMessage =
+                    error.response?.data?.message ||
+                    "Không thể xóa định mức này!";
             } else if (error.response?.status >= 500) {
                 errorMessage = "Lỗi máy chủ. Vui lòng thử lại sau.";
             } else if (error.response?.data?.message) {
                 errorMessage = error.response.data.message;
             }
-            
+
             message.error(errorMessage);
         } finally {
             setIsDeleting(false);
@@ -358,12 +375,18 @@ function DinhMucCaNhanManagement() {
         formData.append("file", file);
 
         try {
-            const response = await axios.post("/api/admin/dinh-muc-ca-nhan/import", formData, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    "Content-Type": "multipart/form-data",
-                },
-            });
+            const response = await axios.post(
+                "/api/admin/dinh-muc-ca-nhan/import",
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "token"
+                        )}`,
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            );
             message.success(response.data.message);
             fetchDinhMuc();
             setFile(null);
@@ -379,11 +402,13 @@ function DinhMucCaNhanManagement() {
 
     const uploadProps = {
         beforeUpload: (file) => {
-            const isValidType = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || 
-                               file.type === 'application/vnd.ms-excel' ||
-                               file.type === 'text/csv';
+            const isValidType =
+                file.type ===
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+                file.type === "application/vnd.ms-excel" ||
+                file.type === "text/csv";
             if (!isValidType) {
-                message.error('Chỉ hỗ trợ file Excel (.xlsx, .xls) và CSV!');
+                message.error("Chỉ hỗ trợ file Excel (.xlsx, .xls) và CSV!");
                 return false;
             }
             setFile(file);
@@ -397,64 +422,48 @@ function DinhMucCaNhanManagement() {
 
     const downloadSampleFile = () => {
         const csvHeaders = [
-            'nguoi_dung_id',
-            'nam_hoc_id',
-            'dinh_muc_gd',
-            'dinh_muc_khcn',
-            'ghi_chu'
+            "nguoi_dung_id",
+            "nam_hoc_id",
+            "dinh_muc_gd",
+            "dinh_muc_khcn",
+            "ghi_chu",
         ];
 
         const sampleData = [
-            [
-                '1',
-                '1',
-                '300',
-                '100',
-                'Định mức chuẩn cho giảng viên'
-            ],
-            [
-                '2',
-                '1',
-                '350',
-                '120',
-                'Định mức cho giảng viên cao cấp'
-            ],
-            [
-                '3',
-                '1',
-                '280',
-                '80',
-                'Định mức cho giảng viên mới'
-            ]
+            ["1", "1", "300", "100", "Định mức chuẩn cho giảng viên"],
+            ["2", "1", "350", "120", "Định mức cho giảng viên cao cấp"],
+            ["3", "1", "280", "80", "Định mức cho giảng viên mới"],
         ];
 
         const csvContent = [
-            csvHeaders.join(','),
-            ...sampleData.map(row => row.join(','))
-        ].join('\n');
+            csvHeaders.join(","),
+            ...sampleData.map((row) => row.join(",")),
+        ].join("\n");
 
-        const BOM = '\uFEFF';
+        const BOM = "\uFEFF";
         const finalContent = BOM + csvContent;
 
-        const blob = new Blob([finalContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
+        const blob = new Blob([finalContent], {
+            type: "text/csv;charset=utf-8;",
+        });
+        const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
-        
-        link.setAttribute('href', url);
-        link.setAttribute('download', 'mau_dinh_muc_ca_nhan.csv');
-        link.style.visibility = 'hidden';
-        
+
+        link.setAttribute("href", url);
+        link.setAttribute("download", "mau_dinh_muc_ca_nhan.csv");
+        link.style.visibility = "hidden";
+
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
-        message.success('Đã tải xuống file mẫu thành công!');
+
+        message.success("Đã tải xuống file mẫu thành công!");
     };
 
     const columns = [
         {
-            title: 'Thông tin giảng viên',
-            key: 'giang_vien_info',
+            title: "Thông tin giảng viên",
+            key: "giang_vien_info",
             width: 300,
             render: (_, record) => (
                 <div className="flex items-center space-x-3">
@@ -463,31 +472,31 @@ function DinhMucCaNhanManagement() {
                     </div>
                     <div className="min-w-0 flex-1">
                         <Text className="text-sm font-medium text-gray-800 block truncate">
-                            {record.nguoi_dung?.ho_ten || 'N/A'}
+                            {record.nguoi_dung?.ho_ten || "N/A"}
                         </Text>
                         <Text className="text-xs text-gray-500 block truncate">
-                            Mã: {record.nguoi_dung?.ma_gv || 'N/A'}
+                            Mã: {record.nguoi_dung?.ma_gv || "N/A"}
                         </Text>
                     </div>
                 </div>
             ),
         },
         {
-            title: 'Năm học',
-            dataIndex: ['nam_hoc', 'ten_nam_hoc'],
-            key: 'nam_hoc',
+            title: "Năm học",
+            dataIndex: ["nam_hoc", "ten_nam_hoc"],
+            key: "nam_hoc",
             width: 120,
             render: (namHoc) => (
                 <Tag color="blue" className="font-medium">
-                    {namHoc || 'N/A'}
+                    {namHoc || "N/A"}
                 </Tag>
             ),
         },
         {
-            title: 'Định mức GD',
-            dataIndex: 'dinh_muc_gd',
-            key: 'dinh_muc_gd',
-            width: 120,
+            title: "Định mức GD",
+            dataIndex: "dinh_muc_gd",
+            key: "dinh_muc_gd",
+            width: 220,
             render: (value) => (
                 <div className="flex items-center space-x-1">
                     <BookOutlined className="text-orange-500 text-xs" />
@@ -498,10 +507,10 @@ function DinhMucCaNhanManagement() {
             ),
         },
         {
-            title: 'Định mức KHCN',
-            dataIndex: 'dinh_muc_khcn',
-            key: 'dinh_muc_khcn',
-            width: 130,
+            title: "Định mức KHCN",
+            dataIndex: "dinh_muc_khcn",
+            key: "dinh_muc_khcn",
+            width: 220,
             render: (value) => (
                 <div className="flex items-center space-x-1">
                     <FileTextOutlined className="text-purple-500 text-xs" />
@@ -512,19 +521,22 @@ function DinhMucCaNhanManagement() {
             ),
         },
         {
-            title: 'Ghi chú',
-            dataIndex: 'ghi_chu',
-            key: 'ghi_chu',
+            title: "Ghi chú",
+            dataIndex: "ghi_chu",
+            key: "ghi_chu",
             width: 200,
             render: (ghiChu) => (
-                <Text className="text-xs text-gray-600" ellipsis={{ tooltip: ghiChu }}>
-                    {ghiChu || 'Không có ghi chú'}
+                <Text
+                    className="text-xs text-gray-600"
+                    ellipsis={{ tooltip: ghiChu }}
+                >
+                    {ghiChu || "Không có ghi chú"}
                 </Text>
             ),
         },
         {
-            title: 'Thao tác',
-            key: 'actions',
+            title: "Thao tác",
+            key: "actions",
             width: 120,
             render: (_, record) => (
                 <Space>
@@ -568,7 +580,10 @@ function DinhMucCaNhanManagement() {
 
             <div className="relative z-10 p-8 space-y-6">
                 {/* Enhanced Header */}
-                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+                <Card
+                    className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl"
+                    style={{ borderRadius: "16px" }}
+                >
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-6">
                             <div className="relative">
@@ -578,40 +593,67 @@ function DinhMucCaNhanManagement() {
                                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-orange-400 rounded-full border-2 border-white shadow-md"></div>
                             </div>
                             <div className="space-y-2">
-                                <Title level={2} style={{ margin: 0 }} className="text-3xl font-bold bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 bg-clip-text text-transparent">
+                                <Title
+                                    level={2}
+                                    style={{ margin: 0 }}
+                                    className="text-3xl font-bold bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 bg-clip-text text-transparent"
+                                >
                                     Quản lý định mức cá nhân
                                 </Title>
                                 <div className="flex items-center space-x-2">
                                     <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                                    <Text type="secondary">Quản lý định mức giảng dạy và KHCN theo giảng viên</Text>
+                                    <Text type="secondary">
+                                        Quản lý định mức giảng dạy và KHCN theo
+                                        giảng viên
+                                    </Text>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div className="flex items-center space-x-2 text-xs text-gray-400">
                             <span>Dashboard</span>
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            <svg
+                                className="w-3 h-3"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 5l7 7-7 7"
+                                />
                             </svg>
-                            <span className="text-green-600 font-medium">Định mức cá nhân</span>
+                            <span className="text-green-600 font-medium">
+                                Định mức cá nhân
+                            </span>
                         </div>
                     </div>
                 </Card>
 
                 {/* Enhanced Search and Filter Section */}
-                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+                <Card
+                    className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl"
+                    style={{ borderRadius: "16px" }}
+                >
                     <div className="bg-gradient-to-r from-slate-50 via-green-50/50 to-emerald-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
                             <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-md flex items-center justify-center mr-4">
                                 <SearchOutlined className="text-white text-lg" />
                             </div>
                             <div>
-                                <Title level={4} style={{ margin: 0 }}>Tìm kiếm và lọc định mức</Title>
-                                <Text type="secondary" className="text-sm">Tìm kiếm theo tên giảng viên hoặc lọc theo năm học</Text>
+                                <Title level={4} style={{ margin: 0 }}>
+                                    Tìm kiếm và lọc định mức
+                                </Title>
+                                <Text type="secondary" className="text-sm">
+                                    Tìm kiếm theo tên giảng viên hoặc lọc theo
+                                    năm học
+                                </Text>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div className="space-y-4">
                         <Row gutter={[24, 24]}>
                             <Col xs={24} lg={16}>
@@ -631,7 +673,7 @@ function DinhMucCaNhanManagement() {
                                             >
                                                 ✕
                                             </Button>
-                                        ) : null
+                                        ) : null,
                                     }}
                                     prefix={
                                         <div className="w-5 h-5 bg-gray-100 rounded flex items-center justify-center mr-2">
@@ -639,9 +681,7 @@ function DinhMucCaNhanManagement() {
                                         </div>
                                     }
                                     suffix={
-                                        isSearching && (
-                                            <Spin size="small" />
-                                        )
+                                        isSearching && <Spin size="small" />
                                     }
                                 />
                             </Col>
@@ -656,21 +696,32 @@ function DinhMucCaNhanManagement() {
                                 >
                                     <Option value="">Tất cả năm học</Option>
                                     {namHocList.map((namHoc) => (
-                                        <Option key={namHoc.id} value={namHoc.id}>
+                                        <Option
+                                            key={namHoc.id}
+                                            value={namHoc.id}
+                                        >
                                             {namHoc.ten_nam_hoc}
                                         </Option>
                                     ))}
                                 </Select>
                             </Col>
                         </Row>
-                        
+
                         {(searchTerm || filterNamHoc) && (
                             <div className="flex justify-between items-center">
                                 <div className="text-xs text-gray-500">
-                                    {isSearching ? "Đang tìm kiếm..." : 
-                                     searchTerm ? `Tìm kiếm với từ khóa: "${searchTerm}"` : ""}
+                                    {isSearching
+                                        ? "Đang tìm kiếm..."
+                                        : searchTerm
+                                        ? `Tìm kiếm với từ khóa: "${searchTerm}"`
+                                        : ""}
                                     {searchTerm && filterNamHoc && " • "}
-                                    {filterNamHoc && `Lọc theo năm học: ${namHocList.find(k => k.id == filterNamHoc)?.ten_nam_hoc || ""}`}
+                                    {filterNamHoc &&
+                                        `Lọc theo năm học: ${
+                                            namHocList.find(
+                                                (k) => k.id == filterNamHoc
+                                            )?.ten_nam_hoc || ""
+                                        }`}
                                 </div>
                                 <Button
                                     type="link"
@@ -686,34 +737,46 @@ function DinhMucCaNhanManagement() {
                 </Card>
 
                 {/* Enhanced Form Section */}
-                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+                <Card
+                    className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl"
+                    style={{ borderRadius: "16px" }}
+                >
                     <div className="bg-gradient-to-r from-slate-50 via-green-50/50 to-emerald-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
                             <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-md flex items-center justify-center mr-4">
-                                {editingId ? <EditOutlined className="text-white text-lg" /> : <PlusOutlined className="text-white text-lg" />}
+                                {editingId ? (
+                                    <EditOutlined className="text-white text-lg" />
+                                ) : (
+                                    <PlusOutlined className="text-white text-lg" />
+                                )}
                             </div>
                             <div>
                                 <Title level={4} style={{ margin: 0 }}>
-                                    {editingId ? "Cập nhật định mức cá nhân" : "Thêm định mức cá nhân mới"}
+                                    {editingId
+                                        ? "Cập nhật định mức cá nhân"
+                                        : "Thêm định mức cá nhân mới"}
                                 </Title>
                                 <Text type="secondary" className="text-sm">
-                                    {editingId ? "Chỉnh sửa định mức hiện tại" : "Tạo định mức mới cho giảng viên"}
+                                    {editingId
+                                        ? "Chỉnh sửa định mức hiện tại"
+                                        : "Tạo định mức mới cho giảng viên"}
                                 </Text>
                             </div>
                         </div>
                     </div>
 
-                    <Form
-                        form={form}
-                        layout="vertical"
-                        onFinish={handleSubmit}
-                    >
+                    <Form form={form} layout="vertical" onFinish={handleSubmit}>
                         <Row gutter={[24, 24]}>
                             <Col xs={24} sm={12}>
                                 <Form.Item
                                     name="nguoi_dung_id"
                                     label={<Text strong>Giảng viên</Text>}
-                                    rules={[{ required: true, message: 'Vui lòng chọn giảng viên' }]}
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: "Vui lòng chọn giảng viên",
+                                        },
+                                    ]}
                                 >
                                     <Select
                                         size="large"
@@ -721,14 +784,22 @@ function DinhMucCaNhanManagement() {
                                         className="custom-select"
                                         showSearch
                                         filterOption={(input, option) => {
-                                            const user = nguoiDungList.find(u => u.id == option.value);
+                                            const user = nguoiDungList.find(
+                                                (u) => u.id == option.value
+                                            );
                                             if (!user) return false;
-                                            const searchText = `${user.ho_ten} ${user.ma_gv}`.toLowerCase();
-                                            return searchText.includes(input.toLowerCase());
+                                            const searchText =
+                                                `${user.ho_ten} ${user.ma_gv}`.toLowerCase();
+                                            return searchText.includes(
+                                                input.toLowerCase()
+                                            );
                                         }}
                                     >
                                         {nguoiDungList.map((user) => (
-                                            <Option key={user.id} value={user.id}>
+                                            <Option
+                                                key={user.id}
+                                                value={user.id}
+                                            >
                                                 {user.ho_ten} ({user.ma_gv})
                                             </Option>
                                         ))}
@@ -740,7 +811,12 @@ function DinhMucCaNhanManagement() {
                                 <Form.Item
                                     name="nam_hoc_id"
                                     label={<Text strong>Năm học</Text>}
-                                    rules={[{ required: true, message: 'Vui lòng chọn năm học' }]}
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: "Vui lòng chọn năm học",
+                                        },
+                                    ]}
                                 >
                                     <Select
                                         size="large"
@@ -748,11 +824,17 @@ function DinhMucCaNhanManagement() {
                                         className="custom-select"
                                         showSearch
                                         filterOption={(input, option) =>
-                                            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                            option.children
+                                                .toLowerCase()
+                                                .indexOf(input.toLowerCase()) >=
+                                            0
                                         }
                                     >
                                         {namHocList.map((namHoc) => (
-                                            <Option key={namHoc.id} value={namHoc.id}>
+                                            <Option
+                                                key={namHoc.id}
+                                                value={namHoc.id}
+                                            >
                                                 {namHoc.ten_nam_hoc}
                                             </Option>
                                         ))}
@@ -763,10 +845,23 @@ function DinhMucCaNhanManagement() {
                             <Col xs={24} sm={8}>
                                 <Form.Item
                                     name="dinh_muc_gd"
-                                    label={<Text strong>Định mức giảng dạy (giờ)</Text>}
+                                    label={
+                                        <Text strong>
+                                            Định mức giảng dạy (giờ)
+                                        </Text>
+                                    }
                                     rules={[
-                                        { required: true, message: 'Vui lòng nhập định mức giảng dạy' },
-                                        { type: 'number', min: 0, message: 'Định mức phải lớn hơn hoặc bằng 0' }
+                                        {
+                                            required: true,
+                                            message:
+                                                "Vui lòng nhập định mức giảng dạy",
+                                        },
+                                        {
+                                            type: "number",
+                                            min: 0,
+                                            message:
+                                                "Định mức phải lớn hơn hoặc bằng 0",
+                                        },
                                     ]}
                                 >
                                     <InputNumber
@@ -783,10 +878,21 @@ function DinhMucCaNhanManagement() {
                             <Col xs={24} sm={8}>
                                 <Form.Item
                                     name="dinh_muc_khcn"
-                                    label={<Text strong>Định mức KHCN (giờ)</Text>}
+                                    label={
+                                        <Text strong>Định mức KHCN (giờ)</Text>
+                                    }
                                     rules={[
-                                        { required: true, message: 'Vui lòng nhập định mức KHCN' },
-                                        { type: 'number', min: 0, message: 'Định mức phải lớn hơn hoặc bằng 0' }
+                                        {
+                                            required: true,
+                                            message:
+                                                "Vui lòng nhập định mức KHCN",
+                                        },
+                                        {
+                                            type: "number",
+                                            min: 0,
+                                            message:
+                                                "Định mức phải lớn hơn hoặc bằng 0",
+                                        },
                                     ]}
                                 >
                                     <InputNumber
@@ -834,7 +940,13 @@ function DinhMucCaNhanManagement() {
                                 size="large"
                                 htmlType="submit"
                                 loading={isLoading}
-                                icon={editingId ? <EditOutlined /> : <PlusOutlined />}
+                                icon={
+                                    editingId ? (
+                                        <EditOutlined />
+                                    ) : (
+                                        <PlusOutlined />
+                                    )
+                                }
                                 className="px-6 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 border-0 rounded-xl shadow-lg hover:shadow-xl"
                             >
                                 {editingId ? "Cập nhật" : "Thêm mới"}
@@ -844,15 +956,23 @@ function DinhMucCaNhanManagement() {
                 </Card>
 
                 {/* Enhanced Import Section */}
-                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+                <Card
+                    className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl"
+                    style={{ borderRadius: "16px" }}
+                >
                     <div className="bg-gradient-to-r from-slate-50 via-blue-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
                             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-md flex items-center justify-center mr-4">
                                 <UploadOutlined className="text-white text-lg" />
                             </div>
                             <div>
-                                <Title level={4} style={{ margin: 0 }}>Nhập dữ liệu từ file</Title>
-                                <Text type="secondary" className="text-sm">Tải lên file Excel hoặc CSV để thêm nhiều định mức</Text>
+                                <Title level={4} style={{ margin: 0 }}>
+                                    Nhập dữ liệu từ file
+                                </Title>
+                                <Text type="secondary" className="text-sm">
+                                    Tải lên file Excel hoặc CSV để thêm nhiều
+                                    định mức
+                                </Text>
                             </div>
                         </div>
                     </div>
@@ -865,7 +985,9 @@ function DinhMucCaNhanManagement() {
                                     icon={<UploadOutlined />}
                                     className="w-full h-12 bg-gray-50 hover:bg-gray-100 border-2 border-dashed border-gray-300 hover:border-blue-400 rounded-xl"
                                 >
-                                    {file ? "Thay đổi file" : "Chọn file để tải lên"}
+                                    {file
+                                        ? "Thay đổi file"
+                                        : "Chọn file để tải lên"}
                                 </Button>
                             </Upload>
 
@@ -873,11 +995,18 @@ function DinhMucCaNhanManagement() {
                                 <div className="flex items-start">
                                     <InfoCircleOutlined className="text-blue-600 mt-0.5 mr-2 flex-shrink-0" />
                                     <div className="text-xs text-blue-800 flex-1">
-                                        <Text strong className="block">Định dạng hỗ trợ: .xlsx, .xls, .csv</Text>
-                                        <Text className="block mt-1">File phải có cấu trúc đúng với các cột: nguoi_dung_id, nam_hoc_id, dinh_muc_gd, dinh_muc_khcn, ghi_chu</Text>
+                                        <Text strong className="block">
+                                            Định dạng hỗ trợ: .xlsx, .xls, .csv
+                                        </Text>
+                                        <Text className="block mt-1">
+                                            File phải có cấu trúc đúng với các
+                                            cột: nguoi_dung_id, nam_hoc_id,
+                                            dinh_muc_gd, dinh_muc_khcn, ghi_chu
+                                        </Text>
                                         <div className="mt-3 flex items-center justify-between">
                                             <Text className="text-blue-700">
-                                                <strong>Lưu ý:</strong> ID phải tồn tại trong hệ thống
+                                                <strong>Lưu ý:</strong> ID phải
+                                                tồn tại trong hệ thống
                                             </Text>
                                             <Button
                                                 type="link"
@@ -905,7 +1034,7 @@ function DinhMucCaNhanManagement() {
                                 >
                                     Tải file mẫu CSV
                                 </Button>
-                                
+
                                 <Button
                                     type="primary"
                                     size="large"
@@ -922,8 +1051,10 @@ function DinhMucCaNhanManagement() {
                     </Row>
                 </Card>
 
-                {/* Enhanced Table */}
-                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+                <Card
+                    className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl"
+                    style={{ borderRadius: "16px" }}
+                >
                     <div className="bg-gradient-to-r from-slate-50 via-green-50/50 to-emerald-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center">
@@ -931,17 +1062,21 @@ function DinhMucCaNhanManagement() {
                                     <FileTextOutlined className="text-white text-lg" />
                                 </div>
                                 <div>
-                                    <Title level={4} style={{ margin: 0 }}>Danh sách định mức cá nhân</Title>
+                                    <Title level={4} style={{ margin: 0 }}>
+                                        Danh sách định mức cá nhân
+                                    </Title>
                                     <Text type="secondary" className="text-sm">
-                                        {searchTerm || filterNamHoc ? (
-                                            `${pagination.total} kết quả ${searchTerm ? 'tìm kiếm' : 'lọc'}`
-                                        ) : (
-                                            `${pagination.total} định mức trong hệ thống`
-                                        )}
+                                        {searchTerm || filterNamHoc
+                                            ? `${pagination.total} kết quả ${
+                                                  searchTerm
+                                                      ? "tìm kiếm"
+                                                      : "lọc"
+                                              }`
+                                            : `${pagination.total} định mức trong hệ thống`}
                                     </Text>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center gap-3">
                                 {(searchTerm || filterNamHoc) && (
                                     <Button
@@ -954,7 +1089,7 @@ function DinhMucCaNhanManagement() {
                                         Xóa bộ lọc
                                     </Button>
                                 )}
-                                
+
                                 <Button
                                     type="default"
                                     size="middle"
@@ -983,17 +1118,20 @@ function DinhMucCaNhanManagement() {
                                         <FileTextOutlined className="text-2xl text-gray-400" />
                                     </div>
                                     <Text className="text-gray-500 font-medium text-lg block">
-                                        {searchTerm ? `Không tìm thấy định mức với từ khóa "${searchTerm}"` : 
-                                         filterNamHoc ? "Không có định mức nào trong năm học này" : 
-                                         "Chưa có định mức nào"}
+                                        {searchTerm
+                                            ? `Không tìm thấy định mức với từ khóa "${searchTerm}"`
+                                            : filterNamHoc
+                                            ? "Không có định mức nào trong năm học này"
+                                            : "Chưa có định mức nào"}
                                     </Text>
                                     <Text className="text-gray-400 text-sm">
                                         {searchTerm || filterNamHoc ? (
                                             <>
-                                                Thử điều chỉnh từ khóa tìm kiếm hoặc{" "}
-                                                <Button 
-                                                    type="link" 
-                                                    size="small" 
+                                                Thử điều chỉnh từ khóa tìm kiếm
+                                                hoặc{" "}
+                                                <Button
+                                                    type="link"
+                                                    size="small"
                                                     onClick={clearAll}
                                                     className="p-0 h-auto"
                                                 >
@@ -1005,19 +1143,29 @@ function DinhMucCaNhanManagement() {
                                         )}
                                     </Text>
                                 </div>
-                            )
+                            ),
                         }}
                     />
 
                     {pagination.total > 0 && (
                         <div className="mt-6 flex justify-between items-center">
                             <Text type="secondary">
-                                Hiển thị <Text strong>{pagination.from}</Text> đến <Text strong>{pagination.to}</Text> trên <Text strong>{pagination.total}</Text> kết quả
+                                Hiển thị <Text strong>{pagination.from}</Text>{" "}
+                                đến <Text strong>{pagination.to}</Text> trên{" "}
+                                <Text strong>{pagination.total}</Text> kết quả
                                 {(searchTerm || filterNamHoc) && (
                                     <span className="ml-2 text-green-600">
-                                        ({searchTerm && `tìm kiếm: "${searchTerm}"`}
+                                        (
+                                        {searchTerm &&
+                                            `tìm kiếm: "${searchTerm}"`}
                                         {searchTerm && filterNamHoc && " • "}
-                                        {filterNamHoc && `năm học: ${namHocList.find(k => k.id == filterNamHoc)?.ten_nam_hoc || ""}`})
+                                        {filterNamHoc &&
+                                            `năm học: ${
+                                                namHocList.find(
+                                                    (k) => k.id == filterNamHoc
+                                                )?.ten_nam_hoc || ""
+                                            }`}
+                                        )
                                     </span>
                                 )}
                             </Text>
@@ -1028,14 +1176,15 @@ function DinhMucCaNhanManagement() {
                                 showSizeChanger
                                 showQuickJumper
                                 onChange={handlePageChange}
-                                showTotal={(total, range) => `${range[0]}-${range[1]} trên ${total} mục`}
+                                showTotal={(total, range) =>
+                                    `${range[0]}-${range[1]} trên ${total} mục`
+                                }
                                 className="custom-pagination"
                             />
                         </div>
                     )}
                 </Card>
 
-                {/* Delete Confirmation Modal */}
                 <Modal
                     title={
                         <div className="flex items-center">
@@ -1053,10 +1202,12 @@ function DinhMucCaNhanManagement() {
                     centered
                     width={450}
                 >
-                    <p>Bạn có chắc chắn muốn xóa định mức cá nhân này? Hành động này không thể hoàn tác.</p>
+                    <p>
+                        Bạn có chắc chắn muốn xóa định mức cá nhân này? Hành
+                        động này không thể hoàn tác.
+                    </p>
                 </Modal>
 
-                {/* Enhanced Custom Styles */}
                 <style>{`
                     .custom-select .ant-select-selector {
                         border-radius: 8px !important;

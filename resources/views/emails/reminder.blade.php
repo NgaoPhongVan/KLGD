@@ -644,8 +644,8 @@
 
                 <!-- Enhanced Semester Info Card -->
                 <div class="info-card semester-card">
-                    <div class="card-title">Thông tin học kỳ</div>
-                    <div class="card-content">{{ $hocKy->ten_hoc_ky }} ({{ $hocKy->namHoc->ten_nam_hoc ?? 'N/A' }})</div>
+                    <div class="card-title">Thông tin năm học</div>
+                    <div class="card-content"> ({{ $namHoc->ten_nam_hoc ?? 'N/A' }})</div>
                 </div>
 
                 <!-- Enhanced Time Information Card -->

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class KekhaiGdLopDhNgoaics extends Model
 {
     use HasFactory;
-    protected $table = 'kekhai_gd_lop_dh_ngoàics'; // Lưu ý dấu tiếng Việt
+    protected $table = 'kekhai_gd_lop_dh_ngoàics'; 
     protected $fillable = [
         'ke_khai_tong_hop_nam_hoc_id',
         'ten_lop_hoc_phan',

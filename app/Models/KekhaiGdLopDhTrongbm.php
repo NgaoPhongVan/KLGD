@@ -26,5 +26,4 @@ class KekhaiGdLopDhTrongbm extends Model
     {
         return $this->belongsTo(KeKhaiTongHopNamHoc::class, 'ke_khai_tong_hop_nam_hoc_id');
     }
-    // KHÔNG CÓ MINH CHỨNG TRỰC TIẾP Ở ĐÂY THEO YÊU CẦU MỚI
 }

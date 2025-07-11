@@ -16,7 +16,7 @@ import {
     Empty,
     Alert,
     message,
-    Spin // Thêm Spin
+    Spin
 } from 'antd';
 import {
     FolderOpenOutlined,
@@ -30,14 +30,14 @@ import {
     SyncOutlined,
     CalendarOutlined,
     ExclamationCircleOutlined,
-    FileTextOutlined // Thêm cho bảng tổng hợp
+    FileTextOutlined,
+    BookOutlined 
 } from '@ant-design/icons';
 import moment from 'moment';
 
 const { Option } = Select;
 const { Title, Text, Paragraph } = Typography;
 
-// Component con để hiển thị chi tiết báo cáo trong Modal
 const BaoCaoKeKhaiPreview = ({ keKhaiData }) => {
     if (!keKhaiData) return <Empty description="Không có dữ liệu để hiển thị báo cáo." />;
 
@@ -46,9 +46,7 @@ const BaoCaoKeKhaiPreview = ({ keKhaiData }) => {
         return isNaN(num) ? defaultValue.toFixed(toFixed) : num.toFixed(toFixed);
     };
 
-    // Dữ liệu từ file Bangthem.csv cho bảng "BẢNG TỔNG HỢP KHỐI LƯỢNG TÍNH VƯỢT GIỜ"
-    // Giả sử dữ liệu này sẽ được lấy từ keKhaiData hoặc tính toán dựa trên nó
-    // Hiện tại, ta sẽ dùng các giá trị từ keKhaiData đã có và các cột của Mục I.1
+    // Dữ liệu cho bảng "BẢNG TỔNG HỢP KHỐI LƯỢNG TÍNH VƯỢT GIỜ"
     const vuotGioData = {
         hd_la_sl_quy_doi: getValue(keKhaiData.tong_gio_butru_la_duyet ?? keKhaiData.tong_gio_butru_la_tam_tinh, 0, 2), // Giờ đã dùng bù từ LA
         hd_dakl_sl_quy_doi: getValue(keKhaiData.tong_gio_butru_dakl_duyet ?? keKhaiData.tong_gio_butru_dakl_tam_tinh, 0, 2), // Giờ đã dùng bù từ ĐA/KL
@@ -79,7 +77,7 @@ const BaoCaoKeKhaiPreview = ({ keKhaiData }) => {
                     .print-table-kq .data-row td { height: 25px; }
                     .print-table-kq .text-left { text-align: left; }
                     .print-table-kq .font-bold { font-weight: bold; }
-                    @media print { /* ... styles for printing ... */ }
+                    @media print { }
                 `}
             </style>
 
@@ -95,7 +93,7 @@ const BaoCaoKeKhaiPreview = ({ keKhaiData }) => {
 
 
             {/* Bảng 1 (cũ): Khối lượng vượt giờ */}
-            <Title level={4} style={{ marginTop: '30px' }}>1. Khối lượng vượt giờ (Bảng Mục I.1 file CSV)</Title>
+            <Title level={4} style={{ marginTop: '30px' }}>1. Khối lượng vượt giờ</Title>
             <table className="print-table-kq">
                 <thead>
                     <tr className="header-row-1">
@@ -113,7 +111,6 @@ const BaoCaoKeKhaiPreview = ({ keKhaiData }) => {
                         <th>LV còn lại (C8)</th>
                         <th>ĐA/KL còn lại (C9)</th>
                     </tr>
-                    {/* Số thứ tự cột để tham chiếu dễ hơn */}
                      <tr className="header-row-3">
                         <th>C1</th><th>C2</th><th>C3</th><th>C4</th><th>C5</th><th>C6</th><th>C7</th><th>C8</th><th>C9</th>
                     </tr>
@@ -175,7 +172,7 @@ const BaoCaoKeKhaiPreview = ({ keKhaiData }) => {
                         <td>{getValue(keKhaiData.tong_gio_butru_lv_tam_tinh)}</td> {/* Giờ LV đã dùng để bù */}
                         <td>{getValue(keKhaiData.gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh)}</td>
                         <td>{getValue(keKhaiData.gio_gd_hoanthanh_sau_butru_tam_tinh)}</td>
-                        <td>{getValue(keKhaiData.gio_vuot_gd_khong_hd_tam_tinh)}</td>
+                        <td>{getValue(keKhaiData.ket_qua_thua_thieu_gio_gd_tam_tinh)}</td>  {/*gio_vuot_gd_khong_hd_tam_tinh*/}
                         <td>{getValue(keKhaiData.tong_gio_butru_la_tam_tinh)}</td>
                         <td>{getValue(keKhaiData.sl_huongdan_la_conlai_tam_tinh,0,0)}</td>
                         <td>{getValue(keKhaiData.tong_gio_butru_dakl_tam_tinh)}</td>
@@ -189,7 +186,7 @@ const BaoCaoKeKhaiPreview = ({ keKhaiData }) => {
 
 
             {/* Bảng 2 (cũ): Tổng hợp khối lượng */}
-            <Title level={4} style={{ marginTop: '30px' }}>2. Tổng hợp khối lượng (Bảng Mục I.2 file CSV)</Title>
+            <Title level={4} style={{ marginTop: '30px' }}>2. Tổng hợp khối lượng</Title>
             <table className="print-table-kq">
                 <thead>
                     <tr className="header-row-1">
@@ -253,7 +250,7 @@ function KetQuaKeKhai() {
     const [declarations, setDeclarations] = useState([]);
     const [namHocList, setNamHocList] = useState([]);
     const [selectedNamHocId, setSelectedNamHocId] = useState("");
-    const [isLoading, setIsLoading] = useState(false); // Đổi tên từ true để chỉ loading khi fetch
+    const [isLoading, setIsLoading] = useState(false);
     const [showPrintPreviewModal, setShowPrintPreviewModal] = useState(false);
     const [itemToPrint, setItemToPrint] = useState(null);
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
@@ -267,7 +264,7 @@ function KetQuaKeKhai() {
         if (selectedNamHocId) {
             fetchKeKhaiByNamHoc(selectedNamHocId);
         } else {
-            setDeclarations([]); // Xóa danh sách nếu không chọn năm học nào
+            setDeclarations([]);
         }
     }, [selectedNamHocId]);
 
@@ -284,7 +281,7 @@ function KetQuaKeKhai() {
             if (currentNamHoc) {
                 setSelectedNamHocId(currentNamHoc.id.toString());
             } else if (namHocs.length > 0) {
-                 // Không tự động chọn năm đầu tiên nữa, để người dùng chủ động
+                
             }
         } catch (error) {
             message.error("Không thể tải danh sách năm học.");
@@ -315,13 +312,12 @@ function KetQuaKeKhai() {
     };
 
     const handleNamHocChange = (value) => {
-        setSelectedNamHocId(value || ""); // Nếu clear thì value là undefined, gán thành rỗng
+        setSelectedNamHocId(value || ""); 
     };
 
     const getTrangThaiTag = (trangThai) => {
         switch (trangThai) {
             case 3: return <Tag color="success" icon={<CheckCircleOutlined />}>Đã phê duyệt</Tag>;
-            case 2: return <Tag color="error" icon={<CloseCircleOutlined />}>Bị Từ chối</Tag>;
             case 1: return <Tag color="processing" icon={<ClockCircleOutlined />}>Chờ phê duyệt</Tag>;
             case 0: return <Tag color="default" icon={<ExclamationCircleOutlined />}>Nháp</Tag>;
             case 4: return <Tag color="warning" icon={<ExclamationCircleOutlined />}>BM Trả lại</Tag>;
@@ -342,14 +338,6 @@ function KetQuaKeKhai() {
         } catch (error) {
             message.error({ content: 'Không thể tải chi tiết kê khai để in.', key: 'loadingReport', duration: 3 });
             console.error("Lỗi tải chi tiết kê khai:", error.response?.data || error.message);
-        }
-    };
-    
-    const handleEditKeKhai = (record) => {
-        if (record.trang_thai_phe_duyet === 0 || record.trang_thai_phe_duyet === 4) {
-             navigate(`/lecturer/ke-khai?nam_hoc_id=${record.nam_hoc_id}&tong_hop_id=${record.id}`);
-        } else {
-            message.warning("Chỉ có thể sửa kê khai ở trạng thái 'Nháp' hoặc 'BM Trả lại'.");
         }
     };
 
@@ -387,11 +375,6 @@ function KetQuaKeKhai() {
                     <Tooltip title="Xem và In Báo cáo">
                         <Button icon={<EyeOutlined />} onClick={() => handleViewAndPrint(record.id)} size="small" />
                     </Tooltip>
-                    {(record.trang_thai_phe_duyet === 0 || record.trang_thai_phe_duyet === 4) && (
-                         <Tooltip title="Sửa Kê khai">
-                            <Button icon={<EditOutlined />} type="primary" ghost onClick={() => handleEditKeKhai(record)} size="small" />
-                        </Tooltip>
-                    )}
                 </Space>
             ),
         },
@@ -428,7 +411,6 @@ function KetQuaKeKhai() {
         printWindow.onload = () => {
             printWindow.focus();
             printWindow.print();
-            // Consider not closing automatically for user to save as PDF
             // printWindow.close(); 
         };
     };
@@ -467,211 +449,54 @@ function KetQuaKeKhai() {
 
     if (isLoading && declarations.length === 0) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40 flex items-center justify-center overflow-hidden relative">
-                {/* Enhanced Background Decorations */}
-                <div className="absolute inset-0 overflow-hidden">
-                    <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-r from-indigo-400/6 to-blue-400/6 rounded-full blur-3xl animate-float"></div>
-                    <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-r from-emerald-400/6 to-green-400/6 rounded-full blur-3xl animate-float-delayed"></div>
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[32rem] h-[32rem] bg-gradient-to-r from-purple-400/4 to-pink-400/4 rounded-full blur-3xl animate-pulse"></div>
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 relative overflow-hidden flex items-center justify-center">
+                <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-blue-400/10 to-indigo-400/10 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-purple-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
                 </div>
 
-                {/* Enhanced Loading Card */}
-                <div className="relative z-10">
-                    <div className="bg-white/95 backdrop-blur-xl shadow-2xl rounded-3xl p-12 border border-white/30 max-w-lg w-full mx-4 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-br from-white/70 to-transparent pointer-events-none"></div>
+                <div className="relative z-10 text-center space-y-8">
+                    <div className="relative">
+                        <div className="w-24 h-24 bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 rounded-3xl shadow-2xl flex items-center justify-center mx-auto mb-6 animate-bounce">
+                            <BookOutlined className="text-4xl text-white" />
+                        </div>
                         
-                        {/* Animated background pattern */}
-                        <div className="absolute inset-0 opacity-5">
-                            <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full -mr-20 -mt-20 animate-spin-slow"></div>
-                            <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-br from-emerald-500 to-green-500 rounded-full -ml-16 -mb-16 animate-bounce-slow"></div>
-                        </div>
+                        <div className="absolute -top-2 -right-8 w-4 h-4 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full animate-ping"></div>
+                        <div className="absolute -bottom-2 -left-8 w-3 h-3 bg-gradient-to-r from-orange-400 to-red-500 rounded-full animate-pulse delay-300"></div>
+                    </div>
 
-                        <div className="relative z-10 flex flex-col items-center">
-                            {/* Enhanced Multi-layered Loading Animation */}
-                            <div className="relative mb-8">
-                                <div className="w-32 h-32 relative flex justify-center items-center">
-                                    {/* Outer ring with activity status dots */}
-                                    <div className="absolute w-full h-full">
-                                        <div className="w-full h-full border-4 border-indigo-200/30 rounded-full relative">
-                                            <div className="absolute w-3.5 h-3.5 bg-emerald-500 rounded-full top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-ping"></div>
-                                            <div className="absolute w-3 h-3 bg-amber-500 rounded-full top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
-                                            <div className="absolute w-3.5 h-3.5 bg-blue-500 rounded-full bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 animate-bounce"></div>
-                                            <div className="absolute w-3 h-3 bg-purple-500 rounded-full top-1/2 left-0 transform -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
-                                        </div>
-                                    </div>
-                                    
-                                    {/* Middle rotating ring */}
-                                    <div className="absolute w-24 h-24 border-t-3 border-r-3 border-indigo-500 rounded-full animate-spin"></div>
-                                    
-                                    {/* Inner counter-rotating ring */}
-                                    <div className="absolute w-20 h-20 border-t-2 border-l-2 border-emerald-400 rounded-full animate-spin-reverse"></div>
-                                    
-                                    {/* Center icon with breathing effect */}
-                                    <div className="w-16 h-16 bg-gradient-to-tr from-indigo-600 via-blue-600 to-emerald-600 rounded-full shadow-2xl flex items-center justify-center animate-breathing">
-                                        <FileTextOutlined className="text-white text-xl animate-bounce-gentle" />
-                                    </div>
-                                </div>
-                            </div>
+                    <div className="space-y-4">
+                        <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-800 via-slate-700 to-gray-800 bg-clip-text text-transparent">
+                            Đang khởi tạo hệ thống
+                        </h2>
+                        <p className="text-lg text-gray-600 max-w-md mx-auto">
+                            Vui lòng chờ trong giây lát, chúng tôi đang tải dữ liệu cho bạn...
+                        </p>
+                    </div>
 
-                            {/* Enhanced Loading Text with Animation */}
-                            <div className="text-center mb-8">
-                                <h3 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-blue-600 to-emerald-600 bg-clip-text text-transparent mb-3 animate-text-shimmer">
-                                    Đang tải kết quả kê khai
-                                </h3>
-                                <div className="flex items-center justify-center space-x-2 mb-4">
-                                    <div className="w-3 h-3 bg-indigo-500 rounded-full animate-bounce-1"></div>
-                                    <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce-2"></div>
-                                    <div className="w-3 h-3 bg-emerald-500 rounded-full animate-bounce-3"></div>
-                                </div>
-                                <p className="text-gray-600 text-sm leading-relaxed max-w-sm mx-auto animate-fade-in-up">
-                                    Đang tải danh sách năm học và dữ liệu báo cáo
-                                </p>
-                            </div>
+                    <div className="flex justify-center space-x-2">
+                        <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
+                        <div className="w-3 h-3 bg-indigo-500 rounded-full animate-bounce delay-100"></div>
+                        <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce delay-200"></div>
+                        <div className="w-3 h-3 bg-pink-500 rounded-full animate-bounce delay-300"></div>
+                    </div>
 
-                            {/* Enhanced Progress Steps */}
-                            <div className="w-full space-y-4 mb-6">
-                                <div className="flex items-center space-x-3 animate-slide-in-left">
-                                    <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center animate-check-mark">
-                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </div>
-                                    <span className="text-sm text-gray-700 font-medium">Tải danh sách năm học</span>
-                                </div>
-                                
-                                <div className="flex items-center space-x-3 animate-slide-in-left animation-delay-300">
-                                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center animate-spin-pulse">
-                                        <FileTextOutlined className="text-white text-xs" />
-                                    </div>
-                                    <span className="text-sm text-gray-700 font-medium">Tải dữ liệu kê khai</span>
-                                </div>
-                                
-                                <div className="flex items-center space-x-3 animate-slide-in-left animation-delay-600">
-                                    <div className="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center animate-spin-pulse">
-                                        <CalendarOutlined className="text-white text-xs" />
-                                    </div>
-                                    <span className="text-sm text-gray-700 font-medium">Khởi tạo báo cáo</span>
-                                </div>
-                            </div>
-
-                            {/* Enhanced Progress Bar */}
-                            <div className="w-full">
-                                <div className="h-3 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 rounded-full overflow-hidden shadow-inner">
-                                    <div className="h-full bg-gradient-to-r from-indigo-600 via-blue-500 via-emerald-500 to-green-500 rounded-full animate-loading-wave transform origin-left"></div>
-                                </div>
-                                <div className="flex justify-between mt-3 text-xs text-gray-500">
-                                    <span className="animate-pulse">0%</span>
-                                    <span className="font-medium text-indigo-600 animate-pulse">Đang tải...</span>
-                                    <span className="animate-pulse">100%</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div className="w-64 h-2 bg-gray-200 rounded-full overflow-hidden mx-auto">
+                        <div className="h-full bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600 rounded-full animate-pulse"></div>
                     </div>
                 </div>
-
-                {/* Enhanced Loading Animation Styles */}
-                <style>{`
-                    @keyframes float {
-                        0%, 100% { transform: translateY(0px) rotate(0deg); }
-                        50% { transform: translateY(-30px) rotate(180deg); }
-                    }
-                    @keyframes float-delayed {
-                        0%, 100% { transform: translateY(0px) rotate(0deg); }
-                        50% { transform: translateY(-25px) rotate(-180deg); }
-                    }
-                    @keyframes spin-slow {
-                        from { transform: rotate(0deg); }
-                        to { transform: rotate(360deg); }
-                    }
-                    @keyframes bounce-slow {
-                        0%, 100% { transform: translateY(0); }
-                        50% { transform: translateY(-15px); }
-                    }
-                    @keyframes spin-reverse {
-                        from { transform: rotate(360deg); }
-                        to { transform: rotate(0deg); }
-                    }
-                    @keyframes breathing {
-                        0%, 100% { transform: scale(1); }
-                        50% { transform: scale(1.1); }
-                    }
-                    @keyframes bounce-gentle {
-                        0%, 100% { transform: translateY(0); }
-                        50% { transform: translateY(-6px); }
-                    }
-                    @keyframes text-shimmer {
-                        0% { background-position: -200% center; }
-                        100% { background-position: 200% center; }
-                    }
-                    @keyframes bounce-1 {
-                        0%, 100% { transform: translateY(0); }
-                        50% { transform: translateY(-12px); }
-                    }
-                    @keyframes bounce-2 {
-                        0%, 100% { transform: translateY(0); }
-                        50% { transform: translateY(-12px); }
-                    }
-                    @keyframes bounce-3 {
-                        0%, 100% { transform: translateY(0); }
-                        50% { transform: translateY(-12px); }
-                    }
-                    @keyframes fade-in-up {
-                        from { opacity: 0; transform: translateY(30px); }
-                        to { opacity: 1; transform: translateY(0); }
-                    }
-                    @keyframes slide-in-left {
-                        from { opacity: 0; transform: translateX(-50px); }
-                        to { opacity: 1; transform: translateX(0); }
-                    }
-                    @keyframes check-mark {
-                        0% { transform: scale(0); }
-                        50% { transform: scale(1.3); }
-                        100% { transform: scale(1); }
-                    }
-                    @keyframes spin-pulse {
-                        0%, 100% { transform: rotate(0deg) scale(1); }
-                        50% { transform: rotate(180deg) scale(1.2); }
-                    }
-                    @keyframes loading-wave {
-                        0% { transform: translateX(-100%) scaleX(0); }
-                        50% { transform: translateX(0%) scaleX(1); }
-                        100% { transform: translateX(100%) scaleX(0); }
-                    }
-                    .animate-float { animation: float 12s ease-in-out infinite; }
-                    .animate-float-delayed { animation: float-delayed 14s ease-in-out infinite; animation-delay: 1.5s; }
-                    .animate-spin-slow { animation: spin-slow 6s linear infinite; }
-                    .animate-bounce-slow { animation: bounce-slow 5s ease-in-out infinite; }
-                    .animate-spin-reverse { animation: spin-reverse 4s linear infinite; }
-                    .animate-breathing { animation: breathing 3s ease-in-out infinite; }
-                    .animate-bounce-gentle { animation: bounce-gentle 2s ease-in-out infinite; }
-                    .animate-text-shimmer { background-size: 200% auto; animation: text-shimmer 3s linear infinite; }
-                    .animate-bounce-1 { animation: bounce-1 1.8s ease-in-out infinite; }
-                    .animate-bounce-2 { animation: bounce-2 1.8s ease-in-out infinite; animation-delay: 0.15s; }
-                    .animate-bounce-3 { animation: bounce-3 1.8s ease-in-out infinite; animation-delay: 0.3s; }
-                    .animate-fade-in-up { animation: fade-in-up 1.5s ease-out; }
-                    .animate-slide-in-left { animation: slide-in-left 1.2s ease-out; }
-                    .animate-check-mark { animation: check-mark 1.3s ease-out; }
-                    .animate-spin-pulse { animation: spin-pulse 3s ease-in-out infinite; }
-                    .animate-loading-wave { animation: loading-wave 3.5s ease-in-out infinite; }
-                    .animation-delay-300 { animation-delay: 300ms; }
-                    .animation-delay-600 { animation-delay: 600ms; }
-                    .border-3 { border-width: 3px; }
-                    .shadow-inner { box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.1); }
-                `}</style>
             </div>
         );
     }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40 relative">
-            {/* Enhanced background decoration */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-blue-400/5 to-indigo-400/5 rounded-full blur-3xl"></div>
                 <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-purple-400/5 to-pink-400/5 rounded-full blur-3xl"></div>
             </div>
 
             <div className="relative z-10 p-8 space-y-6">
-                {/* Enhanced Header */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-blue-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center justify-between">
@@ -711,12 +536,12 @@ function KetQuaKeKhai() {
                                     allowClear
                                     showSearch
                                     filterOption={(input, option) =>
-                                        option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                        option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                     }
                                     className="custom-select"
                                 >
                                     {namHocList.map(nh => (
-                                        <Option key={nh.id} value={nh.id.toString()}>
+                                        <Option key={nh.id} value={nh.id.toString()} label={String(nh.ten_nam_hoc)}>
                                             {nh.ten_nam_hoc}
                                             {nh.la_nam_hien_hanh ? 
                                                 <Tag color="green" style={{ marginLeft: 8 }}>Hiện hành</Tag> 
@@ -740,19 +565,6 @@ function KetQuaKeKhai() {
                                 Tải lại danh sách
                             </Button>
                         </Col>
-                        <Col xs={24} md={8}>
-                            <Space>
-                                <Button
-                                    type="default"
-                                    icon={<CalendarOutlined />}
-                                    onClick={() => navigate('/lecturer/ke-khai')}
-                                    size="large"
-                                    className="custom-button"
-                                >
-                                    Tạo kê khai mới
-                                </Button>
-                            </Space>
-                        </Col>
                     </Row>
 
                     {selectedNamHocId && (
@@ -766,7 +578,6 @@ function KetQuaKeKhai() {
                     )}
                 </Card>
 
-                {/* Loading state for table data */}
                 {isLoading && declarations.length > 0 && (
                     <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                         <div className="flex justify-center items-center h-64">
@@ -791,7 +602,6 @@ function KetQuaKeKhai() {
                     </Card>
                 )}
 
-                {/* Empty state when no year selected */}
                 {!selectedNamHocId && !isLoading && (
                     <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                         <div className="text-center py-12">
@@ -821,7 +631,6 @@ function KetQuaKeKhai() {
                     </Card>
                 )}
 
-                {/* Data table */}
                 {selectedNamHocId && !isLoading && (
                     <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                         <div className="mb-4 flex justify-between items-center">
@@ -900,15 +709,12 @@ function KetQuaKeKhai() {
                     {itemToPrint && <BaoCaoKeKhaiPreview keKhaiData={itemToPrint} />}
                 </Modal>
 
-                {/* Enhanced Custom Styles */}
                 <style>{`
-                    /* Enhanced Form Styling */
                     .enhanced-form .ant-form-item-label > label {
                         font-weight: 600 !important;
                         color: #374151 !important;
                     }
 
-                    /* Custom Select Styling */
                     .custom-select .ant-select-selector {
                         border-radius: 12px !important;
                         border: 1px solid #e2e8f0 !important;
@@ -928,7 +734,6 @@ function KetQuaKeKhai() {
                         box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
                     }
 
-                    /* Custom Button Styling */
                     .custom-button.ant-btn {
                         border-radius: 12px !important;
                         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
@@ -950,7 +755,6 @@ function KetQuaKeKhai() {
                         background: linear-gradient(135deg, #1d4ed8, #1e40af) !important;
                     }
 
-                    /* Custom Alert Styling */
                     .custom-alert.ant-alert {
                         border-radius: 12px !important;
                         border: none !important;
@@ -958,7 +762,6 @@ function KetQuaKeKhai() {
                         backdrop-filter: blur(8px) !important;
                     }
 
-                    /* Custom Table Styling */
                     .custom-table .ant-table {
                         border-radius: 12px !important;
                         overflow: hidden !important;
@@ -1030,7 +833,6 @@ function KetQuaKeKhai() {
                         padding: 16px 24px 24px !important;
                     }
 
-                    /* Tag Styling */
                     .ant-tag {
                         border-radius: 6px !important;
                         font-weight: 500 !important;
@@ -1039,7 +841,6 @@ function KetQuaKeKhai() {
                         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
                     }
 
-                    /* Enhanced card styling */
                     .ant-card {
                         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
                     }
@@ -1049,7 +850,6 @@ function KetQuaKeKhai() {
                         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
                     }
 
-                    /* Empty state styling */
                     .ant-empty {
                         margin: 32px 0 !important;
                     }
@@ -1059,13 +859,11 @@ function KetQuaKeKhai() {
                         font-size: 14px !important;
                     }
 
-                    /* Tooltip styling */
                     .ant-tooltip-inner {
                         border-radius: 8px !important;
                         backdrop-filter: blur(8px) !important;
                     }
 
-                    /* Pagination styling */
                     .ant-pagination {
                         margin-top: 24px !important;
                     }

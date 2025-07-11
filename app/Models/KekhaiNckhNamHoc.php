@@ -22,7 +22,7 @@ class KekhaiNckhNamHoc extends Model
         return $this->belongsTo(KeKhaiTongHopNamHoc::class, 'ke_khai_tong_hop_nam_hoc_id');
     }
 
-    public function minhChungs() // Quan hệ một-nhiều với bảng MinhChung
+    public function minhChungs()
     {
         return $this->hasMany(MinhChung::class, 'kekhai_nckh_nam_hoc_id');
     }

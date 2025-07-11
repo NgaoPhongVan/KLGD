@@ -23,7 +23,7 @@ class KekhaiDgLaTiensiDot extends Model
         return $this->belongsTo(KeKhaiTongHopNamHoc::class, 'ke_khai_tong_hop_nam_hoc_id');
     }
 
-    public function nhiemVus() // Đổi tên quan hệ cho dễ hiểu
+    public function nhiemVus()
     {
         return $this->hasMany(KekhaiDgLaTiensiNhiemvu::class, 'kekhai_dg_la_tiensi_dot_id');
     }

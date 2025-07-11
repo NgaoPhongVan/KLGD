@@ -12,9 +12,9 @@ class KekhaiCongtacKhacNamHoc extends Model
     protected $fillable = [
         'ke_khai_tong_hop_nam_hoc_id',
         'ten_cong_tac',
-        'ket_qua_dat_duoc', // Giữ lại trường này để mô tả kết quả
-        'loai_gio_quy_doi',     // Mới
-        'so_gio_quy_doi_gv_nhap',// Mới
+        'ket_qua_dat_duoc',
+        'loai_gio_quy_doi',
+        'so_gio_quy_doi_gv_nhap',
         'ghi_chu',
     ];
 

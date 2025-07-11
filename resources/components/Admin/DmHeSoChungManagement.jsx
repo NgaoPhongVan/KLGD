@@ -522,15 +522,13 @@ function DmHeSoChungManagement() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50/30 to-red-50/40 relative">
-            {/* Enhanced background decoration */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+=            <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-orange-400/5 to-red-400/5 rounded-full blur-3xl"></div>
                 <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-amber-400/5 to-orange-400/5 rounded-full blur-3xl"></div>
             </div>
 
             <div className="relative z-10 p-8 space-y-6">
-                {/* Enhanced Header */}
-                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+=                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-6">
                             <div className="relative">
@@ -560,8 +558,7 @@ function DmHeSoChungManagement() {
                     </div>
                 </Card>
 
-                {/* Enhanced Search Section */}
-                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+=                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-orange-50/50 to-red-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
                             <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl shadow-md flex items-center justify-center mr-4">
@@ -628,8 +625,7 @@ function DmHeSoChungManagement() {
                     </div>
                 </Card>
 
-                {/* Enhanced Form Section */}
-                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+=                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-orange-50/50 to-red-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
                             <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl shadow-md flex items-center justify-center mr-4">
@@ -769,8 +765,7 @@ function DmHeSoChungManagement() {
                     </Form>
                 </Card>
 
-                {/* Enhanced Import Section */}
-                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+=                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-blue-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
                             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-md flex items-center justify-center mr-4">
@@ -848,8 +843,7 @@ function DmHeSoChungManagement() {
                     </Row>
                 </Card>
 
-                {/* Enhanced Table */}
-                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+=                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-orange-50/50 to-red-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center">
@@ -958,8 +952,7 @@ function DmHeSoChungManagement() {
                     )}
                 </Card>
 
-                {/* Delete Confirmation Modal */}
-                <Modal
+=                <Modal
                     title={
                         <div className="flex items-center">
                             <ExclamationCircleOutlined className="text-red-500 mr-2" />
@@ -982,8 +975,7 @@ function DmHeSoChungManagement() {
                     </p>
                 </Modal>
 
-                {/* Enhanced Custom Styles */}
-                <style>{`
+=                <style>{`
                     .custom-select .ant-select-selector {
                         border-radius: 8px !important;
                         border: 1px solid #e2e8f0 !important;

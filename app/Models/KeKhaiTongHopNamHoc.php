@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class KeKhaiTongHopNamHoc extends Model
 {
     use HasFactory;
-    protected $table = 'ke_khai_tong_hop_nam_hoc'; // Tên bảng mới
+    protected $table = 'ke_khai_tong_hop_nam_hoc'; 
 
     protected $fillable = [
         'nguoi_dung_id',
@@ -16,10 +16,9 @@ class KeKhaiTongHopNamHoc extends Model
         'dinhmuc_gd_apdung',
         'dinhmuc_khcn_apdung',
         'phan_tram_mien_giam_tong',
-        // Thêm TẤT CẢ các cột _tam_tinh và _duyet vào đây
-        'tong_gio_gd_danhgia_tam_tinh', /* ... */
+        'tong_gio_gd_danhgia_tam_tinh', 
         'tong_gio_thuc_hien_final_tam_tinh',
-        'tong_gio_gd_danhgia_duyet',    /* ... */
+        'tong_gio_gd_danhgia_duyet',   
         'tong_gio_thuc_hien_final_duyet',
         'ghi_chu_giang_vien',
         'ghi_chu_quan_ly',
@@ -28,11 +27,10 @@ class KeKhaiTongHopNamHoc extends Model
         'thoi_gian_duyet_bm',
         'trang_thai_phe_duyet',
         'ly_do_tu_choi',
-        'gio_khcn_conlai_sau_butru_tam_tinh', // Đảm bảo đã có
-        'gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh', // Cột mới
-        // ...
-        'gio_khcn_conlai_sau_butru_duyet', // Đảm bảo đã có
-        'gio_khcn_hoanthanh_so_voi_dinhmuc_duyet', // Cột mới
+        'gio_khcn_conlai_sau_butru_tam_tinh', 
+        'gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh', 
+        'gio_khcn_conlai_sau_butru_duyet',
+        'gio_khcn_hoanthanh_so_voi_dinhmuc_duyet', 
     ];
 
     protected $casts = [
@@ -60,7 +58,6 @@ class KeKhaiTongHopNamHoc extends Model
         return $this->hasMany(LichSuPheDuyet::class, 'ke_khai_tong_hop_nam_hoc_id');
     }
 
-    // Quan hệ đến các bảng chi tiết
     public function kekhaiGdLopDhTrongbms()
     {
         return $this->hasMany(KekhaiGdLopDhTrongbm::class, 'ke_khai_tong_hop_nam_hoc_id');

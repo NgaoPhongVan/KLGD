@@ -1,0 +1,1210 @@
+-- --------------------------------------------------------
+-- Host:                         127.0.0.1
+-- Server version:               8.0.35 - MySQL Community Server - GPL
+-- Server OS:                    Win64
+-- HeidiSQL Version:             12.3.0.6589
+-- --------------------------------------------------------
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+
+-- Dumping database structure for klgd
+CREATE DATABASE IF NOT EXISTS `klgd` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `klgd`;
+
+-- Dumping structure for table klgd.admin_logs
+CREATE TABLE IF NOT EXISTS `admin_logs` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `admin_id` bigint unsigned NOT NULL,
+  `admin_name` varchar(255) NOT NULL,
+  `action` varchar(50) NOT NULL,
+  `table_name` varchar(255) NOT NULL,
+  `record_id` bigint unsigned DEFAULT NULL,
+  `record_name` varchar(255) DEFAULT NULL,
+  `old_data` json DEFAULT NULL,
+  `new_data` json DEFAULT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` text,
+  `description` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_admin_id_created_at` (`admin_id`,`created_at`),
+  KEY `idx_table_name_created_at` (`table_name`,`created_at`),
+  KEY `idx_action_created_at` (`action`,`created_at`),
+  CONSTRAINT `admin_logs_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `nguoi_dung` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.bo_mon
+CREATE TABLE IF NOT EXISTS `bo_mon` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ten_bo_mon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ma_bo_mon` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `khoa_id` bigint unsigned NOT NULL,
+  `mo_ta` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `bo_mon_ten_bo_mon_unique` (`ten_bo_mon`),
+  UNIQUE KEY `bo_mon_ma_bo_mon_unique` (`ma_bo_mon`),
+  KEY `bo_mon_khoa_id_foreign` (`khoa_id`),
+  CONSTRAINT `bo_mon_khoa_id_foreign` FOREIGN KEY (`khoa_id`) REFERENCES `khoa` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.dinh_muc_ca_nhan_theo_nam
+CREATE TABLE IF NOT EXISTS `dinh_muc_ca_nhan_theo_nam` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `nguoi_dung_id` bigint unsigned NOT NULL COMMENT 'ID của giảng viên',
+  `nam_hoc_id` bigint unsigned NOT NULL COMMENT 'Năm học áp dụng định mức',
+  `dinh_muc_gd` decimal(10,2) NOT NULL COMMENT 'Định mức giờ giảng dạy được giao',
+  `dinh_muc_khcn` decimal(10,2) NOT NULL COMMENT 'Định mức giờ NCKH được giao',
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_dinhmuc_gv_namhoc` (`nguoi_dung_id`,`nam_hoc_id`),
+  KEY `nam_hoc_id` (`nam_hoc_id`),
+  CONSTRAINT `dinh_muc_ca_nhan_theo_nam_ibfk_1` FOREIGN KEY (`nguoi_dung_id`) REFERENCES `nguoi_dung` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `dinh_muc_ca_nhan_theo_nam_ibfk_2` FOREIGN KEY (`nam_hoc_id`) REFERENCES `nam_hoc` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Định mức GD và KHCN cá nhân của giảng viên theo năm học';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.dm_he_so_chung
+CREATE TABLE IF NOT EXISTS `dm_he_so_chung` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `ma_he_so` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'VD: HS_HUONGDAN_LA, HS_HUONGDAN_LV, HS_HUONGDAN_DAKL',
+  `ten_he_so` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `gia_tri` decimal(10,4) NOT NULL,
+  `don_vi_tinh` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mo_ta` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ma_he_so` (`ma_he_so`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Các hệ số chung do Admin cấu hình';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.failed_jobs
+CREATE TABLE IF NOT EXISTS `failed_jobs` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `connection` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `queue` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `exception` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`)
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.hoc_ky
+CREATE TABLE IF NOT EXISTS `hoc_ky` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ten_hoc_ky` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nam_hoc_id` bigint unsigned NOT NULL,
+  `ngay_bat_dau` date DEFAULT NULL,
+  `ngay_ket_thuc` date DEFAULT NULL,
+  `la_ky_hien_hanh` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `hoc_ky_ten_nam_unique` (`ten_hoc_ky`,`nam_hoc_id`),
+  KEY `hoc_ky_nam_hoc_id_foreign` (`nam_hoc_id`),
+  CONSTRAINT `hoc_ky_nam_hoc_id_foreign` FOREIGN KEY (`nam_hoc_id`) REFERENCES `nam_hoc` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.jobs
+CREATE TABLE IF NOT EXISTS `jobs` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `queue` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `attempts` tinyint unsigned NOT NULL,
+  `reserved_at` int unsigned DEFAULT NULL,
+  `available_at` int unsigned NOT NULL,
+  `created_at` int unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `jobs_queue_index` (`queue`)
+) ENGINE=InnoDB AUTO_INCREMENT=125 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_congtac_khac_nam_hoc
+CREATE TABLE IF NOT EXISTS `kekhai_congtac_khac_nam_hoc` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `ten_cong_tac` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'GV tự nhập tên công tác',
+  `ket_qua_dat_duoc` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Mô tả kết quả nếu có',
+  `loai_gio_quy_doi` enum('GD','KHCN') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Loại giờ được quy đổi ra (Giảng dạy hoặc KHCN)',
+  `so_gio_quy_doi_gv_nhap` decimal(10,2) NOT NULL COMMENT 'Số giờ đã được quy đổi (chung)',
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  CONSTRAINT `kekhai_congtac_khac_nam_hoc_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Kê khai Công tác khác theo năm học (QĐ ra giờ GD hoặc KHCN)';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_dg_hp_tn_daihoc
+CREATE TABLE IF NOT EXISTS `kekhai_dg_hp_tn_daihoc` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `hoi_dong_dot_hk` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sl_pb1` int unsigned DEFAULT '0',
+  `sl_pb2` int unsigned DEFAULT '0',
+  `sl_ct` int unsigned DEFAULT '0',
+  `sl_uv` int unsigned DEFAULT '0',
+  `sl_uv_tk` int unsigned DEFAULT '0',
+  `tong_gio_quydoi_gv_nhap` decimal(10,4) NOT NULL,
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  CONSTRAINT `kekhai_dg_hp_tn_daihoc_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Đánh giá HP TN Đại học';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_dg_la_tiensi_dot
+CREATE TABLE IF NOT EXISTS `kekhai_dg_la_tiensi_dot` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `loai_hoat_dong_ts` enum('Tiểu ban','HĐ đánh giá LA','Hướng dẫn CĐ') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ten_ncs_hoac_ten_cd` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `hoi_dong_dot_hk` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tong_gio_quydoi_cho_dot` decimal(10,4) DEFAULT '0.0000',
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  CONSTRAINT `kekhai_dg_la_tiensi_dot_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Đợt đánh giá LA TS hoặc HD CĐ TS (cha)';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_dg_la_tiensi_nhiemvu
+CREATE TABLE IF NOT EXISTS `kekhai_dg_la_tiensi_nhiemvu` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `kekhai_dg_la_tiensi_dot_id` bigint unsigned NOT NULL,
+  `ten_nhiem_vu` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'GV tự nhập nhiệm vụ',
+  `so_tiet_gv_nhap` decimal(10,4) NOT NULL COMMENT 'GV tự nhập số tiết cho nhiệm vụ này',
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `kekhai_dg_la_tiensi_dot_id` (`kekhai_dg_la_tiensi_dot_id`),
+  CONSTRAINT `kekhai_dg_la_tiensi_nhiemvu_ibfk_1` FOREIGN KEY (`kekhai_dg_la_tiensi_dot_id`) REFERENCES `kekhai_dg_la_tiensi_dot` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Chi tiết nhiệm vụ ĐG LA TS';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_dg_lv_thacsi
+CREATE TABLE IF NOT EXISTS `kekhai_dg_lv_thacsi` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `hoi_dong_dot_hk` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sl_duyet_de_cuong` int unsigned DEFAULT '0',
+  `sl_gop_y_lv` int unsigned DEFAULT '0',
+  `sl_pb1` int unsigned DEFAULT '0',
+  `sl_pb2` int unsigned DEFAULT '0',
+  `sl_ct` int unsigned DEFAULT '0',
+  `sl_uv` int unsigned DEFAULT '0',
+  `sl_uv_tk` int unsigned DEFAULT '0',
+  `tong_gio_quydoi_gv_nhap` decimal(10,4) NOT NULL,
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  CONSTRAINT `kekhai_dg_lv_thacsi_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Chấm Luận văn Thạc sĩ';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_gd_lop_dh_ngoaibm
+CREATE TABLE IF NOT EXISTS `kekhai_gd_lop_dh_ngoaibm` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `ten_lop_hoc_phan` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ten_bo_mon_day_ho` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `hoc_ky_dien_ra` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `si_so` int unsigned DEFAULT NULL,
+  `ky_nang` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `don_vi_tinh` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'Tiết',
+  `kl_ke_hoach` decimal(8,2) NOT NULL,
+  `he_so_qd` decimal(10,4) NOT NULL,
+  `so_tiet_qd` decimal(10,4) NOT NULL,
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  CONSTRAINT `kekhai_gd_lop_dh_ngoaibm_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='GD Lớp ĐH ngoài BM';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_gd_lop_dh_ngoàics
+CREATE TABLE IF NOT EXISTS `kekhai_gd_lop_dh_ngoàics` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `ten_lop_hoc_phan` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ten_co_so_day` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `hoc_ky_dien_ra` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `si_so` int unsigned DEFAULT NULL,
+  `ky_nang` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `don_vi_tinh` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'Tiết',
+  `kl_ke_hoach` decimal(8,2) NOT NULL,
+  `he_so_qd` decimal(10,4) NOT NULL,
+  `so_tiet_qd` decimal(10,4) NOT NULL,
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  CONSTRAINT `kekhai_gd_lop_dh_ngoàics_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='GD Lớp ĐH ngoài CS chính';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_gd_lop_dh_trongbm
+CREATE TABLE IF NOT EXISTS `kekhai_gd_lop_dh_trongbm` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `ten_lop_hoc_phan` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `hoc_ky_dien_ra` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `si_so` int unsigned DEFAULT NULL,
+  `ky_nang` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'LT, TH, BT...',
+  `don_vi_tinh` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'Tiết',
+  `kl_ke_hoach` decimal(8,2) NOT NULL COMMENT 'Số tiết GV nhập',
+  `he_so_qd` decimal(10,4) NOT NULL COMMENT 'Hệ số QĐ GV nhập',
+  `so_tiet_qd` decimal(10,4) NOT NULL COMMENT 'Tự động tính = kl_ke_hoach * he_so_qd',
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  CONSTRAINT `kekhai_gd_lop_dh_trongbm_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='GD Lớp ĐH trong BM';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_gd_lop_ths
+CREATE TABLE IF NOT EXISTS `kekhai_gd_lop_ths` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `ten_lop_hoc_phan` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `hoc_ky_dien_ra` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `si_so` int unsigned DEFAULT NULL,
+  `ky_nang` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `don_vi_tinh` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'Tiết',
+  `kl_ke_hoach` decimal(8,2) NOT NULL,
+  `he_so_qd` decimal(10,4) NOT NULL,
+  `so_tiet_qd` decimal(10,4) NOT NULL,
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  CONSTRAINT `kekhai_gd_lop_ths_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='GD Lớp Thạc sĩ';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_gd_lop_ts
+CREATE TABLE IF NOT EXISTS `kekhai_gd_lop_ts` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `ten_lop_hoc_phan` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `hoc_ky_dien_ra` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `si_so` int unsigned DEFAULT NULL,
+  `ky_nang` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `don_vi_tinh` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'Tiết',
+  `kl_ke_hoach` decimal(8,2) NOT NULL,
+  `he_so_qd` decimal(10,4) NOT NULL,
+  `so_tiet_qd` decimal(10,4) NOT NULL,
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  CONSTRAINT `kekhai_gd_lop_ts_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='GD Lớp Tiến sĩ';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_hd_datn_daihoc
+CREATE TABLE IF NOT EXISTS `kekhai_hd_datn_daihoc` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `quyet_dinh_dot_hk` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `so_luong_sv_cttt` int unsigned DEFAULT '0',
+  `so_luong_sv_dai_tra` int unsigned DEFAULT '0',
+  `tong_sv_quy_doi` decimal(8,2) DEFAULT NULL COMMENT 'GV tự nhập hoặc hệ thống tính nếu có quy tắc',
+  `tong_gio_quydoi_gv_nhap` decimal(10,4) NOT NULL COMMENT 'GV tự nhập tổng giờ đã QĐ cho đợt này',
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  CONSTRAINT `kekhai_hd_datn_daihoc_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='HD ĐATN Đại học';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_hd_la_tiensi
+CREATE TABLE IF NOT EXISTS `kekhai_hd_la_tiensi` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `quyet_dinh_dot_hk` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `loai_dao_tao_ts` enum('3 năm','4 năm') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `so_luong_hd_chinh` int unsigned DEFAULT '0',
+  `so_luong_hd_phu1` int unsigned DEFAULT '0',
+  `so_luong_hd_phu2` int unsigned DEFAULT '0',
+  `tong_gio_quydoi_gv_nhap` decimal(10,4) NOT NULL,
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  CONSTRAINT `kekhai_hd_la_tiensi_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='HD Luận án Tiến sĩ';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_hd_lv_thacsi
+CREATE TABLE IF NOT EXISTS `kekhai_hd_lv_thacsi` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `quyet_dinh_dot_hk` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `so_luong_hd_doc_lap` int unsigned DEFAULT '0',
+  `so_luong_hd1` int unsigned DEFAULT '0',
+  `so_luong_hd2` int unsigned DEFAULT '0',
+  `tong_gio_quydoi_gv_nhap` decimal(10,4) NOT NULL,
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  CONSTRAINT `kekhai_hd_lv_thacsi_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='HD Luận văn Thạc sĩ';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_khaothi_daihoc_ngoaibm
+CREATE TABLE IF NOT EXISTS `kekhai_khaothi_daihoc_ngoaibm` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `hang_muc` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `so_ca_bai_mon` decimal(8,2) NOT NULL,
+  `dinh_muc_gv_nhap` decimal(10,4) NOT NULL,
+  `so_tiet_qd` decimal(10,4) NOT NULL,
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  CONSTRAINT `kekhai_khaothi_daihoc_ngoaibm_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Khảo thí ĐH ngoài BM';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_khaothi_daihoc_trongbm
+CREATE TABLE IF NOT EXISTS `kekhai_khaothi_daihoc_trongbm` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `hang_muc` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `so_ca_bai_mon` decimal(8,2) NOT NULL,
+  `dinh_muc_gv_nhap` decimal(10,4) NOT NULL,
+  `so_tiet_qd` decimal(10,4) NOT NULL,
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  CONSTRAINT `kekhai_khaothi_daihoc_trongbm_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Khảo thí ĐH trong BM';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_khaothi_thacsi
+CREATE TABLE IF NOT EXISTS `kekhai_khaothi_thacsi` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `hang_muc` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `so_ca_bai_mon` decimal(8,2) NOT NULL,
+  `dinh_muc_gv_nhap` decimal(10,4) NOT NULL,
+  `so_tiet_qd` decimal(10,4) NOT NULL,
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  CONSTRAINT `kekhai_khaothi_thacsi_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Khảo thí Thạc sĩ';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_khaothi_tiensi
+CREATE TABLE IF NOT EXISTS `kekhai_khaothi_tiensi` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `hang_muc` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `so_ca_bai_mon` decimal(8,2) NOT NULL,
+  `dinh_muc_gv_nhap` decimal(10,4) NOT NULL,
+  `so_tiet_qd` decimal(10,4) NOT NULL,
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  CONSTRAINT `kekhai_khaothi_tiensi_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Khảo thí Tiến sĩ';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_nckh_nam_hoc
+CREATE TABLE IF NOT EXISTS `kekhai_nckh_nam_hoc` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `ten_hoat_dong_san_pham` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ket_qua_dat_duoc_quy_doi` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tong_gio_nckh_gv_nhap` decimal(10,4) NOT NULL,
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  CONSTRAINT `kekhai_nckh_nam_hoc_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Kê khai NCKH theo năm học';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.kekhai_xd_ctdt_va_khac_gd
+CREATE TABLE IF NOT EXISTS `kekhai_xd_ctdt_va_khac_gd` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `ten_hoat_dong` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `so_luong_don_vi` decimal(8,2) DEFAULT NULL,
+  `don_vi_tinh` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tong_gio_quydoi_gv_nhap` decimal(10,4) NOT NULL,
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  CONSTRAINT `kekhai_xd_ctdt_va_khac_gd_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='XD CTĐT và HĐ khác quy ra giờ GD';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.ke_hoach_chi_tiet_gd_lop_dh_ngoaics
+CREATE TABLE IF NOT EXISTS `ke_hoach_chi_tiet_gd_lop_dh_ngoaics` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_hoach_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `ten_lop_hoc_phan_du_kien` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ten_co_so_day_du_kien` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `hoc_ky_du_kien` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `si_so_du_kien` int unsigned DEFAULT NULL,
+  `ky_nang_du_kien` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `don_vi_tinh` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'Tiết',
+  `kl_ke_hoach_du_kien` decimal(8,2) NOT NULL,
+  `he_so_qd_du_kien` decimal(10,4) NOT NULL,
+  `so_tiet_qd_du_kien` decimal(10,4) NOT NULL,
+  `ghi_chu_muc_tieu` text COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`id`),
+  KEY `ke_hoach_tong_hop_nam_hoc_id` (`ke_hoach_tong_hop_nam_hoc_id`),
+  CONSTRAINT `ke_hoach_chi_tiet_gd_lop_dh_ngoaics_ibfk_1` FOREIGN KEY (`ke_hoach_tong_hop_nam_hoc_id`) REFERENCES `ke_hoach_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='KH Giảng dạy Lớp ĐH ngoài CS';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.ke_hoach_chi_tiet_khaothi_ths
+CREATE TABLE IF NOT EXISTS `ke_hoach_chi_tiet_khaothi_ths` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_hoach_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `hang_muc_du_kien` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `so_ca_bai_mon_du_kien` decimal(8,2) NOT NULL,
+  `dinh_muc_gv_du_kien` decimal(10,4) NOT NULL,
+  `so_tiet_qd_du_kien` decimal(10,4) NOT NULL,
+  `ghi_chu_muc_tieu` text COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`id`),
+  KEY `ke_hoach_tong_hop_nam_hoc_id` (`ke_hoach_tong_hop_nam_hoc_id`),
+  CONSTRAINT `ke_hoach_chi_tiet_khaothi_ths_ibfk_1` FOREIGN KEY (`ke_hoach_tong_hop_nam_hoc_id`) REFERENCES `ke_hoach_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='KH Khảo thí Thạc sĩ';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.ke_hoach_chi_tiet_khaothi_ts
+CREATE TABLE IF NOT EXISTS `ke_hoach_chi_tiet_khaothi_ts` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_hoach_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `hang_muc_du_kien` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `so_ca_bai_mon_du_kien` decimal(8,2) NOT NULL,
+  `dinh_muc_gv_du_kien` decimal(10,4) NOT NULL,
+  `so_tiet_qd_du_kien` decimal(10,4) NOT NULL,
+  `ghi_chu_muc_tieu` text COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`id`),
+  KEY `ke_hoach_tong_hop_nam_hoc_id` (`ke_hoach_tong_hop_nam_hoc_id`),
+  CONSTRAINT `ke_hoach_chi_tiet_khaothi_ts_ibfk_1` FOREIGN KEY (`ke_hoach_tong_hop_nam_hoc_id`) REFERENCES `ke_hoach_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='KH Khảo thí Tiến sĩ';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.ke_khai_danh_gia_datn_dai_hoc
+CREATE TABLE IF NOT EXISTS `ke_khai_danh_gia_datn_dai_hoc` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_id` bigint unsigned NOT NULL,
+  `dm_hoat_dong_id` bigint unsigned NOT NULL COMMENT 'FK đến dm_hoat_dong_giang_day_khac (loại Đánh giá ĐATN ĐH)',
+  `hoi_dong_dot_hk_mo_ta` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `so_luong_pb1` int unsigned DEFAULT '0',
+  `so_luong_pb2` int unsigned DEFAULT '0',
+  `so_luong_ct` int unsigned DEFAULT '0',
+  `so_luong_uv` int unsigned DEFAULT '0',
+  `so_luong_uv_tk` int unsigned DEFAULT '0',
+  `tong_gio_quy_doi_tam_tinh` decimal(10,4) NOT NULL,
+  `gio_chuan_duyet` decimal(10,4) DEFAULT NULL,
+  `ghi_chu_giang_vien` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_id` (`ke_khai_tong_hop_id`),
+  KEY `dm_hoat_dong_id` (`dm_hoat_dong_id`),
+  CONSTRAINT `ke_khai_danh_gia_datn_dai_hoc_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_id`) REFERENCES `ke_khai_tong_hop` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `ke_khai_danh_gia_datn_dai_hoc_ibfk_2` FOREIGN KEY (`dm_hoat_dong_id`) REFERENCES `dm_hoat_dong_giang_day_khac` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.ke_khai_danh_gia_la_tien_si
+CREATE TABLE IF NOT EXISTS `ke_khai_danh_gia_la_tien_si` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_id` bigint unsigned NOT NULL,
+  `dm_hoat_dong_id` bigint unsigned NOT NULL COMMENT 'FK đến dm_hoat_dong_giang_day_khac (loại Đánh giá LA TS - có thể là 1 HĐ chung)',
+  `hoi_dong_dot_hk_mo_ta` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ten_ncs` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ten_luan_an` text COLLATE utf8mb4_unicode_ci,
+  `tong_gio_quy_doi_cho_dot_tam_tinh` decimal(10,4) NOT NULL DEFAULT '0.0000',
+  `gio_chuan_duyet` decimal(10,4) DEFAULT NULL,
+  `ghi_chu_giang_vien` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_id` (`ke_khai_tong_hop_id`),
+  KEY `dm_hoat_dong_id` (`dm_hoat_dong_id`),
+  CONSTRAINT `ke_khai_danh_gia_la_tien_si_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_id`) REFERENCES `ke_khai_tong_hop` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `ke_khai_danh_gia_la_tien_si_ibfk_2` FOREIGN KEY (`dm_hoat_dong_id`) REFERENCES `dm_hoat_dong_giang_day_khac` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.ke_khai_danh_gia_la_tien_si_chi_tiet
+CREATE TABLE IF NOT EXISTS `ke_khai_danh_gia_la_tien_si_chi_tiet` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_danh_gia_la_tien_si_id` bigint unsigned NOT NULL COMMENT 'FK đến bảng cha',
+  `dm_vai_tro_danh_gia_id` bigint unsigned NOT NULL COMMENT 'FK đến dm_dinh_muc_vai_tro_danh_gia',
+  `so_luong_thuc_hien` int unsigned DEFAULT '1' COMMENT 'Thường là 1 cho mỗi nhiệm vụ cụ thể',
+  `gio_quy_doi_nhiem_vu` decimal(10,4) NOT NULL,
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_danh_gia_la_tien_si_id` (`ke_khai_danh_gia_la_tien_si_id`),
+  KEY `dm_vai_tro_danh_gia_id` (`dm_vai_tro_danh_gia_id`),
+  CONSTRAINT `ke_khai_danh_gia_la_tien_si_chi_tiet_ibfk_1` FOREIGN KEY (`ke_khai_danh_gia_la_tien_si_id`) REFERENCES `ke_khai_danh_gia_la_tien_si` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `ke_khai_danh_gia_la_tien_si_chi_tiet_ibfk_2` FOREIGN KEY (`dm_vai_tro_danh_gia_id`) REFERENCES `dm_dinh_muc_vai_tro_danh_gia` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.ke_khai_danh_gia_lv_thac_si
+CREATE TABLE IF NOT EXISTS `ke_khai_danh_gia_lv_thac_si` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_id` bigint unsigned NOT NULL,
+  `dm_hoat_dong_id` bigint unsigned NOT NULL COMMENT 'FK đến dm_hoat_dong_giang_day_khac (loại Chấm LV ThS)',
+  `hoi_dong_dot_hk_mo_ta` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `so_luong_duyet_de_cuong` int unsigned DEFAULT '0',
+  `so_luong_gop_y_lv` int unsigned DEFAULT '0',
+  `so_luong_pb1` int unsigned DEFAULT '0',
+  `so_luong_pb2` int unsigned DEFAULT '0',
+  `so_luong_ct` int unsigned DEFAULT '0',
+  `so_luong_uv` int unsigned DEFAULT '0',
+  `so_luong_uv_tk` int unsigned DEFAULT '0',
+  `tong_gio_quy_doi_tam_tinh` decimal(10,4) NOT NULL,
+  `gio_chuan_duyet` decimal(10,4) DEFAULT NULL,
+  `ghi_chu_giang_vien` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_id` (`ke_khai_tong_hop_id`),
+  KEY `dm_hoat_dong_id` (`dm_hoat_dong_id`),
+  CONSTRAINT `ke_khai_danh_gia_lv_thac_si_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_id`) REFERENCES `ke_khai_tong_hop` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `ke_khai_danh_gia_lv_thac_si_ibfk_2` FOREIGN KEY (`dm_hoat_dong_id`) REFERENCES `dm_hoat_dong_giang_day_khac` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.ke_khai_huong_dan_dai_hoc
+CREATE TABLE IF NOT EXISTS `ke_khai_huong_dan_dai_hoc` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_id` bigint unsigned NOT NULL,
+  `dm_hoat_dong_id` bigint unsigned NOT NULL COMMENT 'FK đến dm_hoat_dong_giang_day_khac (loại HD ĐATN)',
+  `quyet_dinh_dot_hk_mo_ta` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `so_luong_sv_cttt` int unsigned DEFAULT '0',
+  `so_luong_sv_dai_tra` int unsigned DEFAULT '0',
+  `tong_gio_quy_doi_tam_tinh` decimal(10,4) NOT NULL,
+  `gio_chuan_duyet` decimal(10,4) DEFAULT NULL,
+  `ghi_chu_giang_vien` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_id` (`ke_khai_tong_hop_id`),
+  KEY `dm_hoat_dong_id` (`dm_hoat_dong_id`),
+  CONSTRAINT `ke_khai_huong_dan_dai_hoc_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_id`) REFERENCES `ke_khai_tong_hop` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `ke_khai_huong_dan_dai_hoc_ibfk_2` FOREIGN KEY (`dm_hoat_dong_id`) REFERENCES `dm_hoat_dong_giang_day_khac` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.ke_khai_huong_dan_thac_si
+CREATE TABLE IF NOT EXISTS `ke_khai_huong_dan_thac_si` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_id` bigint unsigned NOT NULL,
+  `dm_hoat_dong_id` bigint unsigned NOT NULL COMMENT 'FK đến dm_hoat_dong_giang_day_khac (loại HD LVTN)',
+  `quyet_dinh_dot_hk_mo_ta` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `so_luong_hd_doc_lap` int unsigned DEFAULT '0',
+  `so_luong_hd1` int unsigned DEFAULT '0',
+  `so_luong_hd2` int unsigned DEFAULT '0',
+  `tong_gio_quy_doi_tam_tinh` decimal(10,4) NOT NULL,
+  `gio_chuan_duyet` decimal(10,4) DEFAULT NULL,
+  `ghi_chu_giang_vien` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_id` (`ke_khai_tong_hop_id`),
+  KEY `dm_hoat_dong_id` (`dm_hoat_dong_id`),
+  CONSTRAINT `ke_khai_huong_dan_thac_si_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_id`) REFERENCES `ke_khai_tong_hop` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `ke_khai_huong_dan_thac_si_ibfk_2` FOREIGN KEY (`dm_hoat_dong_id`) REFERENCES `dm_hoat_dong_giang_day_khac` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.ke_khai_huong_dan_tien_si
+CREATE TABLE IF NOT EXISTS `ke_khai_huong_dan_tien_si` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_id` bigint unsigned NOT NULL,
+  `dm_hoat_dong_id` bigint unsigned NOT NULL COMMENT 'FK đến dm_hoat_dong_giang_day_khac (loại HD LATS)',
+  `quyet_dinh_dot_hk_mo_ta` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `loai_dao_tao_ts` enum('3 năm','4 năm') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `so_luong_hd_chinh` int unsigned DEFAULT '0',
+  `so_luong_hd_phu1` int unsigned DEFAULT '0',
+  `so_luong_hd_phu2` int unsigned DEFAULT '0',
+  `tong_gio_quy_doi_tam_tinh` decimal(10,4) NOT NULL,
+  `gio_chuan_duyet` decimal(10,4) DEFAULT NULL,
+  `ghi_chu_giang_vien` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_id` (`ke_khai_tong_hop_id`),
+  KEY `dm_hoat_dong_id` (`dm_hoat_dong_id`),
+  CONSTRAINT `ke_khai_huong_dan_tien_si_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_id`) REFERENCES `ke_khai_tong_hop` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `ke_khai_huong_dan_tien_si_ibfk_2` FOREIGN KEY (`dm_hoat_dong_id`) REFERENCES `dm_hoat_dong_giang_day_khac` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.ke_khai_khao_thi
+CREATE TABLE IF NOT EXISTS `ke_khai_khao_thi` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_id` bigint unsigned NOT NULL,
+  `dm_hoat_dong_id` bigint unsigned NOT NULL COMMENT 'FK đến dm_hoat_dong_giang_day_khac (hạng mục khảo thí)',
+  `so_ca_bai_thi` decimal(8,2) NOT NULL,
+  `pham_vi_khao_thi` tinyint unsigned DEFAULT NULL COMMENT '0: Trong BM, 1: Ngoài BM, 2: Ngoài CS Chính',
+  `he_so_dieu_chinh_pham_vi` decimal(5,2) DEFAULT '1.00',
+  `tong_gio_quy_doi_tam_tinh` decimal(10,4) NOT NULL,
+  `gio_chuan_duyet` decimal(10,4) DEFAULT NULL,
+  `ghi_chu_giang_vien` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_id` (`ke_khai_tong_hop_id`),
+  KEY `dm_hoat_dong_id` (`dm_hoat_dong_id`),
+  CONSTRAINT `ke_khai_khao_thi_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_id`) REFERENCES `ke_khai_tong_hop` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `ke_khai_khao_thi_ibfk_2` FOREIGN KEY (`dm_hoat_dong_id`) REFERENCES `dm_hoat_dong_giang_day_khac` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.ke_khai_thoi_gian
+CREATE TABLE IF NOT EXISTS `ke_khai_thoi_gian` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `nam_hoc_id` bigint unsigned NOT NULL,
+  `thoi_gian_bat_dau` datetime NOT NULL,
+  `thoi_gian_ket_thuc` datetime NOT NULL,
+  `ghi_chu` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_kekhai_thoi_gian_namhoc` (`nam_hoc_id`),
+  KEY `hoc_ky_id` (`nam_hoc_id`),
+  KEY `idx_kekhai_thoi_gian_nam_hoc` (`nam_hoc_id`),
+  CONSTRAINT `fk_kekhai_thoi_gian_nam_hoc` FOREIGN KEY (`nam_hoc_id`) REFERENCES `nam_hoc` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.ke_khai_tong_hop
+CREATE TABLE IF NOT EXISTS `ke_khai_tong_hop` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `nguoi_dung_id` bigint unsigned NOT NULL,
+  `hoc_ky_id` bigint unsigned NOT NULL,
+  `tong_gio_gd_danhgia_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `tong_sl_huongdan_la_tam_tinh` int unsigned DEFAULT NULL,
+  `tong_sl_huongdan_lv_tam_tinh` int unsigned DEFAULT NULL,
+  `tong_sl_huongdan_dakl_tam_tinh` int unsigned DEFAULT NULL,
+  `tong_gio_huongdan_quydoi_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `tong_gio_khcn_kekhai_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `tong_gio_congtackhac_quydoi_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `tong_gio_coithi_chamthi_dh_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `tong_gio_giangday_final_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `tong_gio_gdxatruong_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `dinhmuc_gd_apdung_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `dinhmuc_khcn_apdung_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `gio_gd_danhgia_xet_dinhmuc_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `gio_khcn_thuchien_xet_dinhmuc_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `gio_gdxatruong_xet_dinhmuc_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `gio_vuot_gd_khong_hd_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `tong_gio_butru_la_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `sl_huongdan_la_conlai_tam_tinh` int unsigned DEFAULT NULL,
+  `tong_gio_butru_lv_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `sl_huongdan_lv_conlai_tam_tinh` int unsigned DEFAULT NULL,
+  `tong_gio_butru_dakl_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `sl_huongdan_dakl_conlai_tam_tinh` int unsigned DEFAULT NULL,
+  `tong_gio_butru_khcn_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `gio_khcn_conlai_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `tong_gio_butru_xatruong_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `gio_gdxatruong_conlai_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `gio_gd_hoanthanh_sau_butru_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `gio_khcn_hoanthanh_sau_butru_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `ket_qua_thua_thieu_gio_gd_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `ghi_chu_butru_tam_tinh` text COLLATE utf8mb4_unicode_ci,
+  `tong_gio_gd_danhgia_duyet` decimal(10,2) DEFAULT NULL,
+  `tong_sl_huongdan_la_duyet` int unsigned DEFAULT NULL,
+  `tong_sl_huongdan_lv_duyet` int unsigned DEFAULT NULL,
+  `tong_sl_huongdan_dakl_duyet` int unsigned DEFAULT NULL,
+  `tong_gio_huongdan_quydoi_duyet` decimal(10,2) DEFAULT NULL,
+  `tong_gio_khcn_kekhai_duyet` decimal(10,2) DEFAULT NULL,
+  `tong_gio_congtackhac_quydoi_duyet` decimal(10,2) DEFAULT NULL,
+  `tong_gio_coithi_chamthi_dh_duyet` decimal(10,2) DEFAULT NULL,
+  `tong_gio_giangday_final_duyet` decimal(10,2) DEFAULT NULL,
+  `tong_gio_gdxatruong_duyet` decimal(10,2) DEFAULT NULL,
+  `dinhmuc_gd_apdung_duyet` decimal(10,2) DEFAULT NULL,
+  `dinhmuc_khcn_apdung_duyet` decimal(10,2) DEFAULT NULL,
+  `gio_gd_danhgia_xet_dinhmuc_duyet` decimal(10,2) DEFAULT NULL,
+  `gio_khcn_thuchien_xet_dinhmuc_duyet` decimal(10,2) DEFAULT NULL,
+  `gio_gdxatruong_xet_dinhmuc_duyet` decimal(10,2) DEFAULT NULL,
+  `gio_vuot_gd_khong_hd_duyet` decimal(10,2) DEFAULT NULL,
+  `tong_gio_butru_la_duyet` decimal(10,2) DEFAULT NULL,
+  `sl_huongdan_la_conlai_duyet` int unsigned DEFAULT NULL,
+  `tong_gio_butru_lv_duyet` decimal(10,2) DEFAULT NULL,
+  `sl_huongdan_lv_conlai_duyet` int unsigned DEFAULT NULL,
+  `tong_gio_butru_dakl_duyet` decimal(10,2) DEFAULT NULL,
+  `sl_huongdan_dakl_conlai_duyet` int unsigned DEFAULT NULL,
+  `tong_gio_butru_khcn_duyet` decimal(10,2) DEFAULT NULL,
+  `gio_khcn_conlai_duyet` decimal(10,2) DEFAULT NULL,
+  `tong_gio_butru_xatruong_duyet` decimal(10,2) DEFAULT NULL,
+  `gio_gdxatruong_conlai_duyet` decimal(10,2) DEFAULT NULL,
+  `gio_gd_hoanthanh_sau_butru_duyet` decimal(10,2) DEFAULT NULL,
+  `gio_khcn_hoanthanh_sau_butru_duyet` decimal(10,2) DEFAULT NULL,
+  `ket_qua_thua_thieu_gio_gd_duyet` decimal(10,2) DEFAULT NULL,
+  `ghi_chu_butru_duyet` text COLLATE utf8mb4_unicode_ci,
+  `tong_gio_thuc_hien_final_tam_tinh` decimal(10,2) DEFAULT NULL,
+  `tong_gio_thuc_hien_final_duyet` decimal(10,2) DEFAULT NULL,
+  `dinh_muc_ap_dung` decimal(10,2) DEFAULT NULL,
+  `phan_tram_mien_giam` decimal(5,2) DEFAULT NULL,
+  `ghi_chu_giang_vien` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `ghi_chu_quan_ly` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `thoi_gian_gui` timestamp NULL DEFAULT NULL,
+  `nguoi_duyet_bm_id` bigint unsigned DEFAULT NULL,
+  `thoi_gian_duyet_bm` timestamp NULL DEFAULT NULL,
+  `trang_thai_phe_duyet` tinyint NOT NULL DEFAULT '0' COMMENT '0: Nháp, 1: Chờ duyệt BM, 3: Đã duyệt BM, 4: BM Trả lại',
+  `ly_do_tu_choi` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ke_khai_tong_hop_nguoi_dung_hoc_ky_unique` (`nguoi_dung_id`,`hoc_ky_id`),
+  KEY `hoc_ky_id` (`hoc_ky_id`),
+  KEY `nguoi_duyet_bm_id` (`nguoi_duyet_bm_id`),
+  KEY `ke_khai_tong_hop_trang_thai_phe_duyet_index` (`trang_thai_phe_duyet`),
+  CONSTRAINT `ke_khai_tong_hop_ibfk_1` FOREIGN KEY (`nguoi_dung_id`) REFERENCES `nguoi_dung` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `ke_khai_tong_hop_ibfk_2` FOREIGN KEY (`hoc_ky_id`) REFERENCES `hoc_ky` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `ke_khai_tong_hop_ibfk_3` FOREIGN KEY (`nguoi_duyet_bm_id`) REFERENCES `nguoi_dung` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.ke_khai_tong_hop_nam_hoc
+CREATE TABLE IF NOT EXISTS `ke_khai_tong_hop_nam_hoc` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `nguoi_dung_id` bigint unsigned NOT NULL,
+  `nam_hoc_id` bigint unsigned NOT NULL,
+  `dinhmuc_gd_apdung` decimal(10,2) DEFAULT NULL COMMENT 'Định mức GD của GV cho năm học này',
+  `dinhmuc_khcn_apdung` decimal(10,2) DEFAULT NULL COMMENT 'Định mức KHCN của GV cho năm học này',
+  `phan_tram_mien_giam_tong` decimal(5,2) DEFAULT '0.00' COMMENT 'Tổng % miễn giảm của GV cho năm học này',
+  `tong_gio_gd_danhgia_tam_tinh` decimal(10,2) DEFAULT '0.00' COMMENT 'C4-I2: Giảng dạy trực tiếp, đánh giá, hội đồng (trừ HĐ ĐH), coi chấm thi (ThS,TS)',
+  `tong_sl_huongdan_la_tam_tinh` int unsigned DEFAULT '0' COMMENT 'C6-I2: Số lượng Luận án TS hướng dẫn',
+  `tong_sl_huongdan_lv_tam_tinh` int unsigned DEFAULT '0' COMMENT 'C7-I2: Số lượng Luận văn ThS hướng dẫn',
+  `tong_sl_huongdan_dakl_tam_tinh` int unsigned DEFAULT '0' COMMENT 'C8-I2: Số lượng ĐA/KL ĐH hướng dẫn',
+  `tong_gio_huongdan_quydoi_tam_tinh` decimal(10,2) DEFAULT '0.00' COMMENT 'C9-I2: Giờ quy đổi từ các loại hướng dẫn',
+  `tong_gio_khcn_kekhai_tam_tinh` decimal(10,2) DEFAULT '0.00' COMMENT 'C1-I2: Tổng giờ NCKH giảng viên kê khai',
+  `tong_gio_congtackhac_quydoi_tam_tinh` decimal(10,2) DEFAULT '0.00' COMMENT 'C2-I2: Tổng giờ công tác khác GV kê khai',
+  `tong_gio_coithi_chamthi_dh_tam_tinh` decimal(10,2) DEFAULT '0.00' COMMENT 'C3-I2: Tổng giờ coi thi, chấm thi Đại học',
+  `tong_gio_giangday_final_tam_tinh` decimal(10,2) DEFAULT '0.00' COMMENT 'C11-I2: (GD&ĐG) + (HD QĐ)',
+  `tong_gio_gdxatruong_tam_tinh` decimal(10,2) DEFAULT '0.00' COMMENT 'C12-I2: Tổng giờ từ kê khai GD xa trường',
+  `gio_gd_danhgia_xet_dinhmuc_tam_tinh` decimal(10,2) DEFAULT '0.00' COMMENT 'C4-I1: Giờ GD&ĐG dùng để so với định mức GD',
+  `gio_khcn_thuchien_xet_dinhmuc_tam_tinh` decimal(10,2) DEFAULT '0.00' COMMENT 'C3-I1: Giờ NCKH đã thực hiện',
+  `gio_gdxatruong_xet_dinhmuc_tam_tinh` decimal(10,2) DEFAULT '0.00' COMMENT 'C5-I1: Giờ GD xa trường',
+  `gio_vuot_gd_khong_hd_tam_tinh` decimal(10,2) DEFAULT '0.00' COMMENT 'Cột "Số tiết vượt" Mục I.1 (GD&ĐG - Định mức GD)',
+  `tong_gio_butru_la_tam_tinh` decimal(10,2) DEFAULT '0.00',
+  `sl_huongdan_la_conlai_tam_tinh` int unsigned DEFAULT '0',
+  `tong_gio_butru_lv_tam_tinh` decimal(10,2) DEFAULT '0.00',
+  `sl_huongdan_lv_conlai_tam_tinh` int unsigned DEFAULT '0',
+  `tong_gio_butru_dakl_tam_tinh` decimal(10,2) DEFAULT '0.00',
+  `sl_huongdan_dakl_conlai_tam_tinh` int unsigned DEFAULT '0',
+  `tong_gio_butru_khcn_tam_tinh` decimal(10,2) DEFAULT '0.00',
+  `gio_khcn_conlai_sau_butru_tam_tinh` decimal(10,2) DEFAULT '0.00',
+  `gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh` decimal(10,2) DEFAULT '0.00' COMMENT 'Giờ KHCN hoàn thành so với định mức (thực hiện - định mức KHCN, có thể âm) - Tạm tính',
+  `tong_gio_butru_xatruong_tam_tinh` decimal(10,2) DEFAULT '0.00',
+  `gio_gdxatruong_conlai_sau_butru_tam_tinh` decimal(10,2) DEFAULT '0.00',
+  `gio_gd_hoanthanh_sau_butru_tam_tinh` decimal(10,2) DEFAULT '0.00' COMMENT 'Cột "Hoàn thành GD" Mục I.1',
+  `gio_khcn_hoanthanh_sau_butru_tam_tinh` decimal(10,2) DEFAULT '0.00' COMMENT 'Cột "Hoàn thành KHCN" Mục I.1',
+  `ket_qua_thua_thieu_gio_gd_tam_tinh` decimal(10,2) DEFAULT '0.00' COMMENT 'Cột "Thừa/thiếu" Mục I.1',
+  `ghi_chu_butru_tam_tinh` text COLLATE utf8mb4_unicode_ci,
+  `tong_gio_thuc_hien_final_tam_tinh` decimal(10,2) DEFAULT '0.00' COMMENT 'Tổng giờ cuối cùng được công nhận (sau bù trừ, cộng dồn các loại hình)',
+  `tong_gio_gd_danhgia_duyet` decimal(10,2) DEFAULT NULL,
+  `tong_sl_huongdan_la_duyet` int unsigned DEFAULT NULL,
+  `tong_sl_huongdan_lv_duyet` int unsigned DEFAULT NULL,
+  `tong_sl_huongdan_dakl_duyet` int unsigned DEFAULT NULL,
+  `tong_gio_huongdan_quydoi_duyet` decimal(10,2) DEFAULT NULL,
+  `tong_gio_khcn_kekhai_duyet` decimal(10,2) DEFAULT NULL,
+  `tong_gio_congtackhac_quydoi_duyet` decimal(10,2) DEFAULT NULL,
+  `tong_gio_coithi_chamthi_dh_duyet` decimal(10,2) DEFAULT NULL,
+  `tong_gio_giangday_final_duyet` decimal(10,2) DEFAULT NULL,
+  `tong_gio_gdxatruong_duyet` decimal(10,2) DEFAULT NULL,
+  `dinhmuc_gd_apdung_duyet` decimal(10,2) DEFAULT NULL,
+  `dinhmuc_khcn_apdung_duyet` decimal(10,2) DEFAULT NULL,
+  `gio_gd_danhgia_xet_dinhmuc_duyet` decimal(10,2) DEFAULT NULL,
+  `gio_khcn_thuchien_xet_dinhmuc_duyet` decimal(10,2) DEFAULT NULL,
+  `gio_gdxatruong_xet_dinhmuc_duyet` decimal(10,2) DEFAULT NULL,
+  `gio_vuot_gd_khong_hd_duyet` decimal(10,2) DEFAULT NULL,
+  `tong_gio_butru_la_duyet` decimal(10,2) DEFAULT NULL,
+  `sl_huongdan_la_conlai_duyet` int unsigned DEFAULT NULL,
+  `tong_gio_butru_lv_duyet` decimal(10,2) DEFAULT NULL,
+  `sl_huongdan_lv_conlai_duyet` int unsigned DEFAULT NULL,
+  `tong_gio_butru_dakl_duyet` decimal(10,2) DEFAULT NULL,
+  `sl_huongdan_dakl_conlai_duyet` int unsigned DEFAULT NULL,
+  `tong_gio_butru_khcn_duyet` decimal(10,2) DEFAULT NULL,
+  `gio_khcn_conlai_sau_butru_duyet` decimal(10,2) DEFAULT NULL,
+  `gio_khcn_hoanthanh_so_voi_dinhmuc_duyet` decimal(10,2) DEFAULT NULL COMMENT 'Giờ KHCN hoàn thành so với định mức - Đã duyệt',
+  `tong_gio_butru_xatruong_duyet` decimal(10,2) DEFAULT NULL,
+  `gio_gdxatruong_conlai_sau_butru_duyet` decimal(10,2) DEFAULT NULL,
+  `gio_gd_hoanthanh_sau_butru_duyet` decimal(10,2) DEFAULT NULL,
+  `gio_khcn_hoanthanh_sau_butru_duyet` decimal(10,2) DEFAULT NULL,
+  `ket_qua_thua_thieu_gio_gd_duyet` decimal(10,2) DEFAULT NULL,
+  `ghi_chu_butru_duyet` text COLLATE utf8mb4_unicode_ci,
+  `tong_gio_thuc_hien_final_duyet` decimal(10,2) DEFAULT NULL,
+  `ghi_chu_giang_vien` text COLLATE utf8mb4_unicode_ci,
+  `ghi_chu_quan_ly` text COLLATE utf8mb4_unicode_ci,
+  `thoi_gian_gui` timestamp NULL DEFAULT NULL,
+  `nguoi_duyet_bm_id` bigint unsigned DEFAULT NULL,
+  `thoi_gian_duyet_bm` timestamp NULL DEFAULT NULL,
+  `trang_thai_phe_duyet` tinyint NOT NULL DEFAULT '0' COMMENT '0: Nháp, 1: Chờ duyệt BM, 3: Đã duyệt BM, 4: BM Trả lại',
+  `ly_do_tu_choi` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_kekhai_gv_namhoc` (`nguoi_dung_id`,`nam_hoc_id`),
+  KEY `nam_hoc_id` (`nam_hoc_id`),
+  KEY `nguoi_duyet_bm_id` (`nguoi_duyet_bm_id`),
+  KEY `idx_kekhai_trangthai` (`trang_thai_phe_duyet`),
+  CONSTRAINT `ke_khai_tong_hop_nam_hoc_ibfk_1` FOREIGN KEY (`nguoi_dung_id`) REFERENCES `nguoi_dung` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `ke_khai_tong_hop_nam_hoc_ibfk_2` FOREIGN KEY (`nam_hoc_id`) REFERENCES `nam_hoc` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `ke_khai_tong_hop_nam_hoc_ibfk_3` FOREIGN KEY (`nguoi_duyet_bm_id`) REFERENCES `nguoi_dung` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Bảng tổng hợp kê khai theo năm học';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.khoa
+CREATE TABLE IF NOT EXISTS `khoa` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ten_khoa` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ma_khoa` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mo_ta` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `khoa_ten_khoa_unique` (`ten_khoa`),
+  UNIQUE KEY `khoa_ma_khoa_unique` (`ma_khoa`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.lich_su_phe_duyet
+CREATE TABLE IF NOT EXISTS `lich_su_phe_duyet` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ke_khai_tong_hop_nam_hoc_id` bigint unsigned NOT NULL,
+  `nguoi_thuc_hien_id` bigint unsigned NOT NULL,
+  `hanh_dong` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `trang_thai_truoc` tinyint DEFAULT NULL,
+  `trang_thai_sau` tinyint NOT NULL,
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `thoi_gian_thuc_hien` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ke_khai_tong_hop_nam_hoc_id` (`ke_khai_tong_hop_nam_hoc_id`),
+  KEY `nguoi_thuc_hien_id` (`nguoi_thuc_hien_id`),
+  CONSTRAINT `lich_su_phe_duyet_ibfk_1` FOREIGN KEY (`ke_khai_tong_hop_nam_hoc_id`) REFERENCES `ke_khai_tong_hop_nam_hoc` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `lich_su_phe_duyet_ibfk_2` FOREIGN KEY (`nguoi_thuc_hien_id`) REFERENCES `nguoi_dung` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.luong_giang_vien
+CREATE TABLE IF NOT EXISTS `luong_giang_vien` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `nguoi_dung_id` bigint unsigned NOT NULL,
+  `nam_hoc_id` bigint unsigned NOT NULL,
+  `muc_luong_co_ban` decimal(15,2) DEFAULT NULL COMMENT 'Mức lương cơ bản/tháng hoặc /năm tùy quy định',
+  `tong_gio_chuan_thuc_hien` decimal(10,2) DEFAULT NULL COMMENT 'Lấy từ ke_khai_tong_hop_nam_hoc.tong_gio_thuc_hien_final_duyet',
+  `so_gio_vuot_muc` decimal(10,2) DEFAULT NULL COMMENT 'Tính toán dựa trên định mức và giờ thực hiện',
+  `don_gia_gio_vuot_muc` decimal(15,2) DEFAULT NULL COMMENT 'Admin cấu hình hoặc lấy từ quy định',
+  `tong_tien_luong_vuot_gio` decimal(15,2) DEFAULT NULL,
+  `thanh_tien_nam` decimal(15,2) DEFAULT NULL COMMENT 'Tổng thu nhập từ lương và vượt giờ trong năm',
+  `ghi_chu` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_luong_gv_namhoc` (`nguoi_dung_id`,`nam_hoc_id`),
+  KEY `nam_hoc_id` (`nam_hoc_id`),
+  CONSTRAINT `luong_giang_vien_ibfk_1` FOREIGN KEY (`nguoi_dung_id`) REFERENCES `nguoi_dung` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `luong_giang_vien_ibfk_2` FOREIGN KEY (`nam_hoc_id`) REFERENCES `nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.mien_giam_dinh_muc
+CREATE TABLE IF NOT EXISTS `mien_giam_dinh_muc` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `nguoi_dung_id` bigint unsigned NOT NULL,
+  `nam_hoc_id` bigint unsigned NOT NULL,
+  `ly_do_mien_giam` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phan_tram_mien_giam` decimal(5,2) NOT NULL,
+  `ghi_chu` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `mien_giam_dinh_muc_unique` (`nguoi_dung_id`,`nam_hoc_id`,`ly_do_mien_giam`(191)),
+  KEY `mien_giam_dinh_muc_nguoi_dung_id_foreign` (`nguoi_dung_id`),
+  KEY `mien_giam_dinh_muc_nam_hoc_id_foreign` (`nam_hoc_id`),
+  CONSTRAINT `mien_giam_dinh_muc_nam_hoc_id_foreign` FOREIGN KEY (`nam_hoc_id`) REFERENCES `nam_hoc` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `mien_giam_dinh_muc_nguoi_dung_id_foreign` FOREIGN KEY (`nguoi_dung_id`) REFERENCES `nguoi_dung` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.migrations
+CREATE TABLE IF NOT EXISTS `migrations` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `migration` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `batch` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.minh_chung
+CREATE TABLE IF NOT EXISTS `minh_chung` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `kekhai_nckh_nam_hoc_id` bigint unsigned NOT NULL,
+  `duong_dan` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ten_file` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ngay_tai_len` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `kekhai_nckh_nam_hoc_id` (`kekhai_nckh_nam_hoc_id`),
+  CONSTRAINT `minh_chung_ibfk_1` FOREIGN KEY (`kekhai_nckh_nam_hoc_id`) REFERENCES `kekhai_nckh_nam_hoc` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Minh chứng cho hoạt động NCKH';
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.nam_hoc
+CREATE TABLE IF NOT EXISTS `nam_hoc` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ten_nam_hoc` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ngay_bat_dau` date DEFAULT NULL,
+  `ngay_ket_thuc` date DEFAULT NULL,
+  `la_nam_hien_hanh` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `nam_hoc_ten_nam_hoc_unique` (`ten_nam_hoc`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.nguoi_dung
+CREATE TABLE IF NOT EXISTS `nguoi_dung` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ma_gv` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ho_ten` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `dien_thoai` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `hoc_ham` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Học hàm của giảng viên (GS, PGS)',
+  `hoc_vi` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Học vị của giảng viên (ThS, TS, TSKH)',
+  `bo_mon_id` bigint unsigned DEFAULT NULL,
+  `chuc_danh_id` bigint unsigned DEFAULT NULL,
+  `vai_tro` tinyint NOT NULL DEFAULT '3' COMMENT '1: Admin, 2: Manager, 3: Lecturer',
+  `trang_thai` tinyint NOT NULL DEFAULT '1' COMMENT '0: Inactive, 1: Active',
+  `email_verified_at` timestamp NULL DEFAULT NULL,
+  `remember_token` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `nguoi_dung_email_unique` (`email`),
+  UNIQUE KEY `nguoi_dung_ma_gv_unique` (`ma_gv`),
+  KEY `nguoi_dung_bo_mon_id_foreign` (`bo_mon_id`),
+  KEY `nguoi_dung_chuc_danh_id_foreign` (`chuc_danh_id`),
+  KEY `nguoi_dung_vai_tro_index` (`vai_tro`),
+  KEY `nguoi_dung_trang_thai_index` (`trang_thai`),
+  CONSTRAINT `nguoi_dung_bo_mon_id_foreign` FOREIGN KEY (`bo_mon_id`) REFERENCES `bo_mon` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `nguoi_dung_chuc_danh_id_foreign` FOREIGN KEY (`chuc_danh_id`) REFERENCES `chuc_danh_gv` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.notifications
+CREATE TABLE IF NOT EXISTS `notifications` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `nguoi_dung_id` bigint unsigned DEFAULT NULL,
+  `manager_id` bigint unsigned DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `message` text,
+  `sent_at` timestamp NULL DEFAULT NULL,
+  `read_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `nguoi_dung_id` (`nguoi_dung_id`),
+  KEY `manager_id` (`manager_id`),
+  CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`nguoi_dung_id`) REFERENCES `nguoi_dung` (`id`),
+  CONSTRAINT `notifications_ibfk_2` FOREIGN KEY (`manager_id`) REFERENCES `nguoi_dung` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=137 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.password_resets
+CREATE TABLE IF NOT EXISTS `password_resets` (
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.personal_access_tokens
+CREATE TABLE IF NOT EXISTS `personal_access_tokens` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `tokenable_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tokenable_id` bigint unsigned NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `abilities` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `last_used_at` timestamp NULL DEFAULT NULL,
+  `expires_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
+  KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=198 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.profile_change_histories
+CREATE TABLE IF NOT EXISTS `profile_change_histories` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint unsigned NOT NULL,
+  `field_name` varchar(255) NOT NULL,
+  `old_value` text,
+  `new_value` text,
+  `changed_by` varchar(255) NOT NULL,
+  `ip_address` varchar(255) DEFAULT NULL,
+  `user_agent` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`,`created_at`),
+  CONSTRAINT `profile_change_histories_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `nguoi_dung` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.thong_bao
+CREATE TABLE IF NOT EXISTS `thong_bao` (
+  `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `notifiable_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `notifiable_id` bigint unsigned NOT NULL,
+  `data` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `read_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `thong_bao_notifiable_index` (`notifiable_type`(191),`notifiable_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table klgd.users
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email_verified_at` timestamp NULL DEFAULT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `remember_token` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `users_email_unique` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+/*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
+/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;

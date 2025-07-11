@@ -11,23 +11,6 @@ import KeKhaiGiangDayForm from "../components/Lecturer/KeKhaiGiangDayForm";
 import ManagerStatistics from "../components/Manager/ManagerStatistics";
 import NotFound from '../pages/NotFound';
 
-// Wrapper component for KeKhaiHoatDong to handle navigation
-function KeKhaiHoatDongWrapper() {
-    const [searchParams] = useSearchParams();
-    const source = searchParams.get('source');
-    
-    // Custom navigation handler
-    const handleNavigation = () => {
-        if (source === 'dashboard') {
-            window.location.href = '/lecturer/dashboard';
-        } else {
-            window.location.href = '/lecturer/dashboard';
-        }
-    };
-
-    return <LecturerDashboard setActiveTab={handleNavigation} inDashboard={false} />;
-}
-
 function App() {
     return (
         <BrowserRouter>
@@ -39,12 +22,7 @@ function App() {
                 <Route path="/manager/dashboard" element={<ManagerDashboard />} />
                 <Route path="/lecturer/dashboard" element={<LecturerDashboard />} />
                 <Route path="/" element={<Login />} />
-                <Route
-                    path="/lecturer/ke-khai"
-                    element={<KeKhaiHoatDongWrapper />}
-                />
                 <Route path="/manager/statistics" element={<ManagerStatistics />} />
-                {/* 404 Page - catch all unmatched routes */}
                 <Route path="*" element={<NotFound />} />
             </Routes>
         </BrowserRouter>

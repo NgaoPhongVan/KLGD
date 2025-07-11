@@ -30,7 +30,7 @@ import {
     RadarChartOutlined,
     AreaChartOutlined,
     DotChartOutlined,
-    ClockCircleOutlined // Thêm import thiếu
+    ClockCircleOutlined 
 } from '@ant-design/icons';
 import { Bar, Pie, Line, Doughnut, Radar, PolarArea } from 'react-chartjs-2';
 import {
@@ -63,7 +63,7 @@ function ThongKe() {
     const [error, setError] = useState(null);
 
     const [namHocList, setNamHocList] = useState([]);
-    const [selectedNamHocId, setSelectedNamHocId] = useState(""); // ID của năm học được chọn để xem chi tiết
+    const [selectedNamHocId, setSelectedNamHocId] = useState("");
 
     const [statisticsOverview, setStatisticsOverview] = useState([]); // Dữ liệu cho bảng tổng quan các năm
     const [overallSummary, setOverallSummary] = useState(null); // Dữ liệu tóm tắt chung
@@ -99,11 +99,10 @@ function ThongKe() {
                 setSelectedNamHocId(currentNamHoc.id.toString());
             } else if (response.data.statistics_by_year?.length > 0 && !selectedNamHocId) {
                 // Nếu không có năm hiện hành, chọn năm đầu tiên trong danh sách thống kê
-                //setSelectedNamHocId(response.data.statistics_by_year[0].nam_hoc_id.toString());
+                setSelectedNamHocId(response.data.statistics_by_year[0].nam_hoc_id.toString());
             }
 
         } catch (err) {
-            console.error("Lỗi tải thống kê tổng quan:", err);
             setError(err.response?.data?.message || "Không thể tải dữ liệu thống kê.");
             message.error(err.response?.data?.message || "Lỗi tải dữ liệu tổng quan.");
         } finally {
@@ -125,8 +124,7 @@ function ThongKe() {
             });
             setSelectedYearData(response.data);
         } catch (err) {
-            console.error(`Lỗi tải chi tiết năm học ${namHocId}:`, err);
-            setSelectedYearData(null); // Reset nếu lỗi
+            setSelectedYearData(null);
             message.error(err.response?.data?.message || `Lỗi tải chi tiết năm học.`);
         } finally {
             setIsLoadingYearDetail(false);
@@ -134,7 +132,6 @@ function ThongKe() {
     };
 
     const getTrangThaiText = (trangThai) => {
-        // ...existing code...
         switch (trangThai) {
             case 3: return "Đã duyệt";
             case 2: return "Từ chối";
@@ -144,8 +141,8 @@ function ThongKe() {
             default: return "Không xác định";
         }
     };
+
      const getTrangThaiTag = (trangThai) => {
-        // ...existing code...
         switch (trangThai) {
             case 3: return <Tag color="success" icon={<CheckCircleOutlined />}>{getTrangThaiText(trangThai)}</Tag>;
             case 2: return <Tag color="error" icon={<CloseCircleOutlined />}>{getTrangThaiText(trangThai)}</Tag>;
@@ -155,7 +152,6 @@ function ThongKe() {
             default: return <Tag color="default">{getTrangThaiText(trangThai)}</Tag>;
         }
     };
-
 
     const overviewColumns = [
         { title: 'Năm học', dataIndex: 'nam_hoc', key: 'nam_hoc', width: 150, fixed: 'left' },
@@ -208,7 +204,7 @@ function ThongKe() {
             render: (text) => <Text type={text >=0 ? 'success' : 'danger'} strong>{parseFloat(text || 0).toFixed(2)}</Text>
         },
         {
-            title: 'Hoàn thành KHCN so với ĐM', dataIndex: 'hoan_thanh_khcn_so_voi_dm', key: 'hoan_thanh_khcn_so_voi_dm', width: 200, align: 'center',
+            title: 'Hoàn thành KHCN so với Đ.Mức', dataIndex: 'hoan_thanh_khcn_so_voi_dm', key: 'hoan_thanh_khcn_so_voi_dm', width: 200, align: 'center',
             render: (text) => <Text type={text >=0 ? 'success' : 'danger'} strong>{parseFloat(text || 0).toFixed(2)}</Text>
         },
     ];
@@ -243,8 +239,8 @@ function ThongKe() {
                     data: sortedStats.map(item => item.ty_le_hoanthanh_gd),
                     borderColor: 'rgb(255, 159, 64)',
                     backgroundColor: 'rgba(255, 159, 64, 0.2)',
-                    type: 'bar', // Có thể là bar hoặc line
-                    yAxisID: 'y1', // Trục y thứ 2
+                    type: 'bar', 
+                    yAxisID: 'y1', 
                 },
             ],
         };
@@ -265,7 +261,6 @@ function ThongKe() {
         },
     };
 
-
     const yearlyDetailChartData = useMemo(() => {
         if (!selectedYearData || !selectedYearData.chi_tiet_gio) return { labels: [], datasets: [] };
         return selectedYearData.chi_tiet_gio;
@@ -280,19 +275,19 @@ function ThongKe() {
             tooltip: { callbacks: { label: (c) => `${c.label}: ${c.raw.toFixed(2)} giờ (${((c.raw / c.dataset.data.reduce((a,b)=>a+b,0)) * 100).toFixed(1)}%)`}}
         },
     };
-     const yearlyBarOptions = {
+
+    const yearlyBarOptions = {
         responsive: true,
         maintainAspectRatio: false,
         indexAxis: 'y',
         plugins: {
-            legend: { display: false }, // Có thể ẩn legend nếu chỉ có 1 dataset
+            legend: { display: false }, 
             title: { display: true, text: `Chi tiết Giờ chuẩn Năm học ${selectedYearData?.nam_hoc || ''}` },
-             tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.raw.toFixed(2)} giờ`}}
+            tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.raw.toFixed(2)} giờ`}}
         },
         scales: { x: { beginAtZero: true, title: {display: true, text: 'Giờ chuẩn'} } }
     };
 
-    // Thêm các chart data mới
     const performanceRadarData = useMemo(() => {
         if (!selectedYearData || !selectedYearData.chi_tiet_gio) return { labels: [], datasets: [] };
         
@@ -302,6 +297,7 @@ function ThongKe() {
         
         // Tính toán tỷ lệ phần trăm cho radar chart
         const maxValue = Math.max(...values);
+        // const total = values.reduce((sum, val) => sum + val, 0);
         const percentageData = values.map(val => (val / maxValue) * 100);
         
         return {
@@ -365,9 +361,11 @@ function ThongKe() {
     const efficiencyDoughnutData = useMemo(() => {
         if (!selectedYearData) return { labels: [], datasets: [] };
         
-        const completion = parseFloat(selectedYearData.ty_le_hoanthanh_gd || 0);
+        const datas = statisticsOverview[0];
+        const completion = parseFloat(datas.ty_le_hoanthanh_gd || 0);
         const remaining = Math.max(0, 100 - completion);
-        
+        // console.log("Completion:", completion, "Remaining:", remaining);
+        // console.log("Selected Year Data:", statisticsOverview);
         // Xử lý trường hợp tỷ lệ > 100%
         const displayCompletion = Math.min(completion, 100);
         const displayRemaining = Math.max(0, 100 - displayCompletion);
@@ -423,7 +421,6 @@ function ThongKe() {
         };
     }, [statisticsOverview]);
 
-    // Chart options
     const radarOptions = {
         responsive: true,
         maintainAspectRatio: false,
@@ -465,7 +462,7 @@ function ThongKe() {
             tooltip: {
                 callbacks: {
                     label: (context) => {
-                        const actualCompletion = parseFloat(selectedYearData?.ty_le_hoanthanh_gd || 0);
+                        const actualCompletion = parseFloat(statisticsOverview[0]?.ty_le_hoanthanh_gd || 0);
                         if (context.dataIndex === 0) {
                             return `Đã hoàn thành: ${actualCompletion.toFixed(1)}%`;
                         } else {
@@ -499,197 +496,42 @@ function ThongKe() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40 flex items-center justify-center overflow-hidden relative">
-                {/* Enhanced Background Decorations */}
-                <div className="absolute inset-0 overflow-hidden">
-                    <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-r from-indigo-400/6 to-blue-400/6 rounded-full blur-3xl animate-float"></div>
-                    <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-r from-emerald-400/6 to-green-400/6 rounded-full blur-3xl animate-float-delayed"></div>
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[32rem] h-[32rem] bg-gradient-to-r from-purple-400/4 to-pink-400/4 rounded-full blur-3xl animate-pulse"></div>
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 relative overflow-hidden flex items-center justify-center">
+                <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-blue-400/10 to-indigo-400/10 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-purple-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
                 </div>
 
-                {/* Enhanced Loading Card */}
-                <div className="relative z-10">
-                    <div className="bg-white/95 backdrop-blur-xl shadow-2xl rounded-3xl p-12 border border-white/30 max-w-lg w-full mx-4 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-br from-white/70 to-transparent pointer-events-none"></div>
+                <div className="relative z-10 text-center space-y-8">
+                    <div className="relative">
+                        <div className="w-24 h-24 bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 rounded-3xl shadow-2xl flex items-center justify-center mx-auto mb-6 animate-bounce">
+                            <BarChartOutlined className="text-4xl text-white" />
+                        </div>
                         
-                        {/* Animated background pattern */}
-                        <div className="absolute inset-0 opacity-5">
-                            <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full -mr-20 -mt-20 animate-spin-slow"></div>
-                            <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-br from-emerald-500 to-green-500 rounded-full -ml-16 -mb-16 animate-bounce-slow"></div>
-                        </div>
+                        <div className="absolute -top-2 -right-8 w-4 h-4 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full animate-ping"></div>
+                        <div className="absolute -bottom-2 -left-8 w-3 h-3 bg-gradient-to-r from-orange-400 to-red-500 rounded-full animate-pulse delay-300"></div>
+                    </div>
 
-                        <div className="relative z-10 flex flex-col items-center">
-                            {/* Enhanced Multi-layered Loading Animation */}
-                            <div className="relative mb-8">
-                                <div className="w-32 h-32 relative flex justify-center items-center">
-                                    {/* Outer ring with activity status dots */}
-                                    <div className="absolute w-full h-full">
-                                        <div className="w-full h-full border-4 border-indigo-200/30 rounded-full relative">
-                                            <div className="absolute w-3.5 h-3.5 bg-emerald-500 rounded-full top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-ping"></div>
-                                            <div className="absolute w-3 h-3 bg-amber-500 rounded-full top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
-                                            <div className="absolute w-3.5 h-3.5 bg-blue-500 rounded-full bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 animate-bounce"></div>
-                                            <div className="absolute w-3 h-3 bg-purple-500 rounded-full top-1/2 left-0 transform -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
-                                        </div>
-                                    </div>
-                                    
-                                    {/* Middle rotating ring */}
-                                    <div className="absolute w-24 h-24 border-t-3 border-r-3 border-indigo-500 rounded-full animate-spin"></div>
-                                    
-                                    {/* Inner counter-rotating ring */}
-                                    <div className="absolute w-20 h-20 border-t-2 border-l-2 border-emerald-400 rounded-full animate-spin-reverse"></div>
-                                    
-                                    {/* Center icon with breathing effect */}
-                                    <div className="w-16 h-16 bg-gradient-to-tr from-indigo-600 via-blue-600 to-emerald-600 rounded-full shadow-2xl flex items-center justify-center animate-breathing">
-                                        <BarChartOutlined className="text-white text-xl animate-bounce-gentle" />
-                                    </div>
-                                </div>
-                            </div>
+                    <div className="space-y-4">
+                        <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-800 via-slate-700 to-gray-800 bg-clip-text text-transparent">
+                            Đang tải dữ liệu thống kê
+                        </h2>
+                        <p className="text-lg text-gray-600 max-w-md mx-auto">
+                            Vui lòng chờ trong giây lát, chúng tôi đang xử lý dữ liệu cho bạn...
+                        </p>
+                    </div>
 
-                            {/* Enhanced Loading Text with Animation */}
-                            <div className="text-center mb-8">
-                                <h3 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-blue-600 to-emerald-600 bg-clip-text text-transparent mb-3 animate-text-shimmer">
-                                    Đang tải dữ liệu thống kê
-                                </h3>
-                                <div className="flex items-center justify-center space-x-2 mb-4">
-                                    <div className="w-3 h-3 bg-indigo-500 rounded-full animate-bounce-1"></div>
-                                    <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce-2"></div>
-                                    <div className="w-3 h-3 bg-emerald-500 rounded-full animate-bounce-3"></div>
-                                </div>
-                                <p className="text-gray-600 text-sm leading-relaxed max-w-sm mx-auto animate-fade-in-up">
-                                    Đang xử lý và phân tích dữ liệu khối lượng công việc
-                                </p>
-                            </div>
+                    <div className="flex justify-center space-x-2">
+                        <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
+                        <div className="w-3 h-3 bg-indigo-500 rounded-full animate-bounce delay-100"></div>
+                        <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce delay-200"></div>
+                        <div className="w-3 h-3 bg-pink-500 rounded-full animate-bounce delay-300"></div>
+                    </div>
 
-                            {/* Enhanced Progress Steps */}
-                            <div className="w-full space-y-4 mb-6">
-                                <div className="flex items-center space-x-3 animate-slide-in-left">
-                                    <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center animate-check-mark">
-                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </div>
-                                    <span className="text-sm text-gray-700 font-medium">Tải dữ liệu thống kê tổng quan</span>
-                                </div>
-                                
-                                <div className="flex items-center space-x-3 animate-slide-in-left animation-delay-300">
-                                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center animate-spin-pulse">
-                                        <BarChartOutlined className="text-white text-xs" />
-                                    </div>
-                                    <span className="text-sm text-gray-700 font-medium">Tạo biểu đồ và phân tích</span>
-                                </div>
-                                
-                                <div className="flex items-center space-x-3 animate-slide-in-left animation-delay-600">
-                                    <div className="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center animate-spin-pulse">
-                                        <CalendarOutlined className="text-white text-xs" />
-                                    </div>
-                                    <span className="text-sm text-gray-700 font-medium">Khởi tạo dashboard</span>
-                                </div>
-                            </div>
-
-                            {/* Enhanced Progress Bar */}
-                            <div className="w-full">
-                                <div className="h-3 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 rounded-full overflow-hidden shadow-inner">
-                                    <div className="h-full bg-gradient-to-r from-indigo-600 via-blue-500 via-emerald-500 to-green-500 rounded-full animate-loading-wave transform origin-left"></div>
-                                </div>
-                                <div className="flex justify-between mt-3 text-xs text-gray-500">
-                                    <span className="animate-pulse">0%</span>
-                                    <span className="font-medium text-indigo-600 animate-pulse">Đang tải...</span>
-                                    <span className="animate-pulse">100%</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div className="w-64 h-2 bg-gray-200 rounded-full overflow-hidden mx-auto">
+                        <div className="h-full bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600 rounded-full animate-pulse"></div>
                     </div>
                 </div>
-
-                {/* Enhanced Loading Animation Styles */}
-                <style>{`
-                    @keyframes float {
-                        0%, 100% { transform: translateY(0px) rotate(0deg); }
-                        50% { transform: translateY(-30px) rotate(180deg); }
-                    }
-                    @keyframes float-delayed {
-                        0%, 100% { transform: translateY(0px) rotate(0deg); }
-                        50% { transform: translateY(-25px) rotate(-180deg); }
-                    }
-                    @keyframes spin-slow {
-                        from { transform: rotate(0deg); }
-                        to { transform: rotate(360deg); }
-                    }
-                    @keyframes bounce-slow {
-                        0%, 100% { transform: translateY(0); }
-                        50% { transform: translateY(-15px); }
-                    }
-                    @keyframes spin-reverse {
-                        from { transform: rotate(360deg); }
-                        to { transform: rotate(0deg); }
-                    }
-                    @keyframes breathing {
-                        0%, 100% { transform: scale(1); }
-                        50% { transform: scale(1.1); }
-                    }
-                    @keyframes bounce-gentle {
-                        0%, 100% { transform: translateY(0); }
-                        50% { transform: translateY(-6px); }
-                    }
-                    @keyframes text-shimmer {
-                        0% { background-position: -200% center; }
-                        100% { background-position: 200% center; }
-                    }
-                    @keyframes bounce-1 {
-                        0%, 100% { transform: translateY(0); }
-                        50% { transform: translateY(-12px); }
-                    }
-                    @keyframes bounce-2 {
-                        0%, 100% { transform: translateY(0); }
-                        50% { transform: translateY(-12px); }
-                    }
-                    @keyframes bounce-3 {
-                        0%, 100% { transform: translateY(0); }
-                        50% { transform: translateY(-12px); }
-                    }
-                    @keyframes fade-in-up {
-                        from { opacity: 0; transform: translateY(30px); }
-                        to { opacity: 1; transform: translateY(0); }
-                    }
-                    @keyframes slide-in-left {
-                        from { opacity: 0; transform: translateX(-50px); }
-                        to { opacity: 1; transform: translateX(0); }
-                    }
-                    @keyframes check-mark {
-                        0% { transform: scale(0); }
-                        50% { transform: scale(1.3); }
-                        100% { transform: scale(1); }
-                    }
-                    @keyframes spin-pulse {
-                        0%, 100% { transform: rotate(0deg) scale(1); }
-                        50% { transform: rotate(180deg) scale(1.2); }
-                    }
-                    @keyframes loading-wave {
-                        0% { transform: translateX(-100%) scaleX(0); }
-                        50% { transform: translateX(0%) scaleX(1); }
-                        100% { transform: translateX(100%) scaleX(0); }
-                    }
-                    .animate-float { animation: float 12s ease-in-out infinite; }
-                    .animate-float-delayed { animation: float-delayed 14s ease-in-out infinite; animation-delay: 1.5s; }
-                    .animate-spin-slow { animation: spin-slow 6s linear infinite; }
-                    .animate-bounce-slow { animation: bounce-slow 5s ease-in-out infinite; }
-                    .animate-spin-reverse { animation: spin-reverse 4s linear infinite; }
-                    .animate-breathing { animation: breathing 3s ease-in-out infinite; }
-                    .animate-bounce-gentle { animation: bounce-gentle 2s ease-in-out infinite; }
-                    .animate-text-shimmer { background-size: 200% auto; animation: text-shimmer 3s linear infinite; }
-                    .animate-bounce-1 { animation: bounce-1 1.8s ease-in-out infinite; }
-                    .animate-bounce-2 { animation: bounce-2 1.8s ease-in-out infinite; animation-delay: 0.15s; }
-                    .animate-bounce-3 { animation: bounce-3 1.8s ease-in-out infinite; animation-delay: 0.3s; }
-                    .animate-fade-in-up { animation: fade-in-up 1.5s ease-out; }
-                    .animate-slide-in-left { animation: slide-in-left 1.2s ease-out; }
-                    .animate-check-mark { animation: check-mark 1.3s ease-out; }
-                    .animate-spin-pulse { animation: spin-pulse 3s ease-in-out infinite; }
-                    .animate-loading-wave { animation: loading-wave 3.5s ease-in-out infinite; }
-                    .animation-delay-300 { animation-delay: 300ms; }
-                    .animation-delay-600 { animation-delay: 600ms; }
-                    .border-3 { border-width: 3px; }
-                    .shadow-inner { box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.1); }
-                `}</style>
             </div>
         );
     }
@@ -716,14 +558,12 @@ function ThongKe() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40 relative">
-            {/* Enhanced background decoration */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-blue-400/5 to-indigo-400/5 rounded-full blur-3xl"></div>
                 <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-purple-400/5 to-pink-400/5 rounded-full blur-3xl"></div>
             </div>
 
             <div className="relative z-10 p-8 space-y-6">
-                {/* Enhanced Header */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-blue-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center justify-between">
@@ -923,21 +763,16 @@ function ThongKe() {
                                             className="bg-white/90 backdrop-blur-sm border-gray-200/50 shadow-lg" 
                                             style={{ borderRadius: '12px', height: '100%' }}
                                         >
-                                            {selectedYearData ? (
+                                            {statisticsOverview ? (
                                                 <div style={{ height: '400px' }}>
                                                     <Doughnut data={efficiencyDoughnutData} options={doughnutOptions} />
-                                                    <div className="text-center mt-4">
-                                                        <Progress 
-                                                            percent={Math.round(selectedYearData.ty_le_hoanthanh_gd || 0)} 
-                                                            status={selectedYearData.ty_le_hoanthanh_gd >= 100 ? "success" : "active"}
-                                                            strokeColor={selectedYearData.ty_le_hoanthanh_gd >= 100 ? "#52c41a" : selectedYearData.ty_le_hoanthanh_gd >= 80 ? "#faad14" : "#ff4d4f"}
-                                                            format={(percent) => `${parseFloat(selectedYearData.ty_le_hoanthanh_gd || 0).toFixed(1)}%`}
+                                                    <Progress 
+                                                            percent={Math.round(statisticsOverview[0].ty_le_hoanthanh_gd || 0)} 
+                                                            status={statisticsOverview[0].ty_le_hoanthanh_gd >= 100 ? "success" : "active"}
+                                                            strokeColor={statisticsOverview[0].ty_le_hoanthanh_gd >= 100 ? "#52c41a" : statisticsOverview[0].ty_le_hoanthanh_gd >= 80 ? "#faad14" : "#ff4d4f"}
+                                                            format={(percent) => `${parseFloat(statisticsOverview[0].ty_le_hoanthanh_gd || 0).toFixed(1)}%`}
                                                             className="custom-progress"
                                                         />
-                                                        <Text type="secondary" style={{ display: 'block', marginTop: 8 }}>
-                                                            Năm học: {selectedYearData.nam_hoc}
-                                                        </Text>
-                                                    </div>
                                                 </div>
                                             ) : (
                                                 <div className="h-96 flex flex-col justify-center items-center">
@@ -1068,7 +903,7 @@ function ThongKe() {
                         <Table
                             columns={overviewColumns}
                             dataSource={statisticsOverview}
-                            rowKey="nam_hoc_id" // Hoặc một key duy nhất khác
+                            rowKey="nam_hoc_id" 
                             pagination={{ 
                                 pageSize: 5, 
                                 showSizeChanger: true, 
@@ -1089,15 +924,12 @@ function ThongKe() {
                     )}
                 </Card>
 
-                {/* Enhanced Custom Styles */}
                 <style>{`
-                    /* Enhanced Form Styling */
                     .enhanced-form .ant-form-item-label > label {
                         font-weight: 600 !important;
                         color: #374151 !important;
                     }
 
-                    /* Custom Select Styling */
                     .custom-select .ant-select-selector {
                         border-radius: 12px !important;
                         border: 1px solid #e2e8f0 !important;
@@ -1117,7 +949,6 @@ function ThongKe() {
                         box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
                     }
 
-                    /* Custom Button Styling */
                     .custom-button.ant-btn {
                         border-radius: 12px !important;
                         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
@@ -1139,7 +970,6 @@ function ThongKe() {
                         background: linear-gradient(135deg, #1d4ed8, #1e40af) !important;
                     }
 
-                    /* Custom Alert Styling */
                     .custom-alert.ant-alert {
                         border-radius: 12px !important;
                         border: none !important;
@@ -1147,7 +977,6 @@ function ThongKe() {
                         backdrop-filter: blur(8px) !important;
                     }
 
-                    /* Custom Tabs Styling */
                     .custom-tabs .ant-tabs-nav {
                         margin-bottom: 0 !important;
                     }
@@ -1183,7 +1012,6 @@ function ThongKe() {
                         outline: none !important;
                     }
 
-                    /* Enhanced Tab Label Styling */
                     .tab-label {
                         display: inline-flex !important;
                         align-items: center !important;
@@ -1198,7 +1026,6 @@ function ThongKe() {
                         margin-right: 0 !important;
                     }
 
-                    /* Responsive tabs */
                     @media (max-width: 768px) {
                         .custom-tabs .ant-tabs-tab {
                             min-width: 120px !important;
@@ -1227,7 +1054,6 @@ function ThongKe() {
                         }
                     }
 
-                    /* Custom Table Styling */
                     .custom-table .ant-table {
                         border-radius: 12px !important;
                         overflow: hidden !important;
@@ -1252,7 +1078,6 @@ function ThongKe() {
                         background: rgba(59, 130, 246, 0.05) !important;
                     }
 
-                    /* Custom Progress Styling */
                     .custom-progress .ant-progress-bg {
                         border-radius: 8px !important;
                     }
@@ -1261,7 +1086,6 @@ function ThongKe() {
                         border-radius: 8px !important;
                     }
 
-                    /* Tag Styling */
                     .ant-tag {
                         border-radius: 6px !important;
                         font-weight: 500 !important;
@@ -1270,7 +1094,6 @@ function ThongKe() {
                         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
                     }
 
-                    /* Statistic Styling */
                     .ant-statistic-title {
                         font-size: 13px !important;
                         color: #6b7280 !important;
@@ -1281,7 +1104,6 @@ function ThongKe() {
                         font-weight: 600 !important;
                     }
 
-                    /* Enhanced card styling */
                     .ant-card {
                         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
                     }
@@ -1291,7 +1113,6 @@ function ThongKe() {
                         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
                     }
 
-                    /* Empty state styling */
                     .ant-empty {
                         margin: 32px 0 !important;
                     }
@@ -1301,7 +1122,6 @@ function ThongKe() {
                         font-size: 14px !important;
                     }
 
-                    /* Pagination styling */
                     .ant-pagination {
                         margin-top: 24px !important;
                     }

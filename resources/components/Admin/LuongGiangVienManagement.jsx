@@ -471,12 +471,10 @@ function LuongGiangVienManagement() {
         const tongTienVuotGio = parseFloat(luong.tong_tien_luong_vuot_gio) || 0;
         const thanhTienNam = parseFloat(luong.thanh_tien_nam) || 0;
 
-        // If thanh_tien_nam is already calculated, use it
         if (thanhTienNam > 0) {
             return thanhTienNam;
         }
 
-        // Otherwise calculate: base salary + overtime pay
         const tienVuotGio = soGioVuot * donGiaGioVuot;
         const total = mucLuongCoBan + tienVuotGio;
 
@@ -605,14 +603,12 @@ function LuongGiangVienManagement() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40 relative">
-            {/* Enhanced background decoration */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-blue-400/5 to-indigo-400/5 rounded-full blur-3xl"></div>
                 <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-emerald-400/5 to-teal-400/5 rounded-full blur-3xl"></div>
             </div>
 
             <div className="relative z-10 p-8 space-y-6">
-                {/* Enhanced Header */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-6">
@@ -643,7 +639,6 @@ function LuongGiangVienManagement() {
                     </div>
                 </Card>
 
-                {/* Search and Filter Section - Pattern from BoMonManagement */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-blue-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
@@ -728,8 +723,7 @@ function LuongGiangVienManagement() {
                             </div>
                         )}
                     </div>
-                </Card>                {/* Form Section - rest of the component continues in the same pattern... */}
-                {/* For brevity, I'm including just the main structure. The full component follows the same pattern as other management components */}                {/* Form */}
+                </Card>                
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-emerald-50 via-green-50/50 to-teal-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
@@ -920,7 +914,6 @@ function LuongGiangVienManagement() {
                     </Form>
                 </Card>
 
-                {/* Import Section */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-orange-50 via-yellow-50/50 to-amber-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center justify-between">
@@ -989,7 +982,6 @@ function LuongGiangVienManagement() {
                     </Row>
                 </Card>
 
-                {/* Data Table */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-indigo-50 via-purple-50/50 to-pink-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center justify-between">
@@ -1105,7 +1097,6 @@ function LuongGiangVienManagement() {
                     )}
                 </Card>
 
-                {/* Delete Confirmation Modal */}
                 <Modal
                     title={
                         <div className="flex items-center space-x-3">
@@ -1135,7 +1126,7 @@ function LuongGiangVienManagement() {
                         Bạn có chắc chắn muốn xóa thông tin lương này? 
                         Hành động này không thể hoàn tác.
                     </p>
-                </Modal>                {/* Enhanced Custom Styles */}
+                </Modal>            
                 <style>{`
                     .custom-select .ant-select-selector {
                         border-radius: 8px !important;

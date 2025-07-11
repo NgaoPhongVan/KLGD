@@ -11,16 +11,14 @@ class MinhChung extends Model
     use HasFactory;
     protected $table = 'minh_chung';
     protected $fillable = [
-        'kekhai_nckh_nam_hoc_id', // Khóa ngoại trực tiếp
+        'kekhai_nckh_nam_hoc_id',
         'duong_dan',
         'ten_file',
         'ngay_tai_len',
-        // 'trang_thai_duyet', // Có thể không cần nếu duyệt NCKH dựa trên tổng giờ
     ];
 
     protected $casts = [
         'ngay_tai_len' => 'datetime',
-        // 'trang_thai_duyet' => 'boolean',
     ];
 
     public function kekhaiNckhNamHoc()
@@ -28,7 +26,6 @@ class MinhChung extends Model
         return $this->belongsTo(KekhaiNckhNamHoc::class, 'kekhai_nckh_nam_hoc_id');
     }
 
-    // Xóa file vật lý khi xóa bản ghi minh chứng
     protected static function boot()
     {
         parent::boot();

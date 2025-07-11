@@ -25,7 +25,6 @@ import {
     CloseOutlined,
     CheckCircleOutlined,
     CloseCircleOutlined,
-    TrophyOutlined,
 } from "@ant-design/icons";
 
 import KeKhaiGiangDayForm from "../components/Lecturer/KeKhaiGiangDayForm";
@@ -35,12 +34,12 @@ import KeHoachGiangDay from "../components/Lecturer/KeHoachGiangDay";
 
 const { Title, Text } = Typography;
 
-function LecturerDashboard() {
+function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = true, initialTab = "profile", keKhaiParams = null }) {
     const navigate = useNavigate();
     const [profile, setProfile] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [activeTab, setActiveTab] = useState("profile");
+    const [activeTab, setActiveTab] = useState(initialTab);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [welcomePopupVisible, setWelcomePopupVisible] = useState(false);
     const [welcomeAnimationComplete, setWelcomeAnimationComplete] =
@@ -49,9 +48,7 @@ function LecturerDashboard() {
     const [isEditingPhone, setIsEditingPhone] = useState(false);
     const [phoneForm] = Form.useForm();
     const [isUpdatingPhone, setIsUpdatingPhone] = useState(false);
-    const [achievementData, setAchievementData] = useState(null);
 
-    // Track if it's first load and handle popup timing
     useEffect(() => {
         if (!isLoading && !authChecking && profile) {
             const timer1 = setTimeout(() => {
@@ -226,1117 +223,69 @@ function LecturerDashboard() {
             setIsUpdatingPhone(false);
         }
     };
-
     const handleCancelPhoneEdit = () => {
         setIsEditingPhone(false);
         phoneForm.resetFields();
-    };
-
-    // Calculate achievement based on completion rate
-    const calculateAchievement = (thongKeData) => {
-        if (!Array.isArray(thongKeData) || thongKeData.length === 0) {
-            return {
-                level: "none",
-                title: "Chưa có dữ liệu",
-                description: "Hãy bắt đầu kê khai hoạt động",
-                completionRate: 0,
-                color: "gray",
-            };
-        }
-
-        // Calculate overall completion rate
-        const totalHours = thongKeData.reduce(
-            (sum, item) => sum + (parseFloat(item.tong_gio_chuan) || 0),
-            0
-        );
-        const totalStandard = thongKeData.reduce((sum, item) => {
-            const dinhMuc = parseFloat(item.dinh_muc_gio_chuan) || 0;
-            const phanTramMienGiam = parseFloat(item.phan_tram_mien_giam) || 0;
-            const gioMienGiam = dinhMuc * (phanTramMienGiam / 100);
-            return sum + (dinhMuc - gioMienGiam);
-        }, 0);
-
-        const completionRate =
-            totalStandard > 0 ? (totalHours / totalStandard) * 100 : 0;
-
-        if (completionRate >= 100) {
-            return {
-                level: "excellent",
-                title: "Hoàn thành xuất sắc",
-                description: "Bạn đã vượt định mức giờ chuẩn",
-                completionRate: completionRate,
-                color: "emerald",
-            };
-        } else if (completionRate >= 80) {
-            return {
-                level: "good",
-                title: "Đạt yêu cầu",
-                description: "Bạn đã hoàn thành tốt nhiệm vụ",
-                completionRate: completionRate,
-                color: "amber",
-            };
-        } else {
-            return {
-                level: "needs_improvement",
-                title: "Chưa đạt yêu cầu",
-                description: "Cần nỗ lực thêm để đạt định mục",
-                completionRate: completionRate,
-                color: "rose",
-            };
-        }
-    };
-
-    // Fetch achievement data when profile loads
+    }; // Load profile when component mounts
     useEffect(() => {
-        if (profile?.ma_gv) {
-            fetchAchievementData();
-        }
-    }, [profile?.ma_gv]);
+        // Profile is already loaded in the auth verification effect
+        // No need to load it again here
+    }, []);
 
-    const fetchAchievementData = async () => {
-        const token = localStorage.getItem("token");
-        try {
-            const response = await axios.get("/api/lecturer/thong-ke", {
-                headers: { Authorization: `Bearer ${token}` },
-                params: { ma_gv: profile?.ma_gv },
-            });
-            const achievement = calculateAchievement(response.data);
-            setAchievementData(achievement);
-        } catch (error) {
-            console.error("Error fetching achievement data:", error);
-            setAchievementData(calculateAchievement([]));
-        }
-    };
-
-    // Enhanced Achievement Badge Component
-    const AchievementBadge = ({ achievement, size = 120 }) => {
-        if (!achievement) return null;
-
-        const renderSVG = () => {
-            switch (achievement.level) {
-                case "excellent":
-                    return (
-                        <svg
-                            width={size}
-                            height={size}
-                            viewBox="0 0 120 120"
-                            className="achievement-badge"
-                        >
-                            <defs>
-                                <linearGradient
-                                    id="excellentGradient"
-                                    x1="0%"
-                                    y1="0%"
-                                    x2="100%"
-                                    y2="100%"
-                                >
-                                    <stop offset="0%" stopColor="#10b981" />
-                                    <stop offset="50%" stopColor="#059669" />
-                                    <stop offset="100%" stopColor="#047857" />
-                                </linearGradient>
-                                <linearGradient
-                                    id="excellentShine"
-                                    x1="0%"
-                                    y1="0%"
-                                    x2="100%"
-                                    y2="0%"
-                                >
-                                    <stop
-                                        offset="0%"
-                                        stopColor="rgba(255,255,255,0)"
-                                    />
-                                    <stop
-                                        offset="50%"
-                                        stopColor="rgba(255,255,255,0.8)"
-                                    />
-                                    <stop
-                                        offset="100%"
-                                        stopColor="rgba(255,255,255,0)"
-                                    />
-                                </linearGradient>
-                                <filter id="glow">
-                                    <feGaussianBlur
-                                        stdDeviation="3"
-                                        result="coloredBlur"
-                                    />
-                                    <feMerge>
-                                        <feMergeNode in="coloredBlur" />
-                                        <feMergeNode in="SourceGraphic" />
-                                    </feMerge>
-                                </filter>
-                            </defs>
-
-                            {/* Outer ring with animation */}
-                            <circle
-                                cx="60"
-                                cy="60"
-                                r="58"
-                                fill="none"
-                                stroke="url(#excellentGradient)"
-                                strokeWidth="3"
-                                opacity="0.3"
-                            >
-                                <animate
-                                    attributeName="stroke-dasharray"
-                                    values="0 365;365 0;0 365"
-                                    dur="3s"
-                                    repeatCount="indefinite"
-                                />
-                            </circle>
-
-                            {/* Main circle */}
-                            <circle
-                                cx="60"
-                                cy="60"
-                                r="50"
-                                fill="url(#excellentGradient)"
-                                filter="url(#glow)"
-                            />
-
-                            {/* Crown icon */}
-                            <g transform="translate(40, 35)">
-                                <path
-                                    d="M5 25L10 15L20 20L30 15L35 25L30 30L10 30Z"
-                                    fill="#fcd34d"
-                                    stroke="#f59e0b"
-                                    strokeWidth="1"
-                                />
-                                <circle cx="10" cy="15" r="3" fill="#f59e0b" />
-                                <circle cx="20" cy="12" r="4" fill="#f59e0b" />
-                                <circle cx="30" cy="15" r="3" fill="#f59e0b" />
-                                <path
-                                    d="M12 25L15 22L20 25L25 22L28 25"
-                                    stroke="#f59e0b"
-                                    strokeWidth="2"
-                                    fill="none"
-                                />
-                            </g>
-
-                            {/* Stars animation */}
-                            <g className="stars-animation">
-                                <circle cx="25" cy="25" r="2" fill="#fbbf24">
-                                    <animate
-                                        attributeName="opacity"
-                                        values="0;1;0"
-                                        dur="2s"
-                                        repeatCount="indefinite"
-                                    />
-                                </circle>
-                                <circle cx="95" cy="35" r="1.5" fill="#fbbf24">
-                                    <animate
-                                        attributeName="opacity"
-                                        values="0;1;0"
-                                        dur="2s"
-                                        begin="0.5s"
-                                        repeatCount="indefinite"
-                                    />
-                                </circle>
-                                <circle cx="85" cy="85" r="2" fill="#fbbf24">
-                                    <animate
-                                        attributeName="opacity"
-                                        values="0;1;0"
-                                        dur="2s"
-                                        begin="1s"
-                                        repeatCount="indefinite"
-                                    />
-                                </circle>
-                                <circle cx="20" cy="90" r="1.5" fill="#fbbf24">
-                                    <animate
-                                        attributeName="opacity"
-                                        values="0;1;0"
-                                        dur="2s"
-                                        begin="1.5s"
-                                        repeatCount="indefinite"
-                                    />
-                                </circle>
-                            </g>
-
-                            {/* Shine effect */}
-                            <rect
-                                x="0"
-                                y="0"
-                                width="120"
-                                height="120"
-                                fill="url(#excellentShine)"
-                                opacity="0"
-                            >
-                                <animate
-                                    attributeName="opacity"
-                                    values="0;0.6;0"
-                                    dur="2s"
-                                    repeatCount="indefinite"
-                                />
-                                <animateTransform
-                                    attributeName="transform"
-                                    type="translate"
-                                    values="-120 0;240 0;-120 0"
-                                    dur="2s"
-                                    repeatCount="indefinite"
-                                />
-                            </rect>
-                        </svg>
-                    );
-
-                case "good":
-                    return (
-                        <svg
-                            width={size}
-                            height={size}
-                            viewBox="0 0 120 120"
-                            className="achievement-badge"
-                        >
-                            <defs>
-                                <linearGradient
-                                    id="goodGradient"
-                                    x1="0%"
-                                    y1="0%"
-                                    x2="100%"
-                                    y2="100%"
-                                >
-                                    <stop offset="0%" stopColor="#f59e0b" />
-                                    <stop offset="50%" stopColor="#d97706" />
-                                    <stop offset="100%" stopColor="#b45309" />
-                                </linearGradient>
-                                <linearGradient
-                                    id="goodShine"
-                                    x1="0%"
-                                    y1="0%"
-                                    x2="100%"
-                                    y2="0%"
-                                >
-                                    <stop
-                                        offset="0%"
-                                        stopColor="rgba(255,255,255,0)"
-                                    />
-                                    <stop
-                                        offset="50%"
-                                        stopColor="rgba(255,255,255,0.6)"
-                                    />
-                                    <stop
-                                        offset="100%"
-                                        stopColor="rgba(255,255,255,0)"
-                                    />
-                                </linearGradient>
-                                <radialGradient
-                                    id="centerGlow"
-                                    cx="50%"
-                                    cy="50%"
-                                    r="50%"
-                                >
-                                    <stop offset="0%" stopColor="rgba(255,255,255,0.3)" />
-                                    <stop offset="70%" stopColor="rgba(255,255,255,0.1)" />
-                                    <stop offset="100%" stopColor="rgba(255,255,255,0)" />
-                                </radialGradient>
-                                <filter id="goodShadow">
-                                    <feDropShadow
-                                        dx="2"
-                                        dy="2"
-                                        stdDeviation="4"
-                                        floodColor="rgba(0,0,0,0.25)"
-                                    />
-                                </filter>
-                                <filter id="goodGlow">
-                                    <feGaussianBlur
-                                        stdDeviation="3"
-                                        result="coloredBlur"
-                                    />
-                                    <feMerge>
-                                        <feMergeNode in="coloredBlur" />
-                                        <feMergeNode in="SourceGraphic" />
-                                    </feMerge>
-                                </filter>
-                            </defs>
-
-                            {/* Rotating outer ring */}
-                            <circle
-                                cx="60"
-                                cy="60"
-                                r="56"
-                                fill="none"
-                                stroke="url(#goodGradient)"
-                                strokeWidth="2"
-                                opacity="0.4"
-                                strokeDasharray="8 4"
-                            >
-                                <animateTransform
-                                    attributeName="transform"
-                                    type="rotate"
-                                    values="0 60 60;360 60 60"
-                                    dur="10s"
-                                    repeatCount="indefinite"
-                                />
-                            </circle>
-
-                            {/* Main circle */}
-                            <circle
-                                cx="60"
-                                cy="60"
-                                r="48"
-                                fill="url(#goodGradient)"
-                                filter="url(#goodShadow)"
-                            />
-
-                            {/* Inner glow effect */}
-                            <circle
-                                cx="60"
-                                cy="60"
-                                r="48"
-                                fill="url(#centerGlow)"
-                            />
-
-                            {/* Large prominent thumbs up */}
-                            <g transform="translate(35, 30)">
-                                {/* Thumb base */}
-                                <path
-                                    d="M15 20L15 35L12 38L8 38L8 35L8 20L12 17L15 20Z"
-                                    fill="#fef3c7"
-                                    stroke="#f59e0b"
-                                    strokeWidth="2"
-                                    strokeLinejoin="round"
-                                />
-                                
-                                {/* Main thumb */}
-                                <path
-                                    d="M15 20L15 12C15 8 17 6 20 6C23 6 25 8 25 12L25 18L35 18C37 18 39 20 39 22L39 25C39 26.5 38 28 36.5 28.5L34 32L32 36L20 36C18 36 16 34 16 32L15 20Z"
-                                    fill="#fef3c7"
-                                    stroke="#f59e0b"
-                                    strokeWidth="2.5"
-                                    strokeLinejoin="round"
-                                />
-                                
-                                {/* Thumb highlight */}
-                                <ellipse
-                                    cx="25"
-                                    cy="22"
-                                    rx="6"
-                                    ry="4"
-                                    fill="rgba(255,255,255,0.4)"
-                                />
-                                
-                                {/* Thumb detail lines */}
-                                <path
-                                    d="M20 24L32 24M22 28L30 28"
-                                    stroke="#f59e0b"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                />
-                                
-                                {/* Wrist band detail */}
-                                <rect
-                                    x="8"
-                                    y="32"
-                                    width="7"
-                                    height="3"
-                                    rx="1.5"
-                                    fill="#f59e0b"
-                                />
-                            </g>
-
-                            {/* Floating success particles */}
-                            <g className="success-particles">
-                                <circle cx="25" cy="25" r="3" fill="#fbbf24" opacity="0.8">
-                                    <animate
-                                        attributeName="cy"
-                                        values="25;15;25"
-                                        dur="3s"
-                                        repeatCount="indefinite"
-                                    />
-                                    <animate
-                                        attributeName="opacity"
-                                        values="0.8;1;0.8"
-                                        dur="3s"
-                                        repeatCount="indefinite"
-                                    />
-                                </circle>
-                                
-                                <circle cx="95" cy="35" r="2.5" fill="#f59e0b" opacity="0.7">
-                                    <animate
-                                        attributeName="cy"
-                                        values="35;25;35"
-                                        dur="4s"
-                                        begin="1s"
-                                        repeatCount="indefinite"
-                                    />
-                                    <animate
-                                        attributeName="opacity"
-                                        values="0.7;1;0.7"
-                                        dur="4s"
-                                        begin="1s"
-                                        repeatCount="indefinite"
-                                    />
-                                </circle>
-                                
-                                <circle cx="90" cy="85" r="3.5" fill="#fcd34d" opacity="0.6">
-                                    <animate
-                                        attributeName="cy"
-                                        values="85;75;85"
-                                        dur="3.5s"
-                                        begin="2s"
-                                        repeatCount="indefinite"
-                                    />
-                                    <animate
-                                        attributeName="opacity"
-                                        values="0.6;1;0.6"
-                                        dur="3.5s"
-                                        begin="2s"
-                                        repeatCount="indefinite"
-                                    />
-                                </circle>
-                                
-                                <circle cx="20" cy="90" r="2" fill="#f59e0b" opacity="0.5">
-                                    <animate
-                                        attributeName="cy"
-                                        values="90;80;90"
-                                        dur="2.5s"
-                                        begin="0.5s"
-                                        repeatCount="indefinite"
-                                    />
-                                    <animate
-                                        attributeName="opacity"
-                                        values="0.5;0.9;0.5"
-                                        dur="2.5s"
-                                        begin="0.5s"
-                                        repeatCount="indefinite"
-                                    />
-                                </circle>
-                            </g>
-
-                            {/* Success burst effect */}
-                            <g className="success-burst" transform="translate(60, 60)">
-                                <g opacity="0">
-                                    <animate
-                                        attributeName="opacity"
-                                        values="0;1;0"
-                                        dur="2s"
-                                        repeatCount="indefinite"
-                                    />
-                                    <animateTransform
-                                        attributeName="transform"
-                                        type="scale"
-                                        values="0.8;1.2;0.8"
-                                        dur="2s"
-                                        repeatCount="indefinite"
-                                    />
-                                    
-                                    <path d="M0 -25L3 -8L20 -5L8 3L10 20L0 10L-10 20L-8 3L-20 -5L-3 -8Z" 
-                                          fill="none" 
-                                          stroke="#fbbf24" 
-                                          strokeWidth="2" 
-                                          opacity="0.6"/>
-                                </g>
-                            </g>
-
-                            {/* Pulse animation */}
-                            <circle
-                                cx="60"
-                                cy="60"
-                                r="48"
-                                fill="none"
-                                stroke="#f59e0b"
-                                strokeWidth="3"
-                                opacity="0"
-                            >
-                                <animate
-                                    attributeName="r"
-                                    values="48;58;48"
-                                    dur="2.5s"
-                                    repeatCount="indefinite"
-                                />
-                                <animate
-                                    attributeName="opacity"
-                                    values="0.8;0;0.8"
-                                    dur="2.5s"
-                                    repeatCount="indefinite"
-                                />
-                            </circle>
-
-                            {/* Shine effect */}
-                            <rect
-                                x="0"
-                                y="0"
-                                width="120"
-                                height="120"
-                                fill="url(#goodShine)"
-                                opacity="0"
-                            >
-                                <animate
-                                    attributeName="opacity"
-                                    values="0;0.7;0"
-                                    dur="3s"
-                                    repeatCount="indefinite"
-                                />
-                                <animateTransform
-                                    attributeName="transform"
-                                    type="translate"
-                                    values="-120 0;240 0;-120 0"
-                                    dur="3s"
-                                    repeatCount="indefinite"
-                                />
-                            </rect>
-                        </svg>
-                    );
-
-                case "needs_improvement":
-                    return (
-                        <svg
-                            width={size}
-                            height={size}
-                            viewBox="0 0 120 120"
-                            className="achievement-badge"
-                        >
-                            <defs>
-                                <linearGradient
-                                    id="improvementGradient"
-                                    x1="0%"
-                                    y1="0%"
-                                    x2="100%"
-                                    y2="100%"
-                                >
-                                    <stop offset="0%" stopColor="#f43f5e" />
-                                    <stop offset="50%" stopColor="#e11d48" />
-                                    <stop offset="100%" stopColor="#be123c" />
-                                </linearGradient>
-                                <linearGradient
-                                    id="improvementShine"
-                                    x1="0%"
-                                    y1="0%"
-                                    x2="100%"
-                                    y2="0%"
-                                >
-                                    <stop
-                                        offset="0%"
-                                        stopColor="rgba(255,255,255,0)"
-                                    />
-                                    <stop
-                                        offset="50%"
-                                        stopColor="rgba(255,255,255,0.6)"
-                                    />
-                                    <stop
-                                        offset="100%"
-                                        stopColor="rgba(255,255,255,0)"
-                                    />
-                                </linearGradient>
-                                <filter id="improvementGlow">
-                                    <feGaussianBlur
-                                        stdDeviation="2"
-                                        result="coloredBlur"
-                                    />
-                                    <feMerge>
-                                        <feMergeNode in="coloredBlur" />
-                                        <feMergeNode in="SourceGraphic" />
-                                    </feMerge>
-                                </filter>
-                            </defs>
-
-                            {/* Animated outer ring */}
-                            <circle
-                                cx="60"
-                                cy="60"
-                                r="55"
-                                fill="none"
-                                stroke="url(#improvementGradient)"
-                                strokeWidth="3"
-                                strokeDasharray="15 10"
-                                opacity="0.4"
-                            >
-                                <animateTransform
-                                    attributeName="transform"
-                                    type="rotate"
-                                    values="0 60 60;-360 60 60"
-                                    dur="8s"
-                                    repeatCount="indefinite"
-                                />
-                            </circle>
-
-                            {/* Main circle */}
-                            <circle
-                                cx="60"
-                                cy="60"
-                                r="45"
-                                fill="url(#improvementGradient)"
-                                filter="url(#improvementGlow)"
-                            />
-
-                            {/* Progress chart background */}
-                            <circle
-                                cx="60"
-                                cy="60"
-                                r="35"
-                                fill="none"
-                                stroke="rgba(255, 255, 255, 0.3)"
-                                strokeWidth="4"
-                            />
-
-                            {/* Animated progress indicator */}
-                            <circle
-                                cx="60"
-                                cy="60"
-                                r="35"
-                                fill="none"
-                                stroke="#fecaca"
-                                strokeWidth="4"
-                                strokeDasharray={`${Math.max(achievement.completionRate * 2.2, 20)} 220`}
-                                transform="rotate(-90 60 60)"
-                                strokeLinecap="round"
-                            >
-                                <animate
-                                    attributeName="stroke-dasharray"
-                                    values={`0 220;${Math.max(achievement.completionRate * 2.2, 20)} 220;${Math.max(achievement.completionRate * 2.2, 20)} 220`}
-                                    dur="2s"
-                                    repeatCount="indefinite"
-                                />
-                            </circle>
-
-                            {/* Upward trending arrow icon */}
-                            <g transform="translate(45, 30)">
-                                <path
-                                    d="M15 5L25 15L20 15L20 35L10 35L10 15L5 15Z"
-                                    fill="#fef2f2"
-                                    stroke="#fecaca"
-                                    strokeWidth="2"
-                                    strokeLinejoin="round"
-                                />
-                                
-                                {/* Arrow tip enhancement */}
-                                <circle cx="15" cy="5" r="3" fill="#fbbf24">
-                                    <animate
-                                        attributeName="r"
-                                        values="3;5;3"
-                                        dur="2s"
-                                        repeatCount="indefinite"
-                                    />
-                                </circle>
-                                
-                                {/* Growth lines */}
-                                <g stroke="#fecaca" strokeWidth="2" fill="none">
-                                    <path d="M8 20L12 16">
-                                        <animate
-                                            attributeName="opacity"
-                                            values="0;1;0"
-                                            dur="1.5s"
-                                            repeatCount="indefinite"
-                                        />
-                                    </path>
-                                    <path d="M18 25L22 21">
-                                        <animate
-                                            attributeName="opacity"
-                                            values="0;1;0"
-                                            dur="1.5s"
-                                            begin="0.5s"
-                                            repeatCount="indefinite"
-                                        />
-                                    </path>
-                                    <path d="M10 30L14 26">
-                                        <animate
-                                            attributeName="opacity"
-                                            values="0;1;0"
-                                            dur="1.5s"
-                                            begin="1s"
-                                            repeatCount="indefinite"
-                                        />
-                                    </path>
-                                </g>
-                            </g>
-
-                            {/* Motivational sparkles */}
-                            <g className="improvement-sparkles">
-                                <g transform="translate(25, 35)">
-                                    <path
-                                        d="M0 -8L2 -2L8 0L2 2L0 8L-2 2L-8 0L-2 -2Z"
-                                        fill="#fbbf24"
-                                    >
-                                        <animateTransform
-                                            attributeName="transform"
-                                            type="rotate"
-                                            values="0;360"
-                                            dur="3s"
-                                            repeatCount="indefinite"
-                                        />
-                                        <animate
-                                            attributeName="opacity"
-                                            values="0;1;0"
-                                            dur="2s"
-                                            repeatCount="indefinite"
-                                        />
-                                    </path>
-                                </g>
-                                
-                                <g transform="translate(85, 50)">
-                                    <path
-                                        d="M0 -6L1.5 -1.5L6 0L1.5 1.5L0 6L-1.5 1.5L-6 0L-1.5 -1.5Z"
-                                        fill="#f472b6"
-                                    >
-                                        <animateTransform
-                                            attributeName="transform"
-                                            type="rotate"
-                                            values="0;-360"
-                                            dur="4s"
-                                            repeatCount="indefinite"
-                                        />
-                                        <animate
-                                            attributeName="opacity"
-                                            values="0;1;0"
-                                            dur="2.5s"
-                                            begin="0.8s"
-                                            repeatCount="indefinite"
-                                        />
-                                    </path>
-                                </g>
-                                
-                                <g transform="translate(90, 85)">
-                                    <path
-                                        d="M0 -5L1 -1L5 0L1 1L0 5L-1 1L-5 0L-1 -1Z"
-                                        fill="#06d6a0"
-                                    >
-                                        <animateTransform
-                                            attributeName="transform"
-                                            type="rotate"
-                                            values="0;360"
-                                            dur="2.5s"
-                                            repeatCount="indefinite"
-                                        />
-                                        <animate
-                                            attributeName="opacity"
-                                            values="0;1;0"
-                                            dur="3s"
-                                            begin="1.2s"
-                                            repeatCount="indefinite"
-                                        />
-                                    </path>
-                                </g>
-                            </g>
-
-                            {/* Shine effect */}
-                            <rect
-                                x="0"
-                                y="0"
-                                width="120"
-                                height="120"
-                                fill="url(#improvementShine)"
-                                opacity="0"
-                            >
-                                <animate
-                                    attributeName="opacity"
-                                    values="0;0.4;0"
-                                    dur="3s"
-                                    repeatCount="indefinite"
-                                />
-                                <animateTransform
-                                    attributeName="transform"
-                                    type="translate"
-                                    values="-120 0;240 0;-120 0"
-                                    dur="3s"
-                                    repeatCount="indefinite"
-                                />
-                            </rect>
-                        </svg>
-                    );
-
-                default:
-                    return (
-                        <svg
-                            width={size}
-                            height={size}
-                            viewBox="0 0 120 120"
-                            className="achievement-badge"
-                        >
-                            <defs>
-                                <linearGradient
-                                    id="defaultGradient"
-                                    x1="0%"
-                                    y1="0%"
-                                    x2="100%"
-                                    y2="100%"
-                                >
-                                    <stop offset="0%" stopColor="#9ca3af" />
-                                    <stop offset="50%" stopColor="#6b7280" />
-                                    <stop offset="100%" stopColor="#4b5563" />
-                                </linearGradient>
-                                <linearGradient
-                                    id="defaultShine"
-                                    x1="0%"
-                                    y1="0%"
-                                    x2="100%"
-                                    y2="0%"
-                                >
-                                    <stop
-                                        offset="0%"
-                                        stopColor="rgba(255,255,255,0)"
-                                    />
-                                    <stop
-                                        offset="50%"
-                                        stopColor="rgba(255,255,255,0.3)"
-                                    />
-                                    <stop
-                                        offset="100%"
-                                        stopColor="rgba(255,255,255,0)"
-                                    />
-                                </linearGradient>
-                                <filter id="defaultShadow">
-                                    <feDropShadow
-                                        dx="1"
-                                        dy="1"
-                                        stdDeviation="2"
-                                        floodColor="rgba(0,0,0,0.2)"
-                                    />
-                                </filter>
-                            </defs>
-
-                            {/* Dotted outer ring */}
-                            <circle
-                                cx="60"
-                                cy="60"
-                                r="52"
-                                fill="none"
-                                stroke="url(#defaultGradient)"
-                                strokeWidth="2"
-                                strokeDasharray="5 5"
-                                opacity="0.5"
-                            >
-                                <animateTransform
-                                    attributeName="transform"
-                                    type="rotate"
-                                    values="0 60 60;360 60 60"
-                                    dur="10s"
-                                    repeatCount="indefinite"
-                                />
-                            </circle>
-
-                            {/* Main circle */}
-                            <circle
-                                cx="60"
-                                cy="60"
-                                r="42"
-                                fill="url(#defaultGradient)"
-                                filter="url(#defaultShadow)"
-                            />
-
-                            {/* Inner decorative circle */}
-                            <circle
-                                cx="60"
-                                cy="60"
-                                r="35"
-                                fill="none"
-                                stroke="rgba(255, 255, 255, 0.2)"
-                                strokeWidth="1"
-                                strokeDasharray="3 3"
-                            />
-
-                            {/* Book/learning icon */}
-                            <g transform="translate(42, 35)">
-                                {/* Book base */}
-                                <rect
-                                    x="2"
-                                    y="8"
-                                    width="32"
-                                    height="20"
-                                    rx="2"
-                                    fill="#f3f4f6"
-                                    stroke="#e5e7eb"
-                                    strokeWidth="1"
-                                />
-                                
-                                {/* Book spine */}
-                                <rect
-                                    x="2"
-                                    y="8"
-                                    width="4"
-                                    height="20"
-                                    fill="#d1d5db"
-                                />
-                                
-                                {/* Book pages */}
-                                <g stroke="#d1d5db" strokeWidth="1" fill="none">
-                                    <line x1="8" y1="13" x2="30" y2="13" />
-                                    <line x1="8" y1="16" x2="28" y2="16" />
-                                    <line x1="8" y1="19" x2="30" y2="19" />
-                                    <line x1="8" y1="22" x2="26" y2="22" />
-                                </g>
-                                
-                                {/* Book bookmark */}
-                                <rect
-                                    x="28"
-                                    y="5"
-                                    width="3"
-                                    height="8"
-                                    fill="#3b82f6"
-                                />
-                                <path
-                                    d="M28 13L29.5 11L31 13"
-                                    fill="#3b82f6"
-                                />
-
-                                {/* Floating question mark */}
-                                <g transform="translate(20, -5)">
-                                    <circle
-                                        cx="0"
-                                        cy="0"
-                                        r="6"
-                                        fill="#f9fafb"
-                                        stroke="#d1d5db"
-                                        strokeWidth="1"
-                                    >
-                                        <animate
-                                            attributeName="cy"
-                                            values="0;-3;0"
-                                            dur="2s"
-                                            repeatCount="indefinite"
-                                        />
-                                    </circle>
-                                    <text
-                                        x="0"
-                                        y="2"
-                                        textAnchor="middle"
-                                        fill="#6b7280"
-                                        fontSize="8"
-                                        fontWeight="bold"
-                                    >
-                                        ?
-                                    </text>
-                                </g>
-                            </g>
-
-                            {/* Gentle floating dots */}
-                            <g className="floating-dots">
-                                <circle cx="25" cy="30" r="2" fill="#d1d5db" opacity="0.6">
-                                    <animate
-                                        attributeName="cy"
-                                        values="30;25;30"
-                                        dur="3s"
-                                        repeatCount="indefinite"
-                                    />
-                                    <animate
-                                        attributeName="opacity"
-                                        values="0.6;1;0.6"
-                                        dur="3s"
-                                        repeatCount="indefinite"
-                                    />
-                                </circle>
-                                
-                                <circle cx="90" cy="40" r="1.5" fill="#9ca3af" opacity="0.4">
-                                    <animate
-                                        attributeName="cy"
-                                        values="40;35;40"
-                                        dur="4s"
-                                        begin="1s"
-                                        repeatCount="indefinite"
-                                    />
-                                    <animate
-                                        attributeName="opacity"
-                                        values="0.4;0.8;0.4"
-                                        dur="4s"
-                                        begin="1s"
-                                        repeatCount="indefinite"
-                                    />
-                                </circle>
-                                
-                                <circle cx="95" cy="80" r="2" fill="#d1d5db" opacity="0.5">
-                                    <animate
-                                        attributeName="cy"
-                                        values="80;75;80"
-                                        dur="3.5s"
-                                        begin="2s"
-                                        repeatCount="indefinite"
-                                    />
-                                    <animate
-                                        attributeName="opacity"
-                                        values="0.5;0.9;0.5"
-                                        dur="3.5s"
-                                        begin="2s"
-                                        repeatCount="indefinite"
-                                    />
-                                </circle>
-                                
-                                <circle cx="30" cy="85" r="1" fill="#9ca3af" opacity="0.3">
-                                    <animate
-                                        attributeName="cy"
-                                        values="85;80;85"
-                                        dur="2.5s"
-                                        begin="0.5s"
-                                        repeatCount="indefinite"
-                                    />
-                                    <animate
-                                        attributeName="opacity"
-                                        values="0.3;0.7;0.3"
-                                        dur="2.5s"
-                                        begin="0.5s"
-                                        repeatCount="indefinite"
-                                    />
-                                </circle>
-                            </g>
-
-                            {/* Gentle shine effect */}
-                            <rect
-                                x="0"
-                                y="0"
-                                width="120"
-                                height="120"
-                                fill="url(#defaultShine)"
-                                opacity="0"
-                            >
-                                <animate
-                                    attributeName="opacity"
-                                    values="0;0.3;0"
-                                    dur="4s"
-                                    repeatCount="indefinite"
-                                />
-                                <animateTransform
-                                    attributeName="transform"
-                                    type="translate"
-                                    values="-120 0;240 0;-120 0"
-                                    dur="4s"
-                                    repeatCount="indefinite"
-                                />
-                            </rect>
-
-                            {/* Encouraging text */}
-                            <text
-                                x="60"
-                                y="95"
-                                textAnchor="middle"
-                                fill="#f3f4f6"
-                                fontSize="8"
-                                fontWeight="500"
-                                fontFamily="system-ui"
-                            >
-                                Bắt đầu nào!
-                            </text>
-                        </svg>
-                    );
-            }
-        };
+    // Modern Avatar Component
+    const ModernAvatar = ({ name, size = 120 }) => {
+        const initial = name?.charAt(0)?.toUpperCase() || "M";
 
         return (
             <div className="relative group cursor-pointer">
-                <div className="transform transition-all duration-300 hover:scale-110 hover:rotate-6">
-                    {renderSVG()}
+                <div className="transform transition-all duration-300 hover:scale-105">
+                    <div
+                        className="relative rounded-full bg-gradient-to-br from-slate-100 to-slate-200 shadow-lg border-4 border-white overflow-hidden"
+                        style={{ width: size, height: size }}
+                    >
+                        {/* Subtle background pattern */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-indigo-50/30"></div>
+
+                        {/* Main gradient background */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-slate-600 via-slate-700 to-slate-800"></div>
+
+                        {/* Subtle top highlight */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-transparent"></div>
+
+                        {/* Initial letter */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <span
+                                className="text-white font-bold select-none"
+                                style={{ fontSize: `${size * 0.4}px` }}
+                            >
+                                {initial}
+                            </span>
+                        </div>
+
+                        {/* Hover effect overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/0 to-indigo-600/0 group-hover:from-blue-600/10 group-hover:to-indigo-600/10 transition-all duration-300"></div>
+                    </div>
+
+                    {/* Subtle outer ring on hover */}
+                    <div className="absolute inset-0 rounded-full border-2 border-blue-200/0 group-hover:border-blue-200/50 transition-all duration-300"></div>
                 </div>
 
-                {/* Tooltip */}
-                <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-white/95 backdrop-blur-xl shadow-xl rounded-xl py-3 px-4 text-sm text-gray-700 whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 z-50 border border-white/20">
+                {/* Clean tooltip */}
+                <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-white shadow-lg rounded-lg py-2 px-4 text-sm text-gray-700 whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-gray-100">
                     <div className="text-center">
-                        <div
-                            className={`font-bold text-${achievement.color}-700 mb-1`}
-                        >
-                            {achievement.title}
-                        </div>
-                        <div className="text-xs text-gray-600 mb-1">
-                            {achievement.description}
-                        </div>
-                        <div
-                            className={`text-xs font-semibold text-${achievement.color}-600`}
-                        >
-                            {achievement.completionRate.toFixed(1)}% hoàn thành
+                        <div className="font-medium text-slate-700">
+                            {name || "Quản lý"}
                         </div>
                     </div>
-                    {/* Arrow */}
-                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-white/95"></div>
+                    {/* Simple arrow */}
+                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1">
+                        <div className="w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-white"></div>
+                    </div>
                 </div>
             </div>
         );
     };
 
-    // Show loading while either auth check or profile loading is in progress
     if (authChecking || isLoading) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/20 to-blue-50/30 flex items-center justify-center overflow-hidden relative">
@@ -1582,32 +531,34 @@ function LecturerDashboard() {
                     {!sidebarCollapsed && <div className="mb-6 px-3"></div>}
 
                     <ul className="space-y-3">
-                        {[{
-                            id: "profile",
-                            label: "Thông tin cá nhân",
-                            icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z",
-                        },
-                        {
-                            id: "ke-khai",
-                            label: "Kê Khai",
-                            icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
-                        },
-                        {
-                            id: "ket-qua-ke-khai",
-                            label: "Kết quả kê khai",
-                            icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 100 4h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4",
-                        },
-                        {
-                            id: "thong-ke",
-                            label: "Thống kê",
-                            icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 100 4h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4",
-                        },
-                        {
-                            id: "ke-hoach-giang-day",
-                            label: "Kế hoạch giảng dạy",
-                            icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 100 4h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4",
-                        }
-                    ].map((item) => (
+                        {" "}
+                        {[
+                            {
+                                id: "profile",
+                                label: "Thông tin cá nhân",
+                                icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z",
+                            },
+                            {
+                                id: "ke-khai",
+                                label: "Kê khai hoạt động",
+                                icon: "M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z",
+                            },
+                            {
+                                id: "ket-qua-ke-khai",
+                                label: "Kết quả kê khai",
+                                icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+                            },
+                            {
+                                id: "thong-ke",
+                                label: "Thống kê",
+                                icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
+                            },
+                            {
+                                id: "ke-hoach-giang-day",
+                                label: "Kế hoạch giảng dạy",
+                                icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
+                            },
+                        ].map((item) => (
                             <li key={item.id}>
                                 <button
                                     onClick={() => setActiveTab(item.id)}
@@ -1801,11 +752,13 @@ function LecturerDashboard() {
                                                     ? "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                                                     : activeTab === "ke-khai"
                                                     ? "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                    : activeTab === "ket-qua-ke-khai"
+                                                    : activeTab ===
+                                                      "ket-qua-ke-khai"
                                                     ? "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 100 4h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
                                                     : activeTab === "thong-ke"
                                                     ? "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                                                    : activeTab === "ke-hoach-giang-day"
+                                                    : activeTab ===
+                                                      "ke-hoach-giang-day"
                                                     ? "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
                                                     : "M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"
                                             }
@@ -1821,6 +774,10 @@ function LecturerDashboard() {
                                             ? "Kê khai hoạt động"
                                             : activeTab === "ket-qua-ke-khai"
                                             ? "Kết quả kê khai"
+                                            : activeTab === "thong-ke"
+                                            ? "Thống kê"
+                                            : activeTab === "ke-hoach-giang-day"
+                                            ? "Kế hoạch giảng dạy"
                                             : "Dashboard"}
                                     </span>
                                     <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-indigo-600 to-blue-500 rounded-full"></div>
@@ -1901,12 +858,11 @@ function LecturerDashboard() {
                                         {/* Profile Avatar and Basic Info */}
                                         <div className="bg-gradient-to-r from-slate-50 via-blue-50/50 to-indigo-50/50 p-8 rounded-2xl border border-gray-200/50 mb-6">
                                             <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
-                                                {/* Enhanced Achievement Badge Avatar */}
+                                                {" "}
+                                                {/* Modern Avatar */}
                                                 <div className="relative">
-                                                    <AchievementBadge
-                                                        achievement={
-                                                            achievementData
-                                                        }
+                                                    <ModernAvatar
+                                                        name={profile?.ho_ten}
                                                         size={120}
                                                     />
 
@@ -1924,7 +880,6 @@ function LecturerDashboard() {
                                                         )}
                                                     </div>
                                                 </div>
-
                                                 {/* Basic Info */}
                                                 <div className="flex-1 text-center lg:text-left space-y-4">
                                                     <div>
@@ -1963,21 +918,8 @@ function LecturerDashboard() {
                                                             {profile?.bo_mon
                                                                 ?.khoa
                                                                 ?.ten_khoa ||
-                                                                "Chưa có khoa"}
+                                                                "Chưa có khoa"}{" "}
                                                         </Tag>
-                                                        {achievementData && (
-                                                            <Tag
-                                                                color={
-                                                                    achievementData.color
-                                                                }
-                                                                className="px-4 py-2 text-sm font-medium flex items-center"
-                                                            >
-                                                                <TrophyOutlined className="mr-2" />
-                                                                {
-                                                                    achievementData.title
-                                                                }
-                                                            </Tag>
-                                                        )}
                                                         {profile?.trang_thai ===
                                                         1 ? (
                                                             <Tag
@@ -2194,31 +1136,8 @@ function LecturerDashboard() {
                                         .ant-avatar {
                                             transition: all 0.3s ease !important;
                                         }
-                                        
-                                        .ant-avatar:hover {
+                                          .ant-avatar:hover {
                                             transform: scale(1.05) !important;
-                                        }
-                                        
-                                        /* Achievement Badge Animations */
-                                        .achievement-badge {
-                                            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
-                                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                                        }
-                                        
-                                        .achievement-badge:hover {
-                                            filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.2));
-                                        }
-                                        
-                                        .stars-animation circle {
-                                            transform-origin: center;
-                                        }
-                                        
-                                        .improvement-sparkles path {
-                                            transform-origin: center;
-                                        }
-                                        
-                                        .floating-dots circle {
-                                            transform-origin: center;
                                         }
                                         
                                         /* Tag Enhancements */
@@ -2247,7 +1166,10 @@ function LecturerDashboard() {
                                     `}</style>
                                 </div>
                             ) : activeTab === "ke-khai" ? (
-                                <KeKhaiGiangDayForm ma_gv={profile?.ma_gv} />
+                                <KeKhaiGiangDayForm 
+                                    ma_gv={profile?.ma_gv} 
+                                    keKhaiParams={keKhaiParams}
+                                />
                             ) : activeTab === "ket-qua-ke-khai" ? (
                                 <KetQuaKeKhai ma_gv={profile?.ma_gv} />
                             ) : activeTab === "thong-ke" ? (
@@ -2360,7 +1282,7 @@ function LecturerDashboard() {
                                                         strokeLinejoin="round"
                                                         strokeWidth={2}
                                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                />
+                                                    />
                                                 </svg>
                                             ),
                                             title: "Kê khai hoạt động",
@@ -2380,7 +1302,7 @@ function LecturerDashboard() {
                                                         strokeLinejoin="round"
                                                         strokeWidth={2}
                                                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 100 4h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                                                />
+                                                    />
                                                 </svg>
                                             ),
                                             title: "Theo dõi kết quả",
@@ -2400,7 +1322,7 @@ function LecturerDashboard() {
                                                         strokeLinejoin="round"
                                                         strokeWidth={2}
                                                         d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                                                />
+                                                    />
                                                 </svg>
                                             ),
                                             title: "Thống kê chi tiết",
@@ -2487,10 +1409,9 @@ function LecturerDashboard() {
                                                     strokeLinecap="round"
                                                     strokeLinejoin="round"
                                                     strokeWidth={2}
-                                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.0"/>
-                                                        
-                                                        </svg>
-
+                                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.0"
+                                                />
+                                            </svg>
                                         </div>
                                     </div>
                                     <div className="w-px h-5 bg-gray-300"></div>

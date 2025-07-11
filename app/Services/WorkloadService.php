@@ -2,27 +2,26 @@
 
 namespace App\Services;
 
-use App\Models\KeKhaiTongHopNamHoc; // Đổi tên model
-// ... (Thêm các model chi tiết như đã làm ở lần trước)
-use App\Models\KekhaiGdLopDhTrongbm;
-use App\Models\KekhaiGdLopDhNgoaibm;
-use App\Models\KekhaiGdLopDhNgoaics;
-use App\Models\KekhaiGdLopThs;
-use App\Models\KekhaiGdLopTs;
-use App\Models\KekhaiHdDatnDaihoc;
-use App\Models\KekhaiHdLvThacsi;
-use App\Models\KekhaiHdLaTiensi;
-use App\Models\KekhaiDgHpTnDaihoc;
-use App\Models\KekhaiDgLvThacsi;
-use App\Models\KekhaiDgLaTiensiDot;
-use App\Models\KekhaiKhaothiDaihocTrongbm;
-use App\Models\KekhaiKhaothiDaihocNgoaibm;
-use App\Models\KekhaiKhaothiThacsi;
-use App\Models\KekhaiKhaothiTiensi;
-use App\Models\KekhaiXdCtdtVaKhacGd;
-use App\Models\KekhaiNckhNamHoc;
-use App\Models\KekhaiCongtacKhacNamHoc;
-use App\Models\DmHeSoChung; // Để lấy các hệ số cố định
+use App\Models\KeKhaiTongHopNamHoc;
+// use App\Models\KekhaiGdLopDhTrongbm;
+// use App\Models\KekhaiGdLopDhNgoaibm;
+// use App\Models\KekhaiGdLopDhNgoaics;
+// use App\Models\KekhaiGdLopThs;
+// use App\Models\KekhaiGdLopTs;
+// use App\Models\KekhaiHdDatnDaihoc;
+// use App\Models\KekhaiHdLvThacsi;
+// use App\Models\KekhaiHdLaTiensi;
+// use App\Models\KekhaiDgHpTnDaihoc;
+// use App\Models\KekhaiDgLvThacsi;
+// use App\Models\KekhaiDgLaTiensiDot;
+// use App\Models\KekhaiKhaothiDaihocTrongbm;
+// use App\Models\KekhaiKhaothiDaihocNgoaibm;
+// use App\Models\KekhaiKhaothiThacsi;
+// use App\Models\KekhaiKhaothiTiensi;
+// use App\Models\KekhaiXdCtdtVaKhacGd;
+// use App\Models\KekhaiNckhNamHoc;
+// use App\Models\KekhaiCongtacKhacNamHoc;
+use App\Models\DmHeSoChung;
 use App\Models\User;
 use App\Models\NamHoc;
 
@@ -31,25 +30,37 @@ use Illuminate\Support\Facades\DB;
 
 class WorkloadService
 {
-   private function resetTongHopValues(KeKhaiTongHopNamHoc $keKhaiTongHop)
+    private function resetTongHopValues(KeKhaiTongHopNamHoc $keKhaiTongHop)
     {
         $fieldsToReset_tam_tinh = [
             'tong_gio_gd_danhgia_tam_tinh',
-            'tong_sl_huongdan_la_tam_tinh', 'tong_sl_huongdan_lv_tam_tinh', 'tong_sl_huongdan_dakl_tam_tinh',
+            'tong_sl_huongdan_la_tam_tinh',
+            'tong_sl_huongdan_lv_tam_tinh',
+            'tong_sl_huongdan_dakl_tam_tinh',
             'tong_gio_huongdan_quydoi_tam_tinh',
-            'tong_gio_khcn_kekhai_tam_tinh', 'tong_gio_congtackhac_quydoi_tam_tinh',
-            'tong_gio_coithi_chamthi_dh_tam_tinh', 'tong_gio_giangday_final_tam_tinh',
+            'tong_gio_khcn_kekhai_tam_tinh',
+            'tong_gio_congtackhac_quydoi_tam_tinh',
+            'tong_gio_coithi_chamthi_dh_tam_tinh',
+            'tong_gio_giangday_final_tam_tinh',
             'tong_gio_gdxatruong_tam_tinh',
-            'gio_gd_danhgia_xet_dinhmuc_tam_tinh', 'gio_khcn_thuchien_xet_dinhmuc_tam_tinh',
-            'gio_gdxatruong_xet_dinhmuc_tam_tinh', 'gio_vuot_gd_khong_hd_tam_tinh',
-            'tong_gio_butru_la_tam_tinh', 'sl_huongdan_la_conlai_tam_tinh',
-            'tong_gio_butru_lv_tam_tinh', 'sl_huongdan_lv_conlai_tam_tinh',
-            'tong_gio_butru_dakl_tam_tinh', 'sl_huongdan_dakl_conlai_tam_tinh',
-            'tong_gio_butru_khcn_tam_tinh', 'gio_khcn_conlai_sau_butru_tam_tinh', // Giờ KHCN còn lại sau khi bù cho GD
-            'tong_gio_butru_xatruong_tam_tinh', 'gio_gdxatruong_conlai_sau_butru_tam_tinh',
+            'gio_gd_danhgia_xet_dinhmuc_tam_tinh',
+            'gio_khcn_thuchien_xet_dinhmuc_tam_tinh',
+            'gio_gdxatruong_xet_dinhmuc_tam_tinh',
+            'gio_vuot_gd_khong_hd_tam_tinh',
+            'tong_gio_butru_la_tam_tinh',
+            'sl_huongdan_la_conlai_tam_tinh',
+            'tong_gio_butru_lv_tam_tinh',
+            'sl_huongdan_lv_conlai_tam_tinh',
+            'tong_gio_butru_dakl_tam_tinh',
+            'sl_huongdan_dakl_conlai_tam_tinh',
+            'tong_gio_butru_khcn_tam_tinh',
+            'gio_khcn_conlai_sau_butru_tam_tinh', // Giờ KHCN còn lại sau khi bù cho GD
+            'tong_gio_butru_xatruong_tam_tinh',
+            'gio_gdxatruong_conlai_sau_butru_tam_tinh',
             'gio_gd_hoanthanh_sau_butru_tam_tinh',
-            'gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh', // ĐÃ THAY ĐỔI TÊN
-            'ket_qua_thua_thieu_gio_gd_tam_tinh', 'ghi_chu_butru_tam_tinh',
+            'gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh',
+            'ket_qua_thua_thieu_gio_gd_tam_tinh',
+            'ghi_chu_butru_tam_tinh',
             'tong_gio_thuc_hien_final_tam_tinh'
         ];
 
@@ -57,7 +68,7 @@ class WorkloadService
             if (str_contains($field, 'sl_')) {
                 $keKhaiTongHop->$field = 0;
             } elseif (str_contains($field, 'ghi_chu_')) {
-                 $keKhaiTongHop->$field = null;
+                $keKhaiTongHop->$field = null;
             } else {
                 $keKhaiTongHop->$field = 0.00;
             }
@@ -67,14 +78,23 @@ class WorkloadService
     public function calculateAllForKeKhaiTongHop($keKhaiTongHopNamHocId)
     {
         $keKhaiTongHop = KeKhaiTongHopNamHoc::with([
-            'nguoiDung', 'namHoc',
-            'kekhaiGdLopDhTrongbms', 'kekhaiGdLopDhNgoaibms', 'kekhaiGdLopDhNgoaicss',
-            'kekhaiGdLopThss', 'kekhaiGdLopTss',
-            'kekhaiHdDatnDaihoc', 'kekhaiHdLvThacsis', 'kekhaiHdLaTiensis',
-            'kekhaiDgHpTnDaihoc', 'kekhaiDgLvThacsis',
+            'nguoiDung',
+            'namHoc',
+            'kekhaiGdLopDhTrongbms',
+            'kekhaiGdLopDhNgoaibms',
+            'kekhaiGdLopDhNgoaicss',
+            'kekhaiGdLopThss',
+            'kekhaiGdLopTss',
+            'kekhaiHdDatnDaihoc',
+            'kekhaiHdLvThacsis',
+            'kekhaiHdLaTiensis',
+            'kekhaiDgHpTnDaihoc',
+            'kekhaiDgLvThacsis',
             'kekhaiDgLaTiensiDots.nhiemVus',
-            'kekhaiKhaothiDaihocTrongbms', 'kekhaiKhaothiDaihocNgoaibms',
-            'kekhaiKhaothiThacsis', 'kekhaiKhaothiTiensis',
+            'kekhaiKhaothiDaihocTrongbms',
+            'kekhaiKhaothiDaihocNgoaibms',
+            'kekhaiKhaothiThacsis',
+            'kekhaiKhaothiTiensis',
             'kekhaiXdCtdtVaKhacGds',
             'kekhaiNckhNamHocs',
             'kekhaiCongtacKhacNamHocs',
@@ -92,7 +112,9 @@ class WorkloadService
         // --- TÍNH GIỜ CHI TIẾT VÀ GOM VÀO BIẾN TẠM ---
         $tam_tong_gd_lop = 0;
         $tam_tong_gd_danhgia_hoithao_khong_dh = 0;
-        $tam_sl_hd_la = 0; $tam_sl_hd_lv = 0; $tam_sl_hd_dakl = 0;
+        $tam_sl_hd_la = 0;
+        $tam_sl_hd_lv = 0;
+        $tam_sl_hd_dakl = 0;
         $tam_tong_gio_coithi_chamthi_dh = 0;
         $tam_tong_gio_nckh_thuc_hien = 0;
         $tam_tong_gio_congtac_khac_ra_gd = 0;
@@ -107,9 +129,9 @@ class WorkloadService
         $tam_tong_gd_lop += $keKhaiTongHop->kekhaiGdLopTss->sum('so_tiet_qd');
 
         // 2. Hướng dẫn (lấy số lượng)
-        $tam_sl_hd_dakl = $keKhaiTongHop->kekhaiHdDatnDaihoc->sum(fn($i) => ($i->so_luong_sv_cttt ?:0) + ($i->so_luong_sv_dai_tra ?:0) );
-        $tam_sl_hd_lv = $keKhaiTongHop->kekhaiHdLvThacsis->sum(fn($i) => ($i->so_luong_hd_doc_lap ?:0) + ($i->so_luong_hd1 ?:0) + ($i->so_luong_hd2 ?:0) );
-        $tam_sl_hd_la = $keKhaiTongHop->kekhaiHdLaTiensis->sum(fn($i) => ($i->so_luong_hd_chinh ?:0) + ($i->so_luong_hd_phu1 ?:0) + ($i->so_luong_hd_phu2 ?:0) );
+        $tam_sl_hd_dakl = $keKhaiTongHop->kekhaiHdDatnDaihoc->sum(fn($i) => ($i->so_luong_sv_cttt ?: 0) + ($i->so_luong_sv_dai_tra ?: 0));
+        $tam_sl_hd_lv = $keKhaiTongHop->kekhaiHdLvThacsis->sum(fn($i) => ($i->so_luong_hd_doc_lap ?: 0) + ($i->so_luong_hd1 ?: 0) + ($i->so_luong_hd2 ?: 0));
+        $tam_sl_hd_la = $keKhaiTongHop->kekhaiHdLaTiensis->sum(fn($i) => ($i->so_luong_hd_chinh ?: 0) + ($i->so_luong_hd_phu1 ?: 0) + ($i->so_luong_hd_phu2 ?: 0));
 
         // 3. Đánh giá/Hội đồng
         $tam_tong_gd_danhgia_hoithao_khong_dh += $keKhaiTongHop->kekhaiDgHpTnDaihoc->sum('tong_gio_quydoi_gv_nhap');
@@ -154,13 +176,12 @@ class WorkloadService
         $keKhaiTongHop->tong_gio_giangday_final_tam_tinh = round($keKhaiTongHop->tong_gio_gd_danhgia_tam_tinh + $keKhaiTongHop->tong_gio_huongdan_quydoi_tam_tinh, 2);
         $keKhaiTongHop->tong_gio_gdxatruong_tam_tinh = round($tam_tong_gio_gd_xa_truong, 2);
 
-
         // --- TÍNH TOÁN CÁC CỘT CHO MỤC I.1 (Khối lượng vượt giờ) ---
         $keKhaiTongHop->gio_gd_danhgia_xet_dinhmuc_tam_tinh = $keKhaiTongHop->tong_gio_gd_danhgia_tam_tinh;
         $keKhaiTongHop->gio_khcn_thuchien_xet_dinhmuc_tam_tinh = $keKhaiTongHop->tong_gio_khcn_kekhai_tam_tinh;
         $keKhaiTongHop->gio_gdxatruong_xet_dinhmuc_tam_tinh = $keKhaiTongHop->tong_gio_gdxatruong_tam_tinh;
 
-        $gioVuotGdKhongHD = ($keKhaiTongHop->gio_gd_danhgia_xet_dinhmuc_tam_tinh ?: 0) - $dinhMucGD;
+        $gioVuotGdKhongHD = ($keKhaiTongHop->gio_gd_danhgia_xet_dinhmuc_tam_tinh ?: 0) - $dinhMucGD + $keKhaiTongHop->gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh;
         $keKhaiTongHop->gio_vuot_gd_khong_hd_tam_tinh = round(max(0, $gioVuotGdKhongHD), 2);
 
         $gioThieuGDSoVoiDinhMuc = $dinhMucGD - ($keKhaiTongHop->gio_gd_danhgia_xet_dinhmuc_tam_tinh ?: 0);
@@ -176,9 +197,46 @@ class WorkloadService
         $keKhaiTongHop->gio_gdxatruong_conlai_sau_butru_tam_tinh = $gio_gdxatruong_co_the_bu; // Khởi tạo
 
         if ($gioThieuGDSoVoiDinhMuc > 0) {
-            // Bù từ LA, ĐA/KL, LV (logic như cũ)
-            // ...
-            // Bù từ KHCN (chỉ bù)
+            // Thứ tự bù: LA, ĐA/KL, LV, KHCN, Xa trường
+
+            // 1. Bù từ Hướng dẫn Luận án Tiến sĩ (LA)
+            $gioQuyDoiTuLAConLai = $keKhaiTongHop->sl_huongdan_la_conlai_tam_tinh * $hs_la;
+            $gioBuThucTeLA = min($gioThieuGDSoVoiDinhMuc, $gioQuyDoiTuLAConLai);
+            if ($gioBuThucTeLA > 0) {
+                $keKhaiTongHop->tong_gio_butru_la_tam_tinh = round($gioBuThucTeLA, 2);
+                $keKhaiTongHop->sl_huongdan_la_conlai_tam_tinh -= ($hs_la > 0 ? ceil($gioBuThucTeLA / $hs_la) : 0);
+                $gioThieuGDSoVoiDinhMuc -= $gioBuThucTeLA;
+                $gioDaBuTruChoGD += $gioBuThucTeLA;
+                $ghiChuBuTruArray[] = "Bù " . round($gioBuThucTeLA, 2) . "h từ HD LATS.";
+            }
+
+            // 2. Bù từ Hướng dẫn Đồ án/Khóa luận Đại học (ĐA/KL)
+            if ($gioThieuGDSoVoiDinhMuc > 0) {
+                $gioQuyDoiTuDAKLConLai = $keKhaiTongHop->sl_huongdan_dakl_conlai_tam_tinh * $hs_dakl;
+                $gioBuThucTeDAKL = min($gioThieuGDSoVoiDinhMuc, $gioQuyDoiTuDAKLConLai);
+                if ($gioBuThucTeDAKL > 0) {
+                    $keKhaiTongHop->tong_gio_butru_dakl_tam_tinh = round($gioBuThucTeDAKL, 2);
+                    $keKhaiTongHop->sl_huongdan_dakl_conlai_tam_tinh -= ($hs_dakl > 0 ? ceil($gioBuThucTeDAKL / $hs_dakl) : 0);
+                    $gioThieuGDSoVoiDinhMuc -= $gioBuThucTeDAKL;
+                    $gioDaBuTruChoGD += $gioBuThucTeDAKL;
+                    $ghiChuBuTruArray[] = "Bù " . round($gioBuThucTeDAKL, 2) . "h từ HD ĐA/KL.";
+                }
+            }
+
+            // 3. Bù từ Hướng dẫn Luận văn Thạc sĩ (LV)
+            if ($gioThieuGDSoVoiDinhMuc > 0) {
+                $gioQuyDoiTuLVConLai = $keKhaiTongHop->sl_huongdan_lv_conlai_tam_tinh * $hs_lv;
+                $gioBuThucTeLV = min($gioThieuGDSoVoiDinhMuc, $gioQuyDoiTuLVConLai);
+                if ($gioBuThucTeLV > 0) {
+                    $keKhaiTongHop->tong_gio_butru_lv_tam_tinh = round($gioBuThucTeLV, 2);
+                    $keKhaiTongHop->sl_huongdan_lv_conlai_tam_tinh -= ($hs_lv > 0 ? ceil($gioBuThucTeLV / $hs_lv) : 0);
+                    $gioThieuGDSoVoiDinhMuc -= $gioBuThucTeLV;
+                    $gioDaBuTruChoGD += $gioBuThucTeLV;
+                    $ghiChuBuTruArray[] = "Bù " . round($gioBuThucTeLV, 2) . "h từ HD LVThS.";
+                }
+            }
+
+            // 4. Bù từ KHCN (chỉ bù)
             if ($gioThieuGDSoVoiDinhMuc > 0 && $keKhaiTongHop->gio_khcn_conlai_sau_butru_tam_tinh > 0) {
                 $gioBuThucTeKHCN = min($gioThieuGDSoVoiDinhMuc, $keKhaiTongHop->gio_khcn_conlai_sau_butru_tam_tinh);
                 $keKhaiTongHop->tong_gio_butru_khcn_tam_tinh = round($gioBuThucTeKHCN, 2);
@@ -187,15 +245,20 @@ class WorkloadService
                 $gioDaBuTruChoGD += $gioBuThucTeKHCN;
                 $ghiChuBuTruArray[] = "Bù " . round($gioBuThucTeKHCN, 2) . "h từ KHCN.";
             }
-            // Bù từ GD Xa trường (chỉ bù)
+
+            // 5. Bù từ GD Xa trường (chỉ bù)
             if ($gioThieuGDSoVoiDinhMuc > 0 && $keKhaiTongHop->gio_gdxatruong_conlai_sau_butru_tam_tinh > 0) {
-                // ... (logic như cũ)
+                $gioBuThucTeXaTruong = min($gioThieuGDSoVoiDinhMuc, $keKhaiTongHop->gio_gdxatruong_conlai_sau_butru_tam_tinh);
+                $keKhaiTongHop->tong_gio_butru_xatruong_tam_tinh = round($gioBuThucTeXaTruong, 2);
+                $keKhaiTongHop->gio_gdxatruong_conlai_sau_butru_tam_tinh -= $gioBuThucTeXaTruong;
+                // Giờ thiếu có thể vẫn còn, nhưng đây là nguồn bù cuối
+                $gioDaBuTruChoGD += $gioBuThucTeXaTruong;
+                $ghiChuBuTruArray[] = "Bù " . round($gioBuThucTeXaTruong, 2) . "h từ GD Xa trường.";
             }
         }
-        // ... (cập nhật sl_conlai cho hướng dẫn) ...
+
         $keKhaiTongHop->gio_khcn_conlai_sau_butru_tam_tinh = round(max(0, $keKhaiTongHop->gio_khcn_conlai_sau_butru_tam_tinh), 2);
         $keKhaiTongHop->gio_gdxatruong_conlai_sau_butru_tam_tinh = round(max(0, $keKhaiTongHop->gio_gdxatruong_conlai_sau_butru_tam_tinh), 2);
-
         // Cột 6 Mục I.1 ("Hoàn thành GD" sau bù trừ)
         $keKhaiTongHop->gio_gd_hoanthanh_sau_butru_tam_tinh = round(($keKhaiTongHop->gio_gd_danhgia_xet_dinhmuc_tam_tinh ?: 0) + $gioDaBuTruChoGD, 2);
 
@@ -203,39 +266,27 @@ class WorkloadService
         // = Giờ KHCN còn lại sau khi bù cho GD (nếu có) TRỪ ĐI Định mức KHCN
         $keKhaiTongHop->gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh = round($keKhaiTongHop->gio_khcn_conlai_sau_butru_tam_tinh - $dinhMucKHCN, 2);
 
-
         // Cột "Thừa/thiếu" Mục I.1:
         $gioHuongDanConLaiKhongBu_QuyDoi = ($keKhaiTongHop->sl_huongdan_la_conlai_tam_tinh * $hs_la) +
-                                           ($keKhaiTongHop->sl_huongdan_lv_conlai_tam_tinh * $hs_lv) +
-                                           ($keKhaiTongHop->sl_huongdan_dakl_conlai_tam_tinh * $hs_dakl);
-        
+            ($keKhaiTongHop->sl_huongdan_lv_conlai_tam_tinh * $hs_lv) +
+            ($keKhaiTongHop->sl_huongdan_dakl_conlai_tam_tinh * $hs_dakl);
+
         $thuaThieuGDTamThoi = ($keKhaiTongHop->gio_gd_hoanthanh_sau_butru_tam_tinh) - $dinhMucGD;
 
         // ĐIỀU CHỈNH QUAN TRỌNG: Nếu KHCN thiếu, thì trừ vào phần thừa/thiếu của GD
         if ($keKhaiTongHop->gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh < 0) {
-            $thuaThieuGDTamThoi += $keKhaiTongHop->gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh; // Cộng số âm tức là trừ đi
-            // Có thể thêm vào ghi chú bù trừ nếu muốn rõ ràng hơn nữa
+            $thuaThieuGDTamThoi += $keKhaiTongHop->gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh; 
             $ghiChuBuTruArray[] = "Điều chỉnh do thiếu " . abs($keKhaiTongHop->gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh) . "h KHCN.";
         }
         $keKhaiTongHop->ket_qua_thua_thieu_gio_gd_tam_tinh = round($thuaThieuGDTamThoi, 2);
 
         $keKhaiTongHop->ghi_chu_butru_tam_tinh = count($ghiChuBuTruArray) > 0 ? implode(" ", $ghiChuBuTruArray) : null;
 
-        // tong_gio_thuc_hien_final_tam_tinh: Tổng các giờ được công nhận cuối cùng
-        // Bao gồm: (GD hoàn thành sau bù) + (HD còn lại không bù) + (KHCN hoàn thành so với định mức - chỉ tính phần dương nếu muốn)
-        // + (GD Xa trường còn lại) + (Coi chấm thi ĐH) + (Công tác khác quy ra GD)
-        // Theo file CSV, có vẻ như tổng giờ cuối cùng (để tính vượt giờ/lương) là cột "Thừa/thiếu" cộng với định mức GD.
-        // Hoặc chính là cột 6 ("Số tiết GD thực hiện" của Mục I.1) cộng với giờ hướng dẫn còn lại (C7,8,9 * hệ số)
-        // và có thể cộng thêm phần KHCN vượt (nếu có).
-        // Cách tính này cần thống nhất dựa trên quy định của trường.
-        // Hiện tại, tôi sẽ tính dựa trên các thành phần đã được công nhận và không bị dùng để bù trừ.
         $tongFinal = ($keKhaiTongHop->gio_gd_hoanthanh_sau_butru_tam_tinh ?: 0) +
-                     round($gioHuongDanConLaiKhongBu_QuyDoi, 2) +
-                     // Chỉ cộng phần KHCN vượt định mức (nếu có) vào tổng cuối, không cộng phần âm
-                     max(0, $keKhaiTongHop->gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh ?: 0) +
-                     ($keKhaiTongHop->gio_gdxatruong_conlai_sau_butru_tam_tinh ?: 0) +
-                     ($keKhaiTongHop->tong_gio_coithi_chamthi_dh_tam_tinh ?: 0) +
-                     ($keKhaiTongHop->tong_gio_congtackhac_quydoi_tam_tinh ?: 0);
+            max(0, $keKhaiTongHop->gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh ?: 0) +
+            ($keKhaiTongHop->gio_gdxatruong_conlai_sau_butru_tam_tinh ?: 0) +
+            ($keKhaiTongHop->tong_gio_coithi_chamthi_dh_tam_tinh ?: 0) +
+            ($keKhaiTongHop->tong_gio_congtackhac_quydoi_tam_tinh ?: 0); // + round($gioHuongDanConLaiKhongBu_QuyDoi, 2)
 
         $keKhaiTongHop->tong_gio_thuc_hien_final_tam_tinh = round($tongFinal, 2);
 
@@ -249,11 +300,6 @@ class WorkloadService
      *
      * @param int $soLuong Số lượng SV/HV/NCS
      * @param string $trinhDo 'Đại học', 'Thạc sĩ', 'Tiến sĩ'
-     * @param User $user (Không dùng trong logic này nữa vì hệ số là chung)
-     * @param int $namHocId (Không dùng trong logic này nữa vì hệ số là chung)
-     * @param string|null $loaiDaoTaoTS (Ví dụ: '3 năm', '4 năm' - hiện tại chưa dùng vì hệ số chung)
-     * @param string|null $vaiTroCuThe (Ví dụ: 'HĐ độc lập', 'HĐ chính' - hiện tại chưa dùng vì hệ số chung)
-     * @param bool $laCTTT (Hiện tại chưa dùng vì hệ số chung)
      * @return float
      */
     private function calculateGioHuongDanTheoSoLuong($soLuong, $trinhDo, User $user = null, $namHocId = null, $loaiDaoTaoTS = null, $vaiTroCuThe = null, $laCTTT = false)
@@ -261,11 +307,11 @@ class WorkloadService
         if ($soLuong <= 0) return 0.00;
 
         $maHeSo = '';
-        if ($trinhDo === 'Đại học') { // ĐA/KL
+        if ($trinhDo === 'Đại học') { 
             $maHeSo = 'HS_HUONGDAN_DAKL';
-        } elseif ($trinhDo === 'Thạc sĩ') { // LV
+        } elseif ($trinhDo === 'Thạc sĩ') { 
             $maHeSo = 'HS_HUONGDAN_LV';
-        } elseif ($trinhDo === 'Tiến sĩ') { // LA
+        } elseif ($trinhDo === 'Tiến sĩ') { 
             $maHeSo = 'HS_HUONGDAN_LA';
         }
 
@@ -285,11 +331,6 @@ class WorkloadService
      *
      * @param float $gioDaBu Số giờ đã dùng để bù
      * @param string $trinhDo 'Đại học', 'Thạc sĩ', 'Tiến sĩ'
-     * @param User $user (Không dùng)
-     * @param int $namHocId (Không dùng)
-     * @param string|null $loaiDaoTaoTS (Không dùng)
-     * @param string|null $vaiTroCuThe (Không dùng)
-     * @param bool $laCTTT (Không dùng)
      * @return int Số lượng SV/HV/NCS tương ứng (làm tròn lên)
      */
     private function calculateSoLuongTuGio($gioDaBu, $trinhDo, User $user = null, $namHocId = null, $loaiDaoTaoTS = null, $vaiTroCuThe = null, $laCTTT = false)
@@ -314,7 +355,7 @@ class WorkloadService
 
         if ($heSoGio <= 0) {
             Log::warning("WorkloadService: Hệ số giờ cho {$maHeSo} là 0 hoặc không hợp lệ.");
-            return 0; // Tránh chia cho 0
+            return 0;
         }
 
         return ceil($gioDaBu / $heSoGio);

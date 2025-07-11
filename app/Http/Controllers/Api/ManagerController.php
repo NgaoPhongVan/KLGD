@@ -6,8 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\KeKhaiTongHopNamHoc;
-use App\Models\LuongGiangVien; // Add this import
-// Các model chi tiết mới
+use App\Models\LuongGiangVien; 
 use App\Models\KekhaiGdLopDhTrongbm;
 use App\Models\KekhaiGdLopDhNgoaibm;
 use App\Models\KekhaiGdLopDhNgoaics;
@@ -26,16 +25,15 @@ use App\Models\KekhaiKhaothiTiensi;
 use App\Models\KekhaiXdCtdtVaKhacGd;
 use App\Models\KekhaiNckhNamHoc;
 use App\Models\KekhaiCongtacKhacNamHoc;
-use App\Models\MinhChung; // Chỉ cho NCKH
-// ---
+use App\Models\MinhChung; 
 use App\Models\LichSuPheDuyet;
-use App\Models\NamHoc; // Model NamHoc
+use App\Models\NamHoc; 
 use App\Models\BoMon;
-use App\Models\KeKhaiThoiGian; // Sử dụng nam_hoc_id
-use App\Models\Notification; // Model Notification của bạn
-use App\Models\DinhMucCaNhanTheoNam; // Model định mức cá nhân mới
+use App\Models\KeKhaiThoiGian; 
+use App\Models\Notification; 
+use App\Models\DinhMucCaNhanTheoNam; 
 use Illuminate\Support\Facades\Auth;
-use App\Mail\ReminderNotification; // Nếu còn dùng
+use App\Mail\ReminderNotification; 
 use App\Mail\KeKhaiApproved;
 use App\Mail\KeKhaiRejected;
 use Illuminate\Support\Facades\Mail;
@@ -44,14 +42,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Exports\KekhaiReportExport; // Sẽ cần cập nhật Export này
-use App\Jobs\ExportReportJob; // Sẽ cần cập nhật Job này
+use App\Exports\KekhaiReportExport; 
+use App\Jobs\ExportReportJob;
 use Carbon\Carbon;
 use ZipArchive;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Schema;
-use App\Services\WorkloadService; // Thêm WorkloadService nếu cần gọi lại tính toán
+use App\Services\WorkloadService; 
 
 class ManagerController extends Controller
 {
@@ -64,56 +62,51 @@ class ManagerController extends Controller
 
     public function getProfile(Request $request)
     {
-        // Giảng viên tự nhập học hàm, học vị nên chỉ cần load boMon.khoa
         return response()->json($request->user()->load('boMon.khoa'));
     }
 
-    // Hàm này có thể không cần thiết nếu Manager chỉ quản lý GV trong bộ môn của mình
-    // public function getUsers(Request $request) { ... }
-    // public function updateUser(Request $request, $id) { ... }
+    // API dashboard tổng quan: số lượng kê khai, trạng thái, tổng giờ, danh sách năm học
+    // public function dashboard(Request $request)
+    // {
+    //     $namHocId = $request->query('nam_hoc_id');
+    //     $manager = Auth::user();
+    //     $boMonIdCuaManager = $manager->bo_mon_id;
 
-    public function dashboard(Request $request)
-    {
-        $namHocId = $request->query('nam_hoc_id');
-        $manager = Auth::user();
-        // Giả định Manager là Trưởng bộ môn, nên lấy bo_mon_id của manager
-        $boMonIdCuaManager = $manager->bo_mon_id;
+    //     if (!$boMonIdCuaManager) {
+    //         return response()->json(['message' => 'Quản lý không thuộc bộ môn nào.'], 403);
+    //     }
 
-        if (!$boMonIdCuaManager) {
-            return response()->json(['message' => 'Quản lý không thuộc bộ môn nào.'], 403);
-        }
+    //     $baseQuery = KeKhaiTongHopNamHoc::whereHas('nguoiDung', function ($query) use ($boMonIdCuaManager) {
+    //         $query->where('bo_mon_id', $boMonIdCuaManager);
+    //     });
 
-        $baseQuery = KeKhaiTongHopNamHoc::whereHas('nguoiDung', function ($query) use ($boMonIdCuaManager) {
-            $query->where('bo_mon_id', $boMonIdCuaManager);
-        });
+    //     if ($namHocId) {
+    //         $baseQuery->where('nam_hoc_id', $namHocId);
+    //     }
 
-        if ($namHocId) {
-            $baseQuery->where('nam_hoc_id', $namHocId);
-        }
+    //     $totalKeKhai = (clone $baseQuery)->count();
+    //     $pending = (clone $baseQuery)->where('trang_thai_phe_duyet', 1)->count(); // 1: Chờ duyệt BM
+    //     $approved = (clone $baseQuery)->where('trang_thai_phe_duyet', 3)->count(); // 3: Đã duyệt BM
+    //     $rejected = (clone $baseQuery)->where('trang_thai_phe_duyet', 4)->count(); // 4: BM Trả lại
 
-        $totalKeKhai = (clone $baseQuery)->count();
-        $pending = (clone $baseQuery)->where('trang_thai_phe_duyet', 1)->count(); // 1: Chờ duyệt BM
-        $approved = (clone $baseQuery)->where('trang_thai_phe_duyet', 3)->count(); // 3: Đã duyệt BM
-        $rejected = (clone $baseQuery)->where('trang_thai_phe_duyet', 4)->count(); // 4: BM Trả lại
-
-        // Tổng giờ đã duyệt hoặc tạm tính (tùy thuộc bạn muốn hiển thị gì trên dashboard)
-        $totalHours = (clone $baseQuery)
-            ->whereIn('trang_thai_phe_duyet', [1, 3]) // Chờ duyệt hoặc Đã duyệt
-            ->sum(DB::raw('IFNULL(tong_gio_thuc_hien_final_duyet, tong_gio_thuc_hien_final_tam_tinh)'));
+    //     $totalHours = (clone $baseQuery)
+    //         ->whereIn('trang_thai_phe_duyet', [1, 3]) // Chờ duyệt hoặc Đã duyệt
+    //         ->sum(DB::raw('IFNULL(tong_gio_thuc_hien_final_duyet, tong_gio_thuc_hien_final_tam_tinh)'));
 
 
-        $namHocList = NamHoc::orderBy('ngay_bat_dau', 'desc')->get(['id', 'ten_nam_hoc', 'la_nam_hien_hanh']);
+    //     $namHocList = NamHoc::orderBy('ngay_bat_dau', 'desc')->get(['id', 'ten_nam_hoc', 'la_nam_hien_hanh']);
 
-        return response()->json([
-            'total_ke_khai' => $totalKeKhai,
-            'pending' => $pending,
-            'approved' => $approved,
-            'rejected' => $rejected,
-            'total_hours' => round(floatval($totalHours), 2),
-            'nam_hoc_list' => $namHocList,
-        ]);
-    }
+    //     return response()->json([
+    //         'total_ke_khai' => $totalKeKhai,
+    //         'pending' => $pending,
+    //         'approved' => $approved,
+    //         'rejected' => $rejected,
+    //         'total_hours' => round(floatval($totalHours), 2),
+    //         'nam_hoc_list' => $namHocList,
+    //     ]);
+    // }
 
+    // API lấy danh sách kê khai tổng hợp của giảng viên trong bộ môn
     public function keKhaiList(Request $request)
     {
         $namHocId = $request->query('nam_hoc_id');
@@ -130,7 +123,7 @@ class ManagerController extends Controller
         }
 
         $query = KeKhaiTongHopNamHoc::with([
-            'nguoiDung:id,ho_ten,ma_gv,email,hoc_ham,hoc_vi,bo_mon_id', // Lấy học hàm, học vị
+            'nguoiDung:id,ho_ten,ma_gv,email,hoc_ham,hoc_vi,bo_mon_id',
             'nguoiDung.boMon:id,ten_bo_mon',
             'namHoc:id,ten_nam_hoc',
         ])
@@ -138,7 +131,6 @@ class ManagerController extends Controller
                 $q->where('bo_mon_id', $boMonIdCuaManager);
             });
 
-        // Apply filters
         if ($namHocId) {
             $query->where('nam_hoc_id', $namHocId);
         }
@@ -161,38 +153,38 @@ class ManagerController extends Controller
 
         $boMonTrongKhoa = BoMon::where('khoa_id', $manager->boMon->khoa_id ?? null)->select('id', 'ten_bo_mon')->get();
 
-        // Add debug info to response
-        $debugInfo = [
-            'total_in_bo_mon' => KeKhaiTongHopNamHoc::whereHas('nguoiDung', function ($q) use ($boMonIdCuaManager) {
-                $q->where('bo_mon_id', $boMonIdCuaManager);
-            })->count(),
-            'filters_applied' => [
-                'nam_hoc_id' => $namHocId,
-                'trang_thai' => $trangThai,
-                'search' => $search
-            ]
-        ];
+        // $debugInfo = [
+        //     'total_in_bo_mon' => KeKhaiTongHopNamHoc::whereHas('nguoiDung', function ($q) use ($boMonIdCuaManager) {
+        //         $q->where('bo_mon_id', $boMonIdCuaManager);
+        //     })->count(),
+        //     'filters_applied' => [
+        //         'nam_hoc_id' => $namHocId,
+        //         'trang_thai' => $trangThai,
+        //         'search' => $search
+        //     ]
+        // ];
 
         return response()->json([
             'ke_khai_list' => $keKhaiList,
             'bo_mon_list' => $boMonTrongKhoa,
-            'debug_info' => $debugInfo,
+            // 'debug_info' => $debugInfo,
         ]);
     }
 
-    public function keKhaiShow($id) // $id là của KeKhaiTongHopNamHoc
+    // API lấy chi tiết một bản kê khai tổng hợp (bao gồm tất cả chi tiết con)
+    public function keKhaiShow($id) 
     {
         $manager = Auth::user();
         $boMonIdCuaManager = $manager->bo_mon_id;
 
-        if (!$boMonIdCuaManager) { /* ... */
+        if (!$boMonIdCuaManager) { 
+            return response()->json(['message' => 'Quản lý không thuộc bộ môn nào.'], 403);
         }
 
         $keKhaiTongHop = KeKhaiTongHopNamHoc::with([
             'nguoiDung:id,ho_ten,ma_gv,email,dien_thoai,hoc_ham,hoc_vi,bo_mon_id',
             'nguoiDung.boMon:id,ten_bo_mon',
             'namHoc:id,ten_nam_hoc',
-            // Load tất cả các quan hệ chi tiết
             'kekhaiGdLopDhTrongbms',
             'kekhaiGdLopDhNgoaibms',
             'kekhaiGdLopDhNgoaicss',
@@ -218,14 +210,14 @@ class ManagerController extends Controller
             })
             ->findOrFail($id);
 
-        // Đảm bảo các giá trị tổng hợp là mới nhất trước khi hiển thị để duyệt
         // $this->workloadService->calculateAllForKeKhaiTongHop($keKhaiTongHop->id);
-        // $keKhaiTongHop->refresh()->load(/* các quan hệ đã load ở trên */);
+        // $keKhaiTongHop->refresh()->load();
 
         return response()->json($keKhaiTongHop);
     }
 
 
+    // API phê duyệt bản kê khai tổng hợp (chuyển trạng thái sang Đã duyệt BM)
     public function keKhaiApprove(Request $request, $id)
     {
         $manager = Auth::user();
@@ -239,24 +231,20 @@ class ManagerController extends Controller
             $query->where('bo_mon_id', $boMonIdCuaManager);
         })->findOrFail($id);
 
-        if ($keKhai->trang_thai_phe_duyet !== 1) { // Chỉ duyệt khi đang "Chờ duyệt BM"
+        if ($keKhai->trang_thai_phe_duyet !== 1) { 
             return response()->json(['message' => 'Kê khai không ở trạng thái chờ phê duyệt'], 400);
         }
 
         DB::beginTransaction();
         try {
-            // Tính toán lại lần cuối trước khi duyệt (if WorkloadService exists)
             if (isset($this->workloadService)) {
                 try {
                     $this->workloadService->calculateAllForKeKhaiTongHop($keKhai->id);
                     $keKhai->refresh();
                 } catch (\Exception $e) {
-                    Log::warning("Không thể tính toán lại workload cho kê khai ID {$id}: " . $e->getMessage());
-                    // Continue with approval even if recalculation fails
-                }
+                    return response()->json(['message' => 'Lỗi hệ thống khi tính toán khối lượng: ' . $e->getMessage()], 500);}
             }
 
-            // Gán các giá trị _duyet bằng giá trị _tam_tinh - chỉ copy những field tồn tại
             $fieldsToCopy = [
                 'tong_gio_gd_danhgia',
                 'tong_sl_huongdan_la',
@@ -267,8 +255,8 @@ class ManagerController extends Controller
                 'tong_gio_coithi_chamthi_dh',
                 'tong_gio_giangday_final',
                 'tong_gio_gdxatruong',
-                'dinhmuc_gd_apdung',  // FIX: Thêm định mức GD
-                'dinhmuc_khcn_apdung', // FIX: Thêm định mức KHCN
+                'dinhmuc_gd_apdung',  
+                'dinhmuc_khcn_apdung', 
                 'gio_gd_danhgia_xet_dinhmuc',
                 'gio_khcn_thuchien_xet_dinhmuc',
                 'gio_gdxatruong_xet_dinhmuc',
@@ -290,29 +278,26 @@ class ManagerController extends Controller
                 'tong_gio_thuc_hien_final'
             ];
 
-            // Get table schema to check which columns actually exist
             $tableColumns = Schema::getColumnListing('ke_khai_tong_hop_nam_hoc');
             
             foreach ($fieldsToCopy as $field) {
                 $tamTinhField = $field . '_tam_tinh';
                 $duyetField = $field . '_duyet';
                 
-                // Only copy if both source and destination columns exist
                 if (in_array($tamTinhField, $tableColumns) && in_array($duyetField, $tableColumns)) {
                     $tamTinhValue = $keKhai->{$tamTinhField};
                     $keKhai->{$duyetField} = $tamTinhValue;
                 } else {
-                    Log::warning("Skipping field copy for {$field}: source ({$tamTinhField}) or destination ({$duyetField}) column not found");
+                    Log::warning("Lỗi copy các trường: {$tamTinhField} hoặc {$duyetField} không tồn tại trong bảng ke_khai_tong_hop_nam_hoc");
                 }
             }
 
-            $keKhai->trang_thai_phe_duyet = 3; // 3: Đã duyệt BM
+            $keKhai->trang_thai_phe_duyet = 3; 
             $keKhai->nguoi_duyet_bm_id = $manager->id;
             $keKhai->thoi_gian_duyet_bm = now();
-            $keKhai->ly_do_tu_choi = null; // Xóa lý do từ chối nếu có
+            $keKhai->ly_do_tu_choi = null; 
             $keKhai->save();
 
-            // Log approval history
             LichSuPheDuyet::create([
                 'ke_khai_tong_hop_nam_hoc_id' => $keKhai->id,
                 'nguoi_thuc_hien_id' => $manager->id,
@@ -322,23 +307,16 @@ class ManagerController extends Controller
                 'ghi_chu' => $request->input('ghi_chu_quan_ly', 'Trưởng Bộ môn đã duyệt.'),
             ]);
 
-            // FIX: Improve email notification with better error handling
             if ($keKhai->nguoiDung && $keKhai->nguoiDung->email) {
                 try {
-                    // Load required relationships for email
                     $keKhai->load(['nguoiDung', 'namHoc']);
                     
-                    // Send email immediately (not queued) for testing
                     Mail::to($keKhai->nguoiDung->email)->send(new KeKhaiApproved($keKhai, $keKhai->namHoc));
-                    Log::info("Email sent successfully to: " . $keKhai->nguoiDung->email . " for approved kekhai ID: " . $keKhai->id);
-                    
                 } catch (\Exception $e) {
-                    Log::error("Failed to send approval email for kekhai ID {$id}: " . $e->getMessage());
-                    Log::error("Email error details: " . $e->getTraceAsString());
-                    // Continue with approval even if email fails
+                    
                 }
             } else {
-                Log::warning("No email found for user ID: " . ($keKhai->nguoi_dung_id ?? 'N/A') . " for kekhai ID: " . $id);
+
             }
 
             DB::commit();
@@ -351,6 +329,7 @@ class ManagerController extends Controller
         }
     }
 
+    // API từ chối bản kê khai tổng hợp (chuyển trạng thái sang BM Trả lại)
     public function keKhaiReject(Request $request, $id)
     {
         $manager = Auth::user();
@@ -364,7 +343,7 @@ class ManagerController extends Controller
             $query->where('bo_mon_id', $boMonIdCuaManager);
         })->findOrFail($id);
 
-        if ($keKhai->trang_thai_phe_duyet !== 1) { // Chỉ từ chối khi đang "Chờ duyệt BM"
+        if ($keKhai->trang_thai_phe_duyet !== 1) { 
             return response()->json(['message' => 'Kê khai không ở trạng thái chờ phê duyệt'], 400);
         }
 
@@ -381,10 +360,10 @@ class ManagerController extends Controller
 
         DB::beginTransaction();
         try {
-            $keKhai->trang_thai_phe_duyet = 4; // 4: BM Trả lại
+            $keKhai->trang_thai_phe_duyet = 4; 
             $keKhai->ly_do_tu_choi = $request->input('ly_do_tu_choi');
-            $keKhai->nguoi_duyet_bm_id = $manager->id; // Vẫn lưu người thực hiện hành động
-            $keKhai->thoi_gian_duyet_bm = now(); // Thời gian thực hiện hành động
+            $keKhai->nguoi_duyet_bm_id = $manager->id; 
+            $keKhai->thoi_gian_duyet_bm = now(); 
             $keKhai->save();
 
             LichSuPheDuyet::create([
@@ -396,23 +375,16 @@ class ManagerController extends Controller
                 'ghi_chu' => $request->input('ly_do_tu_choi'),
             ]);
 
-            // FIX: Improve email notification for rejection
             if ($keKhai->nguoiDung && $keKhai->nguoiDung->email) {
                 try {
-                    // Load required relationships for email
                     $keKhai->load(['nguoiDung', 'namHoc']);
                     
-                    // Send email immediately (not queued) for testing
-                    Mail::to($keKhai->nguoiDung->email)->send(new KeKhaiRejected($keKhai, $keKhai->namHoc, $request->input('ly_do_tu_choi')));
-                    Log::info("Rejection email sent successfully to: " . $keKhai->nguoiDung->email . " for kekhai ID: " . $keKhai->id);
-                    
+                    Mail::to($keKhai->nguoiDung->email)->send(new KeKhaiRejected($keKhai, $keKhai->namHoc, $request->input('ly_do_tu_choi')));                    
                 } catch (\Exception $e) {
-                    Log::error("Failed to send rejection email for kekhai ID {$id}: " . $e->getMessage());
-                    Log::error("Email error details: " . $e->getTraceAsString());
-                    // Continue with rejection even if email fails
+                    
                 }
             } else {
-                Log::warning("No email found for user ID: " . ($keKhai->nguoi_dung_id ?? 'N/A') . " for kekhai ID: " . $id);
+                
             }
 
             DB::commit();
@@ -424,8 +396,6 @@ class ManagerController extends Controller
             return response()->json(['message' => 'Lỗi hệ thống khi từ chối kê khai: ' . $e->getMessage()], 500);
         }
     }
-
-    // Các hàm bulkApprove, bulkReject cần được cập nhật tương tự như keKhaiApprove và keKhaiReject
 
     public function sendNotification(Request $request)
     {
@@ -449,13 +419,11 @@ class ManagerController extends Controller
         $sendTo = $request->input('send_to');
 
         try {
-            // Lấy thông tin năm học và thời gian kê khai
             $namHoc = NamHoc::find($namHocId);
             $keKhaiThoiGian = KeKhaiThoiGian::where('nam_hoc_id', $namHocId)->first();
             
-            // Xác định danh sách người nhận
             $nguoiNhanQuery = User::where('bo_mon_id', $boMonIdCuaManager)
-                ->where('role', 'lecturer')
+                ->where('vai_tro', '3')
                 ->whereNotNull('email');
 
             switch ($sendTo) {
@@ -500,12 +468,11 @@ class ManagerController extends Controller
                     );
                     $sentCount++;
                     
-                    // Log successful send
-                    Log::info("Reminder notification sent to: {$nguoiNhan->email} for nam_hoc_id: {$namHocId}");
+                    Log::info("Thông báo đã được gửi đến: {$nguoiNhan->email} cho nam_hoc_id: {$namHocId}");
                     
                 } catch (\Exception $e) {
                     $failedEmails[] = $nguoiNhan->email;
-                    Log::error("Failed to send reminder to {$nguoiNhan->email}: " . $e->getMessage());
+                    Log::error("Gửi mail thất bại cho {$nguoiNhan->email}: " . $e->getMessage());
                     continue;
                 }
             }
@@ -530,6 +497,7 @@ class ManagerController extends Controller
         }
     }
 
+    // API thống kê tổng hợp khối lượng, xếp hạng, xu hướng theo thời gian trong bộ môn
     public function statistics(Request $request)
     {
         $manager = Auth::user();
@@ -538,7 +506,7 @@ class ManagerController extends Controller
             return response()->json(['message' => 'Quản lý không thuộc bộ môn nào.'], 403);
         }
 
-        $namHocId = $request->query('nam_hoc_id'); // Lọc theo năm học
+        $namHocId = $request->query('nam_hoc_id'); 
 
         $baseQuery = KeKhaiTongHopNamHoc::whereHas('nguoiDung', function ($q) use ($boMonIdCuaManager) {
             $q->where('bo_mon_id', $boMonIdCuaManager);
@@ -566,7 +534,6 @@ class ManagerController extends Controller
             $activityStats[$key . '_percentage'] = $totalActivityHours > 0 ? round(($value / $totalActivityHours) * 100, 1) : 0;
         }
 
-
         // Xếp hạng giảng viên trong bộ môn (đã duyệt)
         $topGiangViens = (clone $approvedQuery)
             ->select('nguoi_dung_id', DB::raw('SUM(tong_gio_thuc_hien_final_duyet) as total_hours_approved'))
@@ -587,7 +554,7 @@ class ManagerController extends Controller
             $timeTrend = KeKhaiTongHopNamHoc::whereHas('nguoiDung', function ($q) use ($boMonIdCuaManager) {
                 $q->where('bo_mon_id', $boMonIdCuaManager);
             })
-                ->where('trang_thai_phe_duyet', 3) // Chỉ tính đã duyệt
+                ->where('trang_thai_phe_duyet', 3) 
                 ->join('nam_hoc', 'ke_khai_tong_hop_nam_hoc.nam_hoc_id', '=', 'nam_hoc.id')
                 ->select(
                     'nam_hoc.ten_nam_hoc as period',
@@ -615,81 +582,85 @@ class ManagerController extends Controller
         return response()->json($statsData);
     }
 
-    public function getSalaryInfo(Request $request)
-    {
-        $manager = Auth::user();
-        $boMonIdCuaManager = $manager->bo_mon_id;
-        $namHocId = $request->query('nam_hoc_id');
+    // public function getSalaryInfo(Request $request)
+    // {
+    //     $manager = Auth::user();
+    //     $boMonIdCuaManager = $manager->bo_mon_id;
+    //     $namHocId = $request->query('nam_hoc_id');
 
-        if (!$boMonIdCuaManager) {
-            return response()->json(['message' => 'Quản lý không thuộc bộ môn nào.'], 403);
-        }
+    //     if (!$boMonIdCuaManager) {
+    //         return response()->json(['message' => 'Quản lý không thuộc bộ môn nào.'], 403);
+    //     }
 
-        $query = LuongGiangVien::whereHas('nguoiDung', function ($q) use ($boMonIdCuaManager) {
-            $q->where('bo_mon_id', $boMonIdCuaManager);
-        })
-            ->with(['nguoiDung:id,ho_ten,ma_gv,hoc_ham,hoc_vi', 'namHoc:id,ten_nam_hoc']);
+    //     $query = LuongGiangVien::whereHas('nguoiDung', function ($q) use ($boMonIdCuaManager) {
+    //         $q->where('bo_mon_id', $boMonIdCuaManager);
+    //     })
+    //         ->with(['nguoiDung:id,ho_ten,ma_gv,hoc_ham,hoc_vi', 'namHoc:id,ten_nam_hoc']);
 
-        if ($namHocId) {
-            $query->where('nam_hoc_id', $namHocId);
-        }
+    //     if ($namHocId) {
+    //         $query->where('nam_hoc_id', $namHocId);
+    //     }
 
-        $salaryData = $query->get();
+    //     $salaryData = $query->get();
 
-        return response()->json($salaryData);
-    }
+    //     return response()->json($salaryData);
+    // }
 
-    public function updateSalaryInfo(Request $request, $id)
-    {
-        $manager = Auth::user();
-        $boMonIdCuaManager = $manager->bo_mon_id;
+    // public function updateSalaryInfo(Request $request, $id)
+    // {
+    //     $manager = Auth::user();
+    //     $boMonIdCuaManager = $manager->bo_mon_id;
 
-        $validator = Validator::make($request->all(), [
-            'muc_luong_co_ban' => 'nullable|numeric|min:0',
-            'don_gia_gio_vuot_muc' => 'nullable|numeric|min:0',
-            'ghi_chu' => 'nullable|string|max:1000'
-        ]);
+    //     $validator = Validator::make($request->all(), [
+    //         'muc_luong_co_ban' => 'nullable|numeric|min:0',
+    //         'don_gia_gio_vuot_muc' => 'nullable|numeric|min:0',
+    //         'ghi_chu' => 'nullable|string|max:1000'
+    //     ]);
 
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Dữ liệu không hợp lệ.', 'errors' => $validator->errors()], 422);
-        }
+    //     if ($validator->fails()) {
+    //         return response()->json(['message' => 'Dữ liệu không hợp lệ.', 'errors' => $validator->errors()], 422);
+    //     }
 
-        $luongGV = LuongGiangVien::whereHas('nguoiDung', function ($q) use ($boMonIdCuaManager) {
-            $q->where('bo_mon_id', $boMonIdCuaManager);
-        })->findOrFail($id);
+    //     $luongGV = LuongGiangVien::whereHas('nguoiDung', function ($q) use ($boMonIdCuaManager) {
+    //         $q->where('bo_mon_id', $boMonIdCuaManager);
+    //     })->findOrFail($id);
 
-        $luongGV->update($request->only(['muc_luong_co_ban', 'don_gia_gio_vuot_muc', 'ghi_chu']));
+    //     $luongGV->update($request->only(['muc_luong_co_ban', 'don_gia_gio_vuot_muc', 'ghi_chu']));
 
-        // Recalculate derived fields
-        $this->calculateSalaryFields($luongGV);
+    //     $this->calculateSalaryFields($luongGV);
 
-        return response()->json(['message' => 'Cập nhật thông tin lương thành công.', 'data' => $luongGV]);
-    }
+    //     return response()->json(['message' => 'Cập nhật thông tin lương thành công.', 'data' => $luongGV]);
+    // }
 
-    private function calculateSalaryFields(LuongGiangVien $luongGV)
-    {
-        // Get the corresponding ke khai data
-        $keKhai = KeKhaiTongHopNamHoc::where('nguoi_dung_id', $luongGV->nguoi_dung_id)
-            ->where('nam_hoc_id', $luongGV->nam_hoc_id)
-            ->where('trang_thai_phe_duyet', 3) // Only approved
-            ->first();
+    // /**
+    //  * Hàm helper: Tính lại các trường lương phụ thuộc vào kê khai đã duyệt
+    //  * @param LuongGiangVien $luongGV
+    //  * Lưu ý: Chỉ tính nếu có kê khai đã duyệt
+    //  */
+    // private function calculateSalaryFields(LuongGiangVien $luongGV)
+    // {
+    //     $keKhai = KeKhaiTongHopNamHoc::where('nguoi_dung_id', $luongGV->nguoi_dung_id)
+    //         ->where('nam_hoc_id', $luongGV->nam_hoc_id)
+    //         ->where('trang_thai_phe_duyet', 3)
+    //         ->first();
 
-        if ($keKhai) {
-            $luongGV->tong_gio_chuan_thuc_hien = $keKhai->tong_gio_thuc_hien_final_duyet;
-            $luongGV->so_gio_vuot_muc = max(0, $keKhai->ket_qua_thua_thieu_gio_gd_duyet ?? 0);
+    //     if ($keKhai) {
+    //         $luongGV->tong_gio_chuan_thuc_hien = $keKhai->tong_gio_thuc_hien_final_duyet;
+    //         $luongGV->so_gio_vuot_muc = max(0, $keKhai->ket_qua_thua_thieu_gio_gd_duyet ?? 0);
 
-            if ($luongGV->don_gia_gio_vuot_muc && $luongGV->so_gio_vuot_muc) {
-                $luongGV->tong_tien_luong_vuot_gio = $luongGV->so_gio_vuot_muc * $luongGV->don_gia_gio_vuot_muc;
-            }
+    //         if ($luongGV->don_gia_gio_vuot_muc && $luongGV->so_gio_vuot_muc) {
+    //             $luongGV->tong_tien_luong_vuot_gio = $luongGV->so_gio_vuot_muc * $luongGV->don_gia_gio_vuot_muc;
+    //         }
 
-            if ($luongGV->muc_luong_co_ban && $luongGV->tong_tien_luong_vuot_gio) {
-                $luongGV->thanh_tien_nam = $luongGV->muc_luong_co_ban + $luongGV->tong_tien_luong_vuot_gio;
-            }
+    //         if ($luongGV->muc_luong_co_ban && $luongGV->tong_tien_luong_vuot_gio) {
+    //             $luongGV->thanh_tien_nam = $luongGV->muc_luong_co_ban + $luongGV->tong_tien_luong_vuot_gio;
+    //         }
 
-            $luongGV->save();
-        }
-    }
+    //         $luongGV->save();
+    //     }
+    // }
 
+    // API xuất báo cáo tổng hợp, chi tiết, vượt giờ (Excel/PDF/ZIP)
     public function exportReport(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -712,9 +683,9 @@ class ManagerController extends Controller
         $format = $request->input('format');
         $trangThaiFilter = $request->input('trang_thai');
         $searchGV = $request->input('search');
+        $searchGV = is_array($searchGV) ? $searchGV[0] ?? null : $searchGV;
         $isPreview = $request->input('preview') === 'true';
 
-        // Build query with debug information
         $query = KeKhaiTongHopNamHoc::where('nam_hoc_id', $namHocId)
             ->whereHas('nguoiDung', function ($q) use ($boMonIdCuaManager, $searchGV) {
                 $q->where('bo_mon_id', $boMonIdCuaManager);
@@ -726,12 +697,10 @@ class ManagerController extends Controller
                 }
             });
 
-        // Apply status filter if provided
         if ($trangThaiFilter !== null && $trangThaiFilter !== '') {
             $query->where('trang_thai_phe_duyet', $trangThaiFilter);
         }
 
-        // Add eager loading
         $query->with($this->getEagerLoadRelationsForReport());
 
         if ($isPreview) {
@@ -751,7 +720,6 @@ class ManagerController extends Controller
             ], 404);
         }
 
-        // Get salary information for pricing calculation
         $salaryData = LuongGiangVien::where('nam_hoc_id', $namHocId)
             ->whereHas('nguoiDung', function ($q) use ($boMonIdCuaManager) {
                 $q->where('bo_mon_id', $boMonIdCuaManager);
@@ -771,7 +739,6 @@ class ManagerController extends Controller
                 return $this->exportPdfReport($keKhaiTongHops, $salaryData, $namHoc, $boMon, $fileName, $request);
             }
         } catch (\Exception $e) {
-            Log::error('Export error: ' . $e->getMessage());
             return response()->json(['message' => 'Lỗi khi xuất báo cáo: ' . $e->getMessage()], 500);
         }
     }
@@ -779,11 +746,9 @@ class ManagerController extends Controller
     private function exportExcelReport($keKhaiTongHops, $salaryData, $namHoc, $boMon, $fileName)
     {
         try {
-            Log::info("Starting Excel export for {$fileName}");
             $export = new KekhaiReportExport($keKhaiTongHops, $salaryData, $namHoc, $boMon);
             return Excel::download($export, "{$fileName}.xlsx");
         } catch (\Exception $e) {
-            Log::error('Excel export error: ' . $e->getMessage());
             throw new \Exception('Lỗi khi xuất Excel: ' . $e->getMessage());
         }
     }
@@ -791,7 +756,6 @@ class ManagerController extends Controller
     private function exportPdfReport($keKhaiTongHops, $salaryData, $namHoc, $boMon, $fileName, $request)
     {
         try {
-            // Create a temporary directory for PDFs
             $tempDir = storage_path('app/temp/' . Str::random(10));
             if (!file_exists($tempDir)) {
                 mkdir($tempDir, 0755, true);
@@ -799,13 +763,10 @@ class ManagerController extends Controller
 
             $pdfFiles = [];
 
-            // Get the data for different report types
             $overtimeReportData = $this->transformDataForOvertimeReport($keKhaiTongHops, $salaryData);
             $workloadReportData = $this->transformDataForWorkloadReport($keKhaiTongHops);
 
-            Log::info("Starting PDF exports for {$fileName}");
-
-            // 1. First PDF: BẢNG TỔNG HỢP KHỐI LƯỢNG TÍNH VƯỢT GIỜ (KLVG)
+            // 1: BẢNG TỔNG HỢP KHỐI LƯỢNG TÍNH VƯỢT GIỜ (KLVG)
             $overtimePdf = Pdf::loadView('reports.manager_overtime_pdf', [
                 'reportData' => $overtimeReportData,
                 'namHoc' => $namHoc,
@@ -823,9 +784,8 @@ class ManagerController extends Controller
             $overtimeFile = $tempDir . '/01_BangTongHopKhoiLuongTinhVuotGio_KLVG.pdf';
             $overtimePdf->save($overtimeFile);
             $pdfFiles[] = $overtimeFile;
-            Log::info("Generated overtime report PDF");
 
-            // 2. Second PDF: BẢNG TỔNG HỢP KHỐI LƯỢNG CÔNG TÁC (THKL)
+            // 2: BẢNG TỔNG HỢP KHỐI LƯỢNG CÔNG TÁC (THKL)
             $workloadPdf = Pdf::loadView('reports.manager_workload_pdf', [
                 'reportData' => $workloadReportData,
                 'namHoc' => $namHoc,
@@ -843,19 +803,11 @@ class ManagerController extends Controller
             $workloadFile = $tempDir . '/02_BangTongHopKhoiLuongCongTac_THKL.pdf';
             $workloadPdf->save($workloadFile);
             $pdfFiles[] = $workloadFile;
-            Log::info("Generated workload report PDF");
-
-            // 3. Individual PDFs for each lecturer
-            Log::info("Starting individual lecturer PDFs. Total count: " . $keKhaiTongHops->count());
 
             foreach ($keKhaiTongHops as $index => $keKhai) {
                 try {
-                    Log::info("Processing lecturer {$index}: " . ($keKhai->nguoiDung->ho_ten ?? 'Unknown'));
-
-                    // Transform data for this specific lecturer
                     $lecturerDetailData = $this->transformDataForLecturerDetail($keKhai, $salaryData);
 
-                    // Create PDF for this lecturer
                     $lecturerPdf = Pdf::loadView('reports.manager_lecturer_detail_pdf', [
                         'keKhaiData' => $lecturerDetailData,
                         'namHoc' => $namHoc,
@@ -870,7 +822,6 @@ class ManagerController extends Controller
                         ->setOption('margin-left', 10)
                         ->setOption('margin-right', 10);
 
-                    // Generate safe filename with lecturer name
                     $lecturerName = $keKhai->nguoiDung->ho_ten ?? 'Unknown';
                     $cleanName = preg_replace('/[^a-zA-Z0-9\s]/', '', $lecturerName);
                     $cleanName = preg_replace('/\s+/', '_', trim($cleanName));
@@ -878,44 +829,34 @@ class ManagerController extends Controller
 
                     $lecturerFile = $tempDir . '/' . sprintf('03_%02d_ChiTiet_%s_%s.pdf', $index + 1, $cleanName, $maGV);
 
-                    // Save the PDF
                     $lecturerPdf->save($lecturerFile);
                     $pdfFiles[] = $lecturerFile;
 
-                    Log::info("Generated PDF for lecturer " . ($index + 1) . ": {$lecturerName} ({$maGV}) - File: " . basename($lecturerFile));
                 } catch (\Exception $e) {
-                    Log::error("Error generating PDF for lecturer at index {$index}: " . $e->getMessage());
-                    Log::error("Lecturer data: " . json_encode([
+                    Log::error("Dữ liệu kê khai: " . json_encode([
                         'ho_ten' => $keKhai->nguoiDung->ho_ten ?? 'N/A',
                         'ma_gv' => $keKhai->nguoiDung->ma_gv ?? 'N/A',
                         'id' => $keKhai->id ?? 'N/A'
                     ]));
-                    // Continue with other lecturers instead of stopping
                     continue;
                 }
             }
 
-            Log::info("Completed individual lecturer PDFs. Generated " . (count($pdfFiles) - 2) . " lecturer files");
-
-            // Create ZIP file with all PDFs
             $zipFileName = "{$fileName}.zip";
             $zipPath = storage_path('app/temp/' . $zipFileName);
-
-            Log::info("Creating ZIP archive at: {$zipPath} with " . count($pdfFiles) . " files");
 
             $zip = new ZipArchive();
             if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
                 foreach ($pdfFiles as $file) {
                     if (file_exists($file)) {
                         $zip->addFile($file, basename($file));
-                        Log::info("Added to ZIP: " . basename($file) . " (size: " . filesize($file) . " bytes)");
+                        Log::info("Thêm zip: " . basename($file) . " (size: " . filesize($file) . " bytes)");
                     } else {
-                        Log::warning("File not found for ZIP: " . $file);
+                        Log::warning("Không tìm thấy file để zip: " . $file);
                     }
                 }
                 $zip->close();
 
-                // Clean up temp files
                 foreach ($pdfFiles as $file) {
                     if (file_exists($file)) {
                         unlink($file);
@@ -923,18 +864,13 @@ class ManagerController extends Controller
                 }
                 rmdir($tempDir);
 
-                Log::info("ZIP file created successfully with " . count($pdfFiles) . " files");
-
                 return response()->download($zipPath)->deleteFileAfterSend(true);
             } else {
-                Log::error("Failed to create ZIP file at: " . $zipPath);
-                throw new \Exception('Could not create ZIP file');
+                throw new \Exception('Không thể tạo file ZIP.');
             }
         } catch (\Exception $e) {
-            Log::error('Export PDF error: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
 
-            // Clean up temp directory if it exists
             if (isset($tempDir) && is_dir($tempDir)) {
                 $files = glob($tempDir . '/*');
                 foreach ($files as $file) {
@@ -951,7 +887,6 @@ class ManagerController extends Controller
 
     private function transformDataForReport($keKhaiTongHops, $namHocId)
     {
-        // Get salary data for the preview
         $manager = Auth::user();
         $salaryData = LuongGiangVien::where('nam_hoc_id', $namHocId)
             ->whereHas('nguoiDung', function ($q) use ($manager) {
@@ -999,10 +934,9 @@ class ManagerController extends Controller
         return $keKhaiTongHops->map(function ($keKhai) use ($salaryData) {
             $salaryInfo = $salaryData->get($keKhai->nguoi_dung_id);
             $gioVuot = max(0, floatval($keKhai->ket_qua_thua_thieu_gio_gd_tam_tinh ?? 0));
-            $mucLuongCoBan = $salaryInfo ? floatval($salaryInfo->muc_luong_co_ban ?? 0) : 0; // Fix: use muc_luong_co_ban
+            $mucLuongCoBan = $salaryInfo ? floatval($salaryInfo->muc_luong_co_ban ?? 0) : 0;
             $thanhTien = $gioVuot * $mucLuongCoBan;
 
-            // Split full name into first name and last name like in KLVG.csv
             $hoTen = trim($keKhai->nguoiDung->ho_ten ?? '');
             $hoTenArray = explode(' ', $hoTen);
             $ten = count($hoTenArray) > 1 ? array_pop($hoTenArray) : '';
@@ -1020,7 +954,7 @@ class ManagerController extends Controller
                 'thuc_hien_gd' => floatval($keKhai->tong_gio_giangday_final_tam_tinh ?? 0),
                 'gd_xa_truong' => floatval($keKhai->tong_gio_gdxatruong_tam_tinh ?? 0),
                 'so_tiet_vuot' => $gioVuot,
-                'muc_luong_co_ban' => $mucLuongCoBan, // Use actual salary from database
+                'muc_luong_co_ban' => $mucLuongCoBan, 
                 'hd_la' => intval($keKhai->sl_huongdan_la_conlai_tam_tinh ?? 0),
                 'hd_lv' => intval($keKhai->sl_huongdan_lv_conlai_tam_tinh ?? 0),
                 'hd_da' => intval($keKhai->sl_huongdan_dakl_conlai_tam_tinh ?? 0),
@@ -1033,7 +967,6 @@ class ManagerController extends Controller
     private function transformDataForWorkloadReport($keKhaiTongHops)
     {
         return $keKhaiTongHops->map(function ($keKhai) {
-            // Split full name into first name and last name like in THKL.csv
             $hoTen = trim($keKhai->nguoiDung->ho_ten ?? '');
             $hoTenArray = explode(' ', $hoTen);
             $ten = count($hoTenArray) > 1 ? array_pop($hoTenArray) : '';
@@ -1062,7 +995,6 @@ class ManagerController extends Controller
     {
         $salaryInfo = $salaryData->get($keKhai->nguoi_dung_id);
 
-        // Fix: Use correct field names for định mức
         $dinhmucGD = floatval($keKhai->dinhmuc_gd_apdung_tam_tinh ?? $keKhai->dinhmuc_gd_apdung ?? 224);
         $dinhmucKHCN = floatval($keKhai->dinhmuc_khcn_apdung_tam_tinh ?? $keKhai->dinhmuc_khcn_apdung ?? 68);
 
@@ -1085,7 +1017,6 @@ class ManagerController extends Controller
 
     private function getKeKhaiDetails($keKhai)
     {
-        // Ensure the keKhai is loaded with all necessary relationships
         $keKhai->load([
             'kekhaiGdLopDhTrongbms',
             'kekhaiGdLopDhNgoaibms',
@@ -1128,7 +1059,6 @@ class ManagerController extends Controller
             'congtac_khac_nam_hoc' => [],
         ];
 
-        // Helper function to check if item has meaningful data
         $hasRealData = function($item, $checkFields) {
             foreach ($checkFields as $field) {
                 $value = $item[$field] ?? null;
@@ -1138,9 +1068,6 @@ class ManagerController extends Controller
             }
             return false;
         };
-
-        // Debug logging
-        Log::info("Processing ke khai details for user: " . ($keKhai->nguoiDung->ho_ten ?? 'Unknown'));
 
         // 1. Giảng dạy lớp trong bộ môn
         if ($keKhai->kekhaiGdLopDhTrongbms && $keKhai->kekhaiGdLopDhTrongbms->count() > 0) {
@@ -1417,25 +1344,20 @@ class ManagerController extends Controller
             }
         }
 
-        // Remove empty sections from details array
         $details = array_filter($details, function($section) {
             return !empty($section);
         });
-
-        Log::info("Final filtered details summary: " . json_encode(array_map('count', $details)));
 
         return $details;
     }
 
     private function getEagerLoadRelationsForReport()
     {
-        // Tương tự như getEagerLoadRelationsForTongHopDetailView trong LecturerController
-        // nhưng có thể cần thêm thông tin của User.BoMon.Khoa
         return [
             'namHoc',
             'nguoiDung:id,ho_ten,ma_gv,hoc_ham,hoc_vi,bo_mon_id',
             'nguoiDung.boMon:id,ten_bo_mon,khoa_id',
-            'nguoiDung.boMon.khoa:id,ten_khoa', // Thêm thông tin Khoa
+            'nguoiDung.boMon.khoa:id,ten_khoa', 
             'lichSuPheDuyet.nguoiThucHien:id,ho_ten',
             'kekhaiGdLopDhTrongbms',
             'kekhaiGdLopDhNgoaibms',
@@ -1458,54 +1380,6 @@ class ManagerController extends Controller
         ];
     }
 
-    private function getDefaultReportColumns($reportType)
-    {
-        // Trả về mảng các cột mặc định cho từng loại báo cáo nếu người dùng không chọn
-        if ($reportType === 'overview_csv_format' || $reportType === 'detailed_csv_format' || $reportType === 'comprehensive_csv_format') {
-            // Các cột tương ứng với file CSV bạn cung cấp
-           
-            // Ví dụ cho bảng "Tổng hợp khối lượng" (Mục I.2)
-            return [
-                'ma_gv',
-                'ho_ten',
-                'hoc_ham',
-                'hoc_vi', // Thông tin GV
-                // Cột 1->12 của Mục I.2 (Tổng hợp khối lượng)
-                'tong_gio_khcn_kekhai_tam_tinh', // C1
-                'tong_gio_congtackhac_quydoi_tam_tinh', // C2
-                'tong_gio_coithi_chamthi_dh_tam_tinh', // C3
-                'tong_gio_gd_danhgia_tam_tinh', // C4
-                'tong_sl_huongdan_la_tam_tinh', // C6
-                'tong_sl_huongdan_lv_tam_tinh', // C7
-                'tong_sl_huongdan_dakl_tam_tinh', // C8
-                'tong_gio_huongdan_quy_doi_tam_tinh', // C9
-                'tong_gio_khcn_kekhai_tam_tinh', // C10 (trùng C1)
-                'tong_gio_giangday_final_tam_tinh', // C11
-                'tong_gio_gdxatruong_tam_tinh', // C12
-                // Thêm các cột cho Mục I.1 (Khối lượng vượt giờ)
-                'dinhmuc_gd_apdung',
-                'dinhmuc_khcn_apdung',
-                'gio_khcn_thuchien_xet_dinhmuc_tam_tinh', // C3.I1
-                'gio_gd_danhgia_xet_dinhmuc_tam_tinh', // C4.I1
-                'gio_gdxatruong_xet_dinhmuc_tam_tinh', // C5.I1
-                'gio_gd_hoanthanh_sau_butru_tam_tinh', // C6.I1
-                'sl_huongdan_la_conlai_tam_tinh', // C7.I1
-                'sl_huongdan_lv_conlai_tam_tinh', // C8.I1
-                'sl_huongdan_dakl_conlai_tam_tinh', // C9.I1
-                'gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh', // Hoàn thành KHCN so với ĐM (Bảng bổ sung)
-                'gio_vuot_gd_khong_hd_tam_tinh', // Số tiết vượt (không tính HD)
-                'ket_qua_thua_thieu_gio_gd_tam_tinh', // Thừa/thiếu cuối cùng
-                'trang_thai_phe_duyet',
-                'thoi_gian_gui',
-                'thoi_gian_duyet_bm'
-            ];
-        }
-        // Mặc định cho các loại báo cáo khác
-        return ['ma_gv', 'ho_ten', 'tong_gio_thuc_hien_final_duyet', 'trang_thai_phe_duyet'];
-    }
-
-    // Các hàm cũ: getHocKy, getBoMon (nếu Manager là Trưởng Khoa và cần xem các bộ môn)
-    // có thể được thay bằng các hàm lấy danh sách chung (ví dụ: getNamHocList)
     public function getNamHocList()
     {
         return response()->json(NamHoc::orderBy('ngay_bat_dau', 'desc')->get(['id', 'ten_nam_hoc', 'la_nam_hien_hanh']));
@@ -1524,6 +1398,7 @@ class ManagerController extends Controller
         return response()->json($boMonList);
     }
 
+    // API tính toán lại khối lượng công việc trước khi duyệt
     public function recalculateBeforeApprove(Request $request, $id)
     {
         $manager = Auth::user();
@@ -1537,23 +1412,19 @@ class ManagerController extends Controller
             $query->where('bo_mon_id', $boMonIdCuaManager);
         })->findOrFail($id);
 
-        if ($keKhai->trang_thai_phe_duyet !== 1) { // Chỉ tính lại khi đang "Chờ duyệt BM"
+        if ($keKhai->trang_thai_phe_duyet !== 1) { 
             return response()->json(['message' => 'Kê khai không ở trạng thái chờ phê duyệt'], 400);
         }
 
         try {
-            // Check if WorkloadService is available
             if (!isset($this->workloadService)) {
                 return response()->json(['message' => 'WorkloadService không khả dụng'], 500);
             }
 
-            // Tính toán lại khối lượng công việc
             $this->workloadService->calculateAllForKeKhaiTongHop($keKhai->id);
             
-            // Refresh the model để lấy dữ liệu mới nhất
             $keKhai->refresh();
             
-            // Load relationships for response
             $keKhai->load([
                 'nguoiDung:id,ho_ten,ma_gv,email,hoc_ham,hoc_vi,bo_mon_id',
                 'nguoiDung.boMon:id,ten_bo_mon',

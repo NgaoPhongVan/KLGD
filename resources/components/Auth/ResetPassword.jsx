@@ -27,7 +27,7 @@ function ResetPassword() {
                 password_confirmation: passwordConfirmation,
             });
             setMessage(response.data.message);
-            setTimeout(() => navigate('/login'), 2000); // Chuyển về login sau 2s
+            setTimeout(() => navigate('/login'), 2000);
         } catch (err) {
             setError(err.response?.data?.message || 'Có lỗi xảy ra');
         } finally {
@@ -37,7 +37,6 @@ function ResetPassword() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40 relative flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            {/* Enhanced background decoration */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-blue-400/5 to-indigo-400/5 rounded-full blur-3xl"></div>
                 <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-purple-400/5 to-pink-400/5 rounded-full blur-3xl"></div>
@@ -45,9 +44,7 @@ function ResetPassword() {
             </div>
 
             <div className="relative z-10 max-w-md w-full space-y-8">
-                {/* Main Card */}
                 <div className="bg-white/95 backdrop-blur-lg border border-gray-200/50 shadow-2xl rounded-2xl p-8 space-y-8">
-                    {/* Header Section */}
                     <div className="text-center">
                         <div className="flex justify-center mb-6">
                             <div className="relative">
@@ -70,10 +67,8 @@ function ResetPassword() {
                         </div>
                     </div>
 
-                    {/* Form Section */}
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-5">
-                            {/* Email Field */}
                             <div>
                                 <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -90,7 +85,6 @@ function ResetPassword() {
                                 />
                             </div>
 
-                            {/* Password Field */}
                             <div>
                                 <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -109,7 +103,6 @@ function ResetPassword() {
                                 />
                             </div>
 
-                            {/* Password Confirmation Field */}
                             <div>
                                 <label htmlFor="password_confirmation" className="block text-sm font-semibold text-gray-700 mb-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -129,7 +122,6 @@ function ResetPassword() {
                             </div>
                         </div>
 
-                        {/* Success Message */}
                         {message && (
                             <div className="rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/50 p-4 shadow-lg">
                                 <div className="flex items-center">
@@ -147,7 +139,6 @@ function ResetPassword() {
                             </div>
                         )}
 
-                        {/* Error Message */}
                         {error && (
                             <div className="rounded-xl bg-gradient-to-r from-rose-50 to-red-50 border border-rose-200/50 p-4 shadow-lg">
                                 <div className="flex items-center">
@@ -165,7 +156,6 @@ function ResetPassword() {
                             </div>
                         )}
 
-                        {/* Action Buttons */}
                         <div className="flex flex-col space-y-4">
                             <button
                                 type="submit"
@@ -203,7 +193,6 @@ function ResetPassword() {
                         </div>
                     </form>
 
-                    {/* Footer */}
                     <div className="text-center pt-6 border-t border-gray-200/50">
                         <div className="flex items-center justify-center space-x-2">
                             <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
@@ -215,24 +204,19 @@ function ResetPassword() {
                     </div>
                 </div>
 
-                {/* Enhanced Custom Styles */}
                 <style jsx>{`
-                    /* Input field enhancements */
                     input:focus {
                         transform: translateY(-1px);
                     }
                     
-                    /* Button hover effects */
                     button:hover:not(:disabled) {
                         transform: translateY(-2px);
                     }
                     
-                    /* Smooth animations */
                     * {
                         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                     }
                     
-                    /* Glass morphism effect */
                     .backdrop-blur-lg {
                         backdrop-filter: blur(16px);
                         -webkit-backdrop-filter: blur(16px);

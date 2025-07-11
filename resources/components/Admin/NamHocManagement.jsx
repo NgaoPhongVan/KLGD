@@ -251,8 +251,6 @@ function NamHocManagement() {
     };
 
     const handleDelete = (id) => {
-        console.log("handleDelete called with id:", id); // Debug log
-        
         if (!id) {
             console.error("ID is null or undefined");
             message.error("Không thể xác định năm học cần xóa");
@@ -264,8 +262,6 @@ function NamHocManagement() {
     };
 
     const confirmDelete = async () => {
-        console.log("Confirm delete clicked, deleting ID:", deletingId); // Debug log
-        
         if (!deletingId) {
             message.error("Không thể xác định năm học cần xóa");
             return;
@@ -282,14 +278,11 @@ function NamHocManagement() {
                 },
             });
             
-            console.log("Delete response:", response); // Debug log
             message.success("Xóa năm học thành công");
             
-            // Close modal and reset state
             setDeleteModalVisible(false);
             setDeletingId(null);
             
-            // Refresh data after successful deletion
             await fetchNamHoc();
             
         } catch (error) {
@@ -303,7 +296,6 @@ function NamHocManagement() {
                 errorMessage = "Bạn không có quyền xóa năm học này.";
             } else if (error.response?.status === 404) {
                 errorMessage = "Năm học không tồn tại hoặc đã được xóa.";
-                // Refresh data to update the list
                 await fetchNamHoc();
             } else if (error.response?.status === 422) {
                 errorMessage = "Không thể xóa năm học này vì đã có học kỳ liên kết!";
@@ -320,7 +312,6 @@ function NamHocManagement() {
     };
 
     const cancelDelete = () => {
-        console.log("Delete cancelled"); // Debug log
         setDeleteModalVisible(false);
         setDeletingId(null);
     };
@@ -335,7 +326,7 @@ function NamHocManagement() {
                 return false;
             }
             setFile(file);
-            return false; // Prevent auto upload
+            return false; 
         },
         onRemove: () => {
             setFile(null);
@@ -344,13 +335,11 @@ function NamHocManagement() {
     };
 
     const downloadSampleFile = () => {
-        // Tạo dữ liệu mẫu CSV với cấu trúc đúng cho năm học
         const csvHeaders = [
             'ten_nam_hoc',
             'la_nam_hien_hanh'
         ];
 
-        // Dữ liệu mẫu với các giá trị ví dụ
         const sampleData = [
             [
                 '2023-2024',
@@ -374,17 +363,14 @@ function NamHocManagement() {
             ]
         ];
 
-        // Tạo nội dung CSV
         const csvContent = [
             csvHeaders.join(','),
             ...sampleData.map(row => row.join(','))
         ].join('\n');
 
-        // Thêm BOM để hỗ trợ UTF-8 trong Excel
         const BOM = '\uFEFF';
         const finalContent = BOM + csvContent;
 
-        // Tạo và tải xuống file
         const blob = new Blob([finalContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
@@ -483,14 +469,12 @@ function NamHocManagement() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40 relative">
-            {/* Enhanced background decoration */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-blue-400/5 to-indigo-400/5 rounded-full blur-3xl"></div>
                 <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-purple-400/5 to-pink-400/5 rounded-full blur-3xl"></div>
             </div>
 
             <div className="relative z-10 p-8 space-y-6">
-                {/* Enhanced Header */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-6">
@@ -521,7 +505,6 @@ function NamHocManagement() {
                     </div>
                 </Card>
 
-                {/* Enhanced Search Section */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-blue-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
@@ -574,7 +557,6 @@ function NamHocManagement() {
                     </div>
                 </Card>
 
-                {/* Enhanced Form Section */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-purple-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
@@ -673,7 +655,6 @@ function NamHocManagement() {
                     </Form>
                 </Card>
 
-                {/* Enhanced Import Section */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-emerald-50/50 to-teal-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
@@ -723,7 +704,6 @@ function NamHocManagement() {
                                 </div>
                             </div>
 
-                            {/* Additional help section */}
                             <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
                                 <div className="flex items-start">
                                     <div className="w-4 h-4 bg-amber-400 rounded-full mt-0.5 mr-2 flex-shrink-0"></div>
@@ -740,7 +720,6 @@ function NamHocManagement() {
                                 </div>
                             </div>
 
-                            {/* Status reference section */}
                             <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
                                 <div className="flex items-start">
                                     <div className="w-4 h-4 bg-green-400 rounded-full mt-0.5 mr-2 flex-shrink-0"></div>
@@ -792,7 +771,6 @@ function NamHocManagement() {
                     </Row>
                 </Card>
 
-                {/* Enhanced NamHoc Table */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-purple-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center justify-between">
@@ -901,7 +879,6 @@ function NamHocManagement() {
                     )}
                 </Card>
 
-                {/* Delete Confirmation Modal */}
                 <Modal
                     title={
                         <div className="flex items-center">
@@ -922,9 +899,7 @@ function NamHocManagement() {
                     <p>Bạn có chắc chắn muốn xóa năm học này? Hành động này không thể hoàn tác.</p>
                 </Modal>
 
-                {/* Enhanced Custom Styles */}
                 <style>{`
-                    /* Base Ant Design Component Styles */
                     .custom-select .ant-select-selector {
                         border-radius: 8px !important;
                         border: 1px solid #e2e8f0 !important;
@@ -950,7 +925,6 @@ function NamHocManagement() {
                         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important;
                     }
                     
-                    /* Table styling */
                     .custom-table .ant-table {
                         border-radius: 12px !important;
                         overflow: hidden !important;
@@ -973,7 +947,6 @@ function NamHocManagement() {
                         background: rgba(59, 130, 246, 0.05) !important;
                     }
                     
-                    /* Button styling enhancements */
                     .ant-btn-primary {
                         border-radius: 12px !important;
                         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25) !important;
@@ -996,7 +969,6 @@ function NamHocManagement() {
                         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
                     }
                     
-                    /* Pagination styling */
                     .custom-pagination .ant-pagination-item {
                         border-radius: 8px !important;
                         border: 1px solid #e2e8f0 !important;
@@ -1011,19 +983,16 @@ function NamHocManagement() {
                         color: white !important;
                     }
                     
-                    /* Upload styling */
                     .ant-upload-list-item {
                         border-radius: 8px !important;
                         border: 1px solid #e2e8f0 !important;
                     }
                     
-                    /* Form styling */
                     .ant-form-item-label > label {
                         font-weight: 500 !important;
                         color: #374151 !important;
                     }
                     
-                    /* Tag styling */
                     .ant-tag {
                         border-radius: 6px !important;
                         font-weight: 500 !important;

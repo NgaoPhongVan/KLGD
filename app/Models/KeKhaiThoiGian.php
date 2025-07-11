@@ -11,7 +11,7 @@ class KeKhaiThoiGian extends Model
     protected $table = 'ke_khai_thoi_gian';
 
     protected $fillable = [
-        'hoc_ky_id',
+        'nam_hoc_id',
         'thoi_gian_bat_dau',
         'thoi_gian_ket_thuc',
         'ghi_chu',
@@ -22,8 +22,8 @@ class KeKhaiThoiGian extends Model
         'thoi_gian_ket_thuc' => 'datetime',
     ];
 
-    public function hocKy()
+    public function namHoc()
     {
-        return $this->belongsTo(HocKy::class, 'hoc_ky_id');
+        return $this->belongsTo(NamHoc::class, 'nam_hoc_id');
     }
 }

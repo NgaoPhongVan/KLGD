@@ -29,7 +29,6 @@ import {
     ApartmentOutlined,
     ExclamationCircleOutlined,
     InfoCircleOutlined,
-    FilterOutlined,
     CloseCircleOutlined,
     SettingOutlined,
     DownloadOutlined
@@ -106,9 +105,8 @@ function BoMonManagement() {
                 debouncedSearch.cancel();
             }
         };
-    }, [searchTerm, debouncedSearch, pagination.per_page]);
+    }, [searchTerm, debouncedSearch]);
 
-    // Separate useEffect for filter changes
     useEffect(() => {
         setPagination((prev) => ({
             ...prev,
@@ -181,7 +179,6 @@ function BoMonManagement() {
             });
             setKhoaList(response.data.data || []);
         } catch (error) {
-            console.error("Error fetching faculties:", error);
             message.error("Không thể tải dữ liệu khoa");
         }
     };
@@ -208,10 +205,6 @@ function BoMonManagement() {
             current_page: 1,
         }));
         fetchBoMon(1, pagination.per_page, "", filterKhoa);
-    };
-
-    const clearFilter = () => {
-        setFilterKhoa("");
     };
 
     const clearAll = () => {
@@ -265,11 +258,8 @@ function BoMonManagement() {
         setEditingId(boMon.id);
     };
 
-    const handleDelete = (id) => {
-        console.log("handleDelete called with id:", id); // Debug log
-        
+    const handleDelete = (id) => {        
         if (!id) {
-            console.error("ID is null or undefined");
             message.error("Không thể xác định bộ môn cần xóa");
             return;
         }
@@ -278,9 +268,7 @@ function BoMonManagement() {
         setDeleteModalVisible(true);
     };
 
-    const confirmDelete = async () => {
-        console.log("Confirm delete clicked, deleting ID:", deletingId); // Debug log
-        
+    const confirmDelete = async () => {        
         if (!deletingId) {
             message.error("Không thể xác định bộ môn cần xóa");
             return;
@@ -288,28 +276,21 @@ function BoMonManagement() {
 
         setIsDeleting(true);
         
-        try {
-            console.log("Making DELETE request to:", `/api/admin/bo-mon/${deletingId}`); // Debug log
-            
+        try {            
             const response = await axios.delete(`/api/admin/bo-mon/${deletingId}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
             });
             
-            console.log("Delete response:", response); // Debug log
             message.success("Xóa bộ môn thành công");
             
-            // Close modal and reset state
             setDeleteModalVisible(false);
             setDeletingId(null);
             
-            // Refresh data after successful deletion
             await fetchBoMon();
             
-        } catch (error) {
-            console.error("Delete error:", error);
-            
+        } catch (error) {            
             let errorMessage = "Có lỗi xảy ra khi xóa bộ môn";
             
             if (error.response?.status === 401) {
@@ -318,7 +299,6 @@ function BoMonManagement() {
                 errorMessage = "Bạn không có quyền xóa bộ môn này.";
             } else if (error.response?.status === 404) {
                 errorMessage = "Bộ môn không tồn tại hoặc đã được xóa.";
-                // Refresh data to update the list
                 await fetchBoMon();
             } else if (error.response?.status === 422) {
                 errorMessage = error.response?.data?.message || "Không thể xóa bộ môn này vì đã có giảng viên liên kết!";
@@ -335,7 +315,6 @@ function BoMonManagement() {
     };
 
     const cancelDelete = () => {
-        console.log("Delete cancelled"); // Debug log
         setDeleteModalVisible(false);
         setDeletingId(null);
     };
@@ -360,9 +339,7 @@ function BoMonManagement() {
             fetchBoMon();
             setFile(null);
         } catch (error) {
-            const errorMessages = error.response?.data?.errors
-                ? Object.values(error.response.data.errors).flat().join("; ")
-                : error.response?.data?.message || "Có lỗi khi nhập file";
+            const errorMessages = error.response?.data?.errors ? Object.values(error.response.data.errors).flat().join("; ") : error.response?.data?.message || "Có lỗi khi nhập file";
             message.error(errorMessages);
         } finally {
             setIsLoading(false);
@@ -374,12 +351,13 @@ function BoMonManagement() {
             const isValidType = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || 
                                file.type === 'application/vnd.ms-excel' ||
                                file.type === 'text/csv';
+            // xlsx, xls, csv
             if (!isValidType) {
                 message.error('Chỉ hỗ trợ file Excel (.xlsx, .xls) và CSV!');
                 return false;
             }
             setFile(file);
-            return false; // Prevent auto upload
+            return false;
         },
         onRemove: () => {
             setFile(null);
@@ -388,14 +366,12 @@ function BoMonManagement() {
     };
 
     const downloadSampleFile = () => {
-        // Tạo dữ liệu mẫu CSV với cấu trúc đúng cho bộ môn
         const csvHeaders = [
             'ma_bo_mon',
             'ten_bo_mon',
             'khoa_id'
         ];
 
-        // Dữ liệu mẫu với các giá trị ví dụ
         const sampleData = [
             [
                 'CNTT',
@@ -434,17 +410,14 @@ function BoMonManagement() {
             ]
         ];
 
-        // Tạo nội dung CSV
         const csvContent = [
             csvHeaders.join(','),
             ...sampleData.map(row => row.join(','))
         ].join('\n');
 
-        // Thêm BOM để hỗ trợ UTF-8 trong Excel
-        const BOM = '\uFEFF';
+        const BOM = '\uFEFF'; // Để excel nhận biết đây là file UTF-8
         const finalContent = BOM + csvContent;
 
-        // Tạo và tải xuống file
         const blob = new Blob([finalContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
@@ -499,7 +472,6 @@ function BoMonManagement() {
             key: 'actions',
             width: 120,
             render: (_, record) => {
-                console.log("Rendering action buttons for record:", record); // Debug log
                 return (
                     <Space>
                         <Tooltip title="Chỉnh sửa">
@@ -507,9 +479,8 @@ function BoMonManagement() {
                                 type="text"
                                 icon={<EditOutlined />}
                                 onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    console.log("Edit button clicked for:", record);
+                                    e.preventDefault(); // Ngăn sự kiện mặc định
+                                    e.stopPropagation(); // Ngăn chặn sự kiện lan truyền
                                     handleEdit(record);
                                 }}
                                 className="text-blue-600 hover:bg-blue-50"
@@ -522,7 +493,6 @@ function BoMonManagement() {
                                 onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    console.log("Delete button clicked for record ID:", record.id);
                                     handleDelete(record.id);
                                 }}
                                 className="text-red-600 hover:bg-red-50"
@@ -537,15 +507,8 @@ function BoMonManagement() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/40 relative">
-            {/* Enhanced background decoration */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-blue-400/5 to-indigo-400/5 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-purple-400/5 to-pink-400/5 rounded-full blur-3xl"></div>
-            </div>
-
             <div className="relative z-10 p-8 space-y-6">
-                {/* Enhanced Header */}
-                <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
+                <Card className="bg-white/95 border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-6">
                             <div className="relative">
@@ -575,7 +538,6 @@ function BoMonManagement() {
                     </div>
                 </Card>
 
-                {/* Enhanced Search and Filter Section */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-blue-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
@@ -644,8 +606,7 @@ function BoMonManagement() {
                         {(searchTerm || filterKhoa) && (
                             <div className="flex justify-between items-center">
                                 <div className="text-xs text-gray-500">
-                                    {isSearching ? "Đang tìm kiếm..." : 
-                                     searchTerm ? `Tìm kiếm với từ khóa: "${searchTerm}"` : ""}
+                                    {isSearching ? "Đang tìm kiếm..." : searchTerm ? `Tìm kiếm với từ khóa: "${searchTerm}"` : ""}
                                     {searchTerm && filterKhoa && " • "}
                                     {filterKhoa && `Lọc theo khoa: ${khoaList.find(k => k.id == filterKhoa)?.ten_khoa || ""}`}
                                 </div>
@@ -662,7 +623,6 @@ function BoMonManagement() {
                     </div>
                 </Card>
 
-                {/* Enhanced Form Section */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-purple-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
@@ -724,7 +684,7 @@ function BoMonManagement() {
                                         size="large"
                                         placeholder="Chọn khoa"
                                         className="custom-select"
-                                        showSearch
+                                        // showSearch
                                         filterOption={(input, option) =>
                                             option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                         }
@@ -768,7 +728,6 @@ function BoMonManagement() {
                     </Form>
                 </Card>
 
-                {/* Enhanced Import Section */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-emerald-50/50 to-teal-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center">
@@ -818,7 +777,6 @@ function BoMonManagement() {
                                 </div>
                             </div>
 
-                            {/* Additional help section */}
                             <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
                                 <div className="flex items-start">
                                     <div className="w-4 h-4 bg-amber-400 rounded-full mt-0.5 mr-2 flex-shrink-0"></div>
@@ -835,7 +793,6 @@ function BoMonManagement() {
                                 </div>
                             </div>
 
-                            {/* Khoa reference section */}
                             {khoaList.length > 0 && (
                                 <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
                                     <div className="flex items-start">
@@ -889,7 +846,6 @@ function BoMonManagement() {
                     </Row>
                 </Card>
 
-                {/* Enhanced BoMon Table */}
                 <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>
                     <div className="bg-gradient-to-r from-slate-50 via-purple-50/50 to-indigo-50/50 px-6 py-4 border-b border-gray-200/50 -mx-6 -mt-6 mb-6 rounded-t-2xl">
                         <div className="flex items-center justify-between">
@@ -1002,7 +958,6 @@ function BoMonManagement() {
                     )}
                 </Card>
 
-                {/* Delete Confirmation Modal */}
                 <Modal
                     title={
                         <div className="flex items-center">
@@ -1023,9 +978,7 @@ function BoMonManagement() {
                     <p>Bạn có chắc chắn muốn xóa bộ môn này? Hành động này không thể hoàn tác.</p>
                 </Modal>
 
-                {/* Enhanced Custom Styles */}
                 <style>{`
-                    /* Base Ant Design Component Styles */
                     .custom-select .ant-select-selector {
                         border-radius: 8px !important;
                         border: 1px solid #e2e8f0 !important;
@@ -1051,7 +1004,6 @@ function BoMonManagement() {
                         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important;
                     }
                     
-                    /* Table styling */
                     .custom-table .ant-table {
                         border-radius: 12px !important;
                         overflow: hidden !important;
@@ -1074,7 +1026,6 @@ function BoMonManagement() {
                         background: rgba(59, 130, 246, 0.05) !important;
                     }
                     
-                    /* Button styling enhancements */
                     .ant-btn-primary {
                         border-radius: 12px !important;
                         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25) !important;
@@ -1097,7 +1048,6 @@ function BoMonManagement() {
                         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
                     }
                     
-                    /* Pagination styling */
                     .custom-pagination .ant-pagination-item {
                         border-radius: 8px !important;
                         border: 1px solid #e2e8f0 !important;
@@ -1112,19 +1062,16 @@ function BoMonManagement() {
                         color: white !important;
                     }
                     
-                    /* Upload styling */
                     .ant-upload-list-item {
                         border-radius: 8px !important;
                         border: 1px solid #e2e8f0 !important;
                     }
                     
-                    /* Form styling */
                     .ant-form-item-label > label {
                         font-weight: 500 !important;
                         color: #374151 !important;
                     }
                     
-                    /* Tag styling */
                     .ant-tag {
                         border-radius: 6px !important;
                         font-weight: 500 !important;
