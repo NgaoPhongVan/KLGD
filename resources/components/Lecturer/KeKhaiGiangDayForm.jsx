@@ -1203,27 +1203,13 @@ function KeKhaiGiangDayForm() {
                                                 <div className="p-4">
                                                     <FormGdLop
                                                         type="gd_lop_dh_trongbm"
-                                                        dataSource={
-                                                            gdLopDhTrongBmList
-                                                        }
-                                                        setDataSource={
-                                                            setGdLopDhTrongBmList
-                                                        }
-                                                        formatDisplayValue={
-                                                            formatDisplayValue
-                                                        }
-                                                        EmptyValueDisplay={
-                                                            EmptyValueDisplay
-                                                        }
-                                                        renderTableCell={
-                                                            renderTableCell
-                                                        }
-                                                        renderNotes={
-                                                            renderNotes
-                                                        }
-                                                        renderFileAttachment={
-                                                            renderFileAttachment
-                                                        }
+                                                        dataSource={gdLopDhTrongBmList}
+                                                        setDataSource={setGdLopDhTrongBmList}
+                                                        formatDisplayValue={formatDisplayValue}
+                                                        EmptyValueDisplay={EmptyValueDisplay}
+                                                        renderTableCell={renderTableCell}
+                                                        renderNotes={renderNotes}
+                                                        renderFileAttachment={renderFileAttachment}
                                                     />
                                                 </div>
                                             </TabPane>{" "}
@@ -1234,27 +1220,13 @@ function KeKhaiGiangDayForm() {
                                                 <div className="p-4">
                                                     <FormGdLop
                                                         type="gd_lop_dh_ngoaibm"
-                                                        dataSource={
-                                                            gdLopDhNgoaiBmList
-                                                        }
-                                                        setDataSource={
-                                                            setGdLopDhNgoaiBmList
-                                                        }
-                                                        formatDisplayValue={
-                                                            formatDisplayValue
-                                                        }
-                                                        EmptyValueDisplay={
-                                                            EmptyValueDisplay
-                                                        }
-                                                        renderTableCell={
-                                                            renderTableCell
-                                                        }
-                                                        renderNotes={
-                                                            renderNotes
-                                                        }
-                                                        renderFileAttachment={
-                                                            renderFileAttachment
-                                                        }
+                                                        dataSource={gdLopDhNgoaiBmList}
+                                                        setDataSource={setGdLopDhNgoaiBmList}
+                                                        formatDisplayValue={formatDisplayValue}
+                                                        EmptyValueDisplay={EmptyValueDisplay}
+                                                        renderTableCell={renderTableCell}
+                                                        renderNotes={renderNotes}
+                                                        renderFileAttachment={renderFileAttachment}
                                                     />
                                                 </div>
                                             </TabPane>
@@ -1265,27 +1237,13 @@ function KeKhaiGiangDayForm() {
                                                 <div className="p-4">
                                                     <FormGdLop
                                                         type="gd_lop_dh_ngoaics"
-                                                        dataSource={
-                                                            gdLopDhNgoaiCsList
-                                                        }
-                                                        setDataSource={
-                                                            setGdLopDhNgoaiCsList
-                                                        }
-                                                        formatDisplayValue={
-                                                            formatDisplayValue
-                                                        }
-                                                        EmptyValueDisplay={
-                                                            EmptyValueDisplay
-                                                        }
-                                                        renderTableCell={
-                                                            renderTableCell
-                                                        }
-                                                        renderNotes={
-                                                            renderNotes
-                                                        }
-                                                        renderFileAttachment={
-                                                            renderFileAttachment
-                                                        }
+                                                        dataSource={gdLopDhNgoaiCsList}
+                                                        setDataSource={setGdLopDhNgoaiCsList}
+                                                        formatDisplayValue={formatDisplayValue}
+                                                        EmptyValueDisplay={EmptyValueDisplay}
+                                                        renderTableCell={renderTableCell}
+                                                        renderNotes={renderNotes}
+                                                        renderFileAttachment={renderFileAttachment}
                                                     />
                                                 </div>
                                             </TabPane>

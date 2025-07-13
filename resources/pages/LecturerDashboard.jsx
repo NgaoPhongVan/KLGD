@@ -57,7 +57,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                     setWelcomeAnimationComplete(true);
                 }, 100);
 
-                // Auto-dismiss after 5 seconds
                 const timer3 = setTimeout(() => {
                     dismissWelcomePopup();
                 }, 5000);
@@ -79,32 +78,28 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
         }, 300);
     };
 
-    // Authentication and role verification
     useEffect(() => {
         const verifyAuth = async () => {
             setAuthChecking(true);
             const token = localStorage.getItem("token");
 
             if (!token) {
-                // No token found, redirect to login
                 navigate("/login");
                 return;
             }
 
             try {
-                // Verify if token is valid and user has lecturer role
                 const response = await axios.get("/api/auth/verify-role", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
                     params: {
-                        role: "lecturer", // Check for lecturer role specifically
+                        role: "lecturer",
                     },
                 });
 
                 if (!response.data.success || !response.data.hasRole) {
-                    // User doesn't have lecturer role, redirect to login
-                    localStorage.removeItem("token"); // Clear invalid token
+                    localStorage.removeItem("token");
                     navigate("/login", {
                         state: {
                             message:
@@ -114,10 +109,8 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                     return;
                 }
 
-                // User authenticated with correct role, proceed to fetch profile
                 fetchProfile();
             } catch (error) {
-                console.error("Authentication verification failed:", error);
                 localStorage.removeItem("token");
                 navigate("/login", {
                     state: {
@@ -142,8 +135,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
             });
             setProfile(response.data);
         } catch (error) {
-            console.error("Error fetching profile:", error);
-            // If profile fetch fails due to permission issues, redirect to login
             if (
                 error.response &&
                 (error.response.status === 401 || error.response.status === 403)
@@ -160,12 +151,10 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
         }
     };
 
-    // Toggle sidebar collapsed state
     const toggleSidebar = () => {
         setSidebarCollapsed(!sidebarCollapsed);
     };
 
-    // Update phone number
     const handleUpdatePhone = async (values) => {
         setIsUpdatingPhone(true);
         try {
@@ -190,7 +179,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                     duration: 3,
                 });
 
-                // Update profile state with new phone number
                 setProfile((prev) => ({
                     ...prev,
                     dien_thoai: response.data.data.dien_thoai,
@@ -200,7 +188,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                 phoneForm.resetFields();
             }
         } catch (error) {
-            console.error("Error updating phone:", error);
             if (error.response?.data?.errors) {
                 const errorMessages = Object.values(
                     error.response.data.errors
@@ -226,13 +213,8 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
     const handleCancelPhoneEdit = () => {
         setIsEditingPhone(false);
         phoneForm.resetFields();
-    }; // Load profile when component mounts
-    useEffect(() => {
-        // Profile is already loaded in the auth verification effect
-        // No need to load it again here
-    }, []);
+    };
 
-    // Modern Avatar Component
     const ModernAvatar = ({ name, size = 120 }) => {
         const initial = name?.charAt(0)?.toUpperCase() || "M";
 
@@ -243,16 +225,9 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                         className="relative rounded-full bg-gradient-to-br from-slate-100 to-slate-200 shadow-lg border-4 border-white overflow-hidden"
                         style={{ width: size, height: size }}
                     >
-                        {/* Subtle background pattern */}
                         <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-indigo-50/30"></div>
-
-                        {/* Main gradient background */}
                         <div className="absolute inset-0 bg-gradient-to-br from-slate-600 via-slate-700 to-slate-800"></div>
-
-                        {/* Subtle top highlight */}
                         <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-transparent"></div>
-
-                        {/* Initial letter */}
                         <div className="absolute inset-0 flex items-center justify-center">
                             <span
                                 className="text-white font-bold select-none"
@@ -262,22 +237,17 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                             </span>
                         </div>
 
-                        {/* Hover effect overlay */}
                         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/0 to-indigo-600/0 group-hover:from-blue-600/10 group-hover:to-indigo-600/10 transition-all duration-300"></div>
                     </div>
-
-                    {/* Subtle outer ring on hover */}
                     <div className="absolute inset-0 rounded-full border-2 border-blue-200/0 group-hover:border-blue-200/50 transition-all duration-300"></div>
                 </div>
 
-                {/* Clean tooltip */}
                 <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-white shadow-lg rounded-lg py-2 px-4 text-sm text-gray-700 whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-gray-100">
                     <div className="text-center">
                         <div className="font-medium text-slate-700">
                             {name || "Quản lý"}
                         </div>
                     </div>
-                    {/* Simple arrow */}
                     <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1">
                         <div className="w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-white"></div>
                     </div>
@@ -289,19 +259,10 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
     if (authChecking || isLoading) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/20 to-blue-50/30 flex items-center justify-center overflow-hidden relative">
-                {/* Compact Background Decorations */}
-                <div className="absolute inset-0 overflow-hidden">
-                    <div className="absolute top-20 left-20 w-64 h-64 bg-gradient-to-r from-indigo-400/8 to-purple-400/8 rounded-full blur-3xl animate-float"></div>
-                    <div className="absolute bottom-20 right-20 w-56 h-56 bg-gradient-to-r from-blue-400/8 to-teal-400/8 rounded-full blur-3xl animate-float-delayed"></div>
-                </div>
-
-                {/* Compact Loading Card */}
                 <div className="relative z-10">
                     <div className="bg-white/90 backdrop-blur-xl shadow-2xl rounded-2xl p-8 border border-white/20 max-w-sm w-full mx-4 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none"></div>
-
                         <div className="relative z-10 flex flex-col items-center">
-                            {/* Smaller Loading Animation */}
                             <div className="relative mb-6">
                                 <div className="w-16 h-16 relative flex justify-center items-center">
                                     <div className="absolute w-full h-full border-3 border-indigo-200/30 rounded-full"></div>
@@ -326,7 +287,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                 </div>
                             </div>
 
-                            {/* Compact Text */}
                             <div className="text-center mb-6">
                                 <h3 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent mb-2">
                                     {authChecking
@@ -340,7 +300,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                 </p>
                             </div>
 
-                            {/* Compact Progress Bar */}
                             <div className="w-full">
                                 <div className="h-1.5 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full overflow-hidden shadow-inner">
                                     <div className="h-full bg-gradient-to-r from-indigo-600 via-blue-500 to-teal-500 rounded-full animate-loading-wave"></div>
@@ -350,24 +309,7 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                     </div>
                 </div>
 
-                {/* Enhanced Animation Styles */}
                 <style>{`
-                    @keyframes float {
-                        0%, 100% {
-                            transform: translateY(0px) rotate(0deg);
-                        }
-                        50% {
-                            transform: translateY(-20px) rotate(180deg);
-                        }
-                    }
-                    @keyframes float-delayed {
-                        0%, 100% {
-                            transform: translateY(0px) rotate(0deg);
-                        }
-                        50% {
-                            transform: translateY(-15px) rotate(-180deg);
-                        }
-                    }
                     @keyframes spin-reverse {
                         from {
                             transform: rotate(360deg);
@@ -387,13 +329,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                             transform: translateX(100%);
                         }
                     }
-                    .animate-float {
-                        animation: float 6s ease-in-out infinite;
-                    }
-                    .animate-float-delayed {
-                        animation: float-delayed 8s ease-in-out infinite;
-                        animation-delay: 2s;
-                    }
                     .animate-spin-reverse {
                         animation: spin-reverse 2s linear infinite;
                     }
@@ -407,50 +342,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
 
     return (
         <div className="flex h-screen bg-gradient-to-br from-slate-50 via-indigo-50/20 to-blue-50/30 overflow-hidden font-sans relative">
-            {/* Compact Background Elements */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-0 left-1/4 w-64 h-64 bg-gradient-to-r from-indigo-400/3 to-purple-400/3 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-0 right-1/4 w-56 h-56 bg-gradient-to-r from-blue-400/3 to-teal-400/3 rounded-full blur-3xl"></div>
-            </div>
-
-            {/* Compact Mobile Menu Button */}
-            <div className="lg:hidden fixed top-4 left-4 z-50">
-                <button
-                    onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className="w-10 h-10 rounded-xl bg-white/90 backdrop-blur-xl shadow-lg border border-white/20 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 active:scale-95 flex items-center justify-center"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className={`h-4 w-4 transition-transform duration-300 ${
-                            sidebarOpen ? "rotate-180" : ""
-                        }`}
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d={
-                                sidebarOpen
-                                    ? "M6 18L18 6M6 6l12 12"
-                                    : "M4 6h16M4 12h16M4 18h16"
-                            }
-                        />
-                    </svg>
-                </button>
-            </div>
-
-            {/* Enhanced Mobile backdrop */}
-            {sidebarOpen && (
-                <div
-                    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden transition-all duration-300"
-                    onClick={() => setSidebarOpen(false)}
-                ></div>
-            )}
-
-            {/* Balanced Sidebar */}
             <aside
                 className={`fixed lg:relative inset-y-0 left-0 z-50 transform transition-all duration-500 ease-out ${
                     sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -458,7 +349,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                     sidebarCollapsed ? "w-20" : "w-72"
                 } bg-white/95 backdrop-blur-xl border-r border-white/20 shadow-2xl flex flex-col h-screen overflow-hidden`}
             >
-                {/* Balanced Toggle Button */}
                 <div className="absolute -right-4 top-24 hidden lg:block z-10">
                     <button
                         onClick={toggleSidebar}
@@ -483,13 +373,11 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                     </button>
                 </div>
 
-                {/* Balanced Sidebar Header */}
                 <div
                     className={`${
                         sidebarCollapsed ? "px-4 py-6" : "px-6 py-6"
                     } relative bg-gradient-to-br from-indigo-600 via-indigo-700 to-blue-600 text-white overflow-hidden`}
                 >
-                    {/* Compact Background Pattern */}
                     <div className="absolute inset-0 opacity-15">
                         <div className="absolute top-0 right-0 w-24 h-24 bg-white/20 rounded-full -mr-16 -mt-16"></div>
                         <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/10 rounded-full -ml-12 -mb-12"></div>
@@ -502,7 +390,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                 : "items-center space-x-4"
                         }`}
                     >
-                        {/* Balanced Logo */}
                         <div className="flex-shrink-0 w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 flex items-center justify-center group hover:scale-110 transition-transform duration-300">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -526,12 +413,10 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                     </div>
                 </div>
 
-                {/* Balanced Navigation */}
                 <nav className="flex-1 py-6 px-4 overflow-y-auto bg-gradient-to-b from-white/80 to-white/95 backdrop-blur-sm">
                     {!sidebarCollapsed && <div className="mb-6 px-3"></div>}
 
                     <ul className="space-y-3">
-                        {" "}
                         {[
                             {
                                 id: "profile",
@@ -617,7 +502,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                     </ul>
                 </nav>
 
-                {/* Balanced User Profile Section */}
                 <div
                     className={`border-t border-gray-100/50 ${
                         sidebarCollapsed ? "p-4" : "p-0"
@@ -633,7 +517,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                 </div>
                             </div>
 
-                            {/* Balanced Tooltip */}
                             <div className="absolute left-full bottom-0 ml-6 bg-white/95 backdrop-blur-xl shadow-xl rounded-xl py-3 px-2 text-sm text-gray-700 whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 transform translate-x-4 group-hover:translate-x-0 z-50 border border-white/20">
                                 <div className="px-4 py-2">
                                     <div className="font-bold text-gray-800 mb-1">
@@ -672,7 +555,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                         </div>
                     ) : (
                         <div className="bg-gradient-to-br from-gray-50/80 to-white/80 backdrop-blur-sm rounded-xl mx-4 mb-4 mt-3 overflow-hidden shadow-md border border-gray-100/50">
-                            {/* Balanced User Info */}
                             <div className="p-4 pb-3">
                                 <div className="flex items-center space-x-4">
                                     <div className="flex-shrink-0 h-12 w-12 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 p-0.5 shadow-lg">
@@ -695,7 +577,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                 </div>
                             </div>
 
-                            {/* Balanced Logout Button */}
                             <div className="px-4 py-3 bg-white/80 border-t border-gray-100/50">
                                 <button
                                     onClick={() => {
@@ -726,15 +607,11 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                 </div>
             </aside>
 
-            {/* Balanced Main Content */}
             <main className="flex-1 flex flex-col overflow-hidden transition-all duration-500 relative z-10">
-                {/* Balanced Header */}
                 <header className="bg-white/90 backdrop-blur-xl border-b border-white/20 shadow-lg sticky top-0 z-30">
                     <div className="max-w-7xl mx-auto px-6 lg:px-8 h-18 flex items-center justify-between">
                         <div className="flex items-center">
-                            {/* Balanced Page Title */}
                             <h1 className="text-xl font-bold text-gray-800 flex items-center">
-                                {/* Balanced Icon */}
                                 <div className="w-10 h-10 bg-gradient-to-r from-indigo-100 to-blue-100 rounded-xl flex items-center justify-center mr-4 shadow-md">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -785,7 +662,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                             </h1>
                         </div>
 
-                        {/* Balanced Date Display */}
                         <div className="hidden sm:flex items-center">
                             <div className="flex items-center space-x-3 bg-gradient-to-r from-indigo-50 to-blue-50 px-4 py-3 rounded-xl border border-indigo-100 shadow-md backdrop-blur-sm">
                                 <div className="w-8 h-8 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg flex items-center justify-center">
@@ -816,13 +692,11 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                     </div>
                 </header>
 
-                {/* Balanced Content Area */}
                 <div className="flex-1 overflow-auto py-8 px-6 lg:px-8">
                     <div className="max-w-7xl mx-auto">
                         <div className="animate-slide-up">
                             {activeTab === "profile" ? (
                                 <div className="space-y-6">
-                                    {/* Enhanced Profile Header Card */}
                                     <Card
                                         className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl"
                                         style={{ borderRadius: "16px" }}
@@ -840,33 +714,24 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                                         level={2}
                                                         style={{ margin: 0 }}
                                                         className="text-3xl font-bold bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 bg-clip-text text-transparent"
-                                                    >
-                                                        Thông tin cá nhân
+                                                    >Thông tin cá nhân
                                                     </Title>
                                                     <div className="flex items-center space-x-2">
                                                         <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
-                                                        <Text type="secondary">
-                                                            Thông tin chi tiết
-                                                            về tài khoản và liên
-                                                            hệ
-                                                        </Text>
+                                                        <Text type="secondary">Thông tin chi tiết về tài khoản và liên hệ</Text>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Profile Avatar and Basic Info */}
                                         <div className="bg-gradient-to-r from-slate-50 via-blue-50/50 to-indigo-50/50 p-8 rounded-2xl border border-gray-200/50 mb-6">
                                             <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
-                                                {" "}
-                                                {/* Modern Avatar */}
                                                 <div className="relative">
                                                     <ModernAvatar
                                                         name={profile?.ho_ten}
                                                         size={120}
                                                     />
 
-                                                    {/* Status Badge */}
                                                     <div className="absolute -bottom-2 -right-2">
                                                         {profile?.trang_thai ===
                                                         1 ? (
@@ -880,7 +745,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                                         )}
                                                     </div>
                                                 </div>
-                                                {/* Basic Info */}
                                                 <div className="flex-1 text-center lg:text-left space-y-4">
                                                     <div>
                                                         <Title
@@ -945,9 +809,7 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                         </div>
                                     </Card>
 
-                                    {/* Information Cards Grid */}
                                     <Row gutter={[24, 24]}>
-                                        {/* Contact Information Card */}
                                         <Col xs={24} lg={12}>
                                             <Card
                                                 className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl h-full"
@@ -974,7 +836,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                                 </div>
 
                                                 <div className="space-y-6">
-                                                    {/* Email */}
                                                     <div className="group">
                                                         <div className="flex items-center p-4 bg-gradient-to-r from-gray-50 to-white rounded-xl border border-gray-100/50 hover:border-indigo-200/50 hover:shadow-md transition-all duration-300">
                                                             <div className="w-12 h-12 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300">
@@ -993,7 +854,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                                         </div>
                                                     </div>
 
-                                                    {/* Phone */}
                                                     <div className="group">
                                                         <div className="flex items-center p-4 bg-gradient-to-r from-gray-50 to-white rounded-xl border border-gray-100/50 hover:border-emerald-200/50 hover:shadow-md transition-all duration-300">
                                                             <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-green-100 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300">
@@ -1038,7 +898,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                             </Card>
                                         </Col>
 
-                                        {/* Work Information Card */}
                                         <Col xs={24} lg={12}>
                                             <Card
                                                 className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl h-full"
@@ -1065,7 +924,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                                 </div>
 
                                                 <div className="space-y-6">
-                                                    {/* Employee ID Card */}
                                                     <div className="p-6 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl border border-indigo-100/50 hover:shadow-lg transition-all duration-300 group">
                                                         <div className="flex items-center justify-between mb-3">
                                                             <Text className="text-sm font-medium text-indigo-600 uppercase tracking-wider">
@@ -1081,7 +939,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                                         </Text>
                                                     </div>
 
-                                                    {/* Department Card */}
                                                     <div className="p-6 bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl border border-emerald-100/50 hover:shadow-lg transition-all duration-300 group">
                                                         <div className="flex items-center justify-between mb-3">
                                                             <Text className="text-sm font-medium text-emerald-600 uppercase tracking-wider">
@@ -1098,7 +955,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                                         </Text>
                                                     </div>
 
-                                                    {/* Faculty Card */}
                                                     <div className="p-6 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl border border-purple-100/50 hover:shadow-lg transition-all duration-300 group">
                                                         <div className="flex items-center justify-between mb-3">
                                                             <Text className="text-sm font-medium text-purple-600 uppercase tracking-wider">
@@ -1120,9 +976,7 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                         </Col>
                                     </Row>
 
-                                    {/* Enhanced Custom Styles for Profile Section */}
                                     <style>{`
-                                        /* Card Enhancements */
                                         .ant-card {
                                             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
                                         }
@@ -1132,7 +986,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
                                         }
                                         
-                                        /* Avatar Enhancements */
                                         .ant-avatar {
                                             transition: all 0.3s ease !important;
                                         }
@@ -1140,7 +993,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                             transform: scale(1.05) !important;
                                         }
                                         
-                                        /* Tag Enhancements */
                                         .ant-tag {
                                             border-radius: 8px !important;
                                             font-weight: 500 !important;
@@ -1154,7 +1006,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
                                         }
                                         
-                                        /* Custom color classes */
                                         .text-emerald-700 { color: #047857; }
                                         .text-emerald-600 { color: #059669; }
                                         .text-amber-700 { color: #b45309; }
@@ -1181,7 +1032,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                     </div>
                 </div>
 
-                {/* Enhanced Welcome Popup */}
                 {welcomePopupVisible && (
                     <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
                         <div
@@ -1195,13 +1045,11 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                     : "opacity-0 scale-75 rotate-3"
                             }`}
                         >
-                            {/* Enhanced Background Pattern */}
                             <div className="absolute inset-0 overflow-hidden rounded-2xl">
                                 <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-r from-indigo-400/8 to-blue-400/8 rounded-full -mr-12 -mt-12"></div>
                                 <div className="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-r from-purple-400/8 to-pink-400/8 rounded-full -ml-10 -mb-10"></div>
                             </div>
 
-                            {/* Enhanced Close Button */}
                             <button
                                 onClick={dismissWelcomePopup}
                                 className="absolute top-3 right-3 w-8 h-8 bg-gray-100/90 hover:bg-gray-200/90 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-700 transition-all duration-300 hover:scale-110 shadow-lg border border-gray-200/50 z-20"
@@ -1220,9 +1068,7 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                 </svg>
                             </button>
 
-                            {/* Main Content */}
                             <div className="relative z-10 flex flex-col items-center text-center">
-                                {/* Enhanced Welcome Icon */}
                                 <div className="relative mb-5">
                                     <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 via-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-xl border-2 border-white/50">
                                         <svg
@@ -1240,13 +1086,11 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                             />
                                         </svg>
                                     </div>
-                                    {/* Floating particles */}{" "}
                                     <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-yellow-400 rounded-full animate-bounce shadow-lg"></div>
                                     <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow-lg"></div>
                                     <div className="absolute top-1/2 -right-2 w-1 h-1 bg-pink-400 rounded-full animate-ping"></div>
                                 </div>
 
-                                {/* Enhanced Title */}
                                 <div className="mb-5">
                                     <div className="bg-gradient-to-r from-indigo-40/80 via-blue-50/80 to-purple-50/80 backdrop-blur-sm p-3 rounded-lg border border-indigo-200/20 mb-3 shadow-lg max-w-md mx-auto">
                                         <h2 className="text-lg font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
@@ -1266,7 +1110,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                     </div>
                                 </div>
 
-                                {/* Enhanced Feature Grid */}
                                 <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-2.5 mb-5 max-w-2xl">
                                     {[
                                         {
@@ -1334,12 +1177,10 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                             key={index}
                                             className={`bg-gradient-to-br ${feature.color} backdrop-blur-sm p-3 rounded-lg border shadow-sm hover:shadow-md transition-all duration-300 group hover:scale-105 cursor-pointer`}
                                         >
-                                            {/* Feature Icon */}
                                             <div className="text-indigo-600 mb-2 group-hover:scale-110 transition-transform duration-300 flex justify-center">
                                                 {feature.icon}
                                             </div>
 
-                                            {/* Feature Content */}
                                             <div className="text-left">
                                                 <h4 className="flex justify-center text-xs font-bold text-gray-800 mb-1 group-hover:text-indigo-700 transition-colors duration-300">
                                                     {feature.title}
@@ -1349,7 +1190,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                                 </p>
                                             </div>
 
-                                            {/* Hover Arrow */}
                                             <div className="flex justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                                 <div className="w-4 h-4 bg-white/80 rounded-full flex items-center justify-center">
                                                     <svg
@@ -1371,7 +1211,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                     ))}
                                 </div>
 
-                                {/* Enhanced Stats Bar */}
                                 <div className="w-full flex items-center justify-center gap-4 mb-5 p-3 bg-gradient-to-r from-gray-50/80 via-white/80 to-gray-50/80 backdrop-blur-sm rounded-lg border border-gray-200/50 max-w-md mx-auto">
                                     <div className="text-center">
                                         <div className="flex justify-center mb-1">
@@ -1440,7 +1279,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                     </div>
                                 </div>
 
-                                {/* Enhanced Action Buttons */}
                                 <div className="flex flex-col sm:flex-row gap-2.5 w-full max-w-md mx-auto">
                                     <button
                                         onClick={dismissWelcomePopup}
@@ -1507,7 +1345,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                                     </button>
                                 </div>
 
-                                {/* Skip option */}
                                 <button
                                     onClick={dismissWelcomePopup}
                                     className="mt-3 text-xs text-gray-500 hover:text-gray-700 transition-colors duration-300 underline underline-offset-2"
@@ -1519,7 +1356,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                     </div>
                 )}
 
-                {/* Enhanced Custom Styles */}
                 <style>{`
                     @keyframes slide-up {
                         from {
@@ -1579,7 +1415,6 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                 `}</style>
             </main>
 
-            {/* Phone Edit Modal */}
             <Modal
                 title={
                     <div className="flex items-center">
@@ -1647,11 +1482,7 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
                 </Form>
             </Modal>
 
-            {/* Enhanced Custom Styles */}
             <style>{`
-                /* ...existing styles... */
-                
-                /* Phone Edit Modal Styles */
                 .phone-edit-modal .ant-modal-content {
                     border-radius: 16px !important;
                     overflow: hidden;

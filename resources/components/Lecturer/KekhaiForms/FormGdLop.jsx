@@ -36,11 +36,8 @@ function FormGdLop({
     type,
     dataSource,
     setDataSource,
-    formatDisplayValue,
-    EmptyValueDisplay,
     renderTableCell,
     renderNotes,
-    renderFileAttachment,
 }) {
     const [form] = Form.useForm();
     const [editingItem, setEditingItem] = useState(null);
@@ -49,7 +46,6 @@ function FormGdLop({
     const [csvPreview, setCsvPreview] = useState([]);
     const [isProcessingCSV, setIsProcessingCSV] = useState(false);
 
-    // Sử dụng useEffect để reset form khi modal được mở để thêm mới
     useEffect(() => {
         if (isModalVisible && !editingItem) {
             form.setFieldsValue({
@@ -83,7 +79,7 @@ function FormGdLop({
 
     const handleEditItem = (record, index) => {
         setEditingItem({ index, record });
-        // Đặt giá trị cho tất cả các trường có thể có
+        // Đặt giá trị cho tất cả các trường
         form.setFieldsValue({
             ten_lop_hoc_phan: record.ten_lop_hoc_phan,
             hoc_ky_dien_ra: record.hoc_ky_dien_ra,
@@ -124,9 +120,7 @@ function FormGdLop({
         try {
             const values = await form.validateFields();
             // Sử dụng giá trị so_tiet_qd từ form, nếu không có thì tính toán tự động
-            const so_tiet_qd =
-                values.so_tiet_qd ||
-                calculateSoTietQD(values.kl_ke_hoach, values.he_so_qd);
+            const so_tiet_qd = values.so_tiet_qd || calculateSoTietQD(values.kl_ke_hoach, values.he_so_qd);
 
             const newItem = {
                 id_temp:
@@ -151,7 +145,6 @@ function FormGdLop({
             form.resetFields();
             setEditingItem(null);
         } catch (errorInfo) {
-            console.log("Validate Failed:", errorInfo);
             message.error("Vui lòng kiểm tra lại thông tin đã nhập.");
         }
     };
@@ -248,7 +241,6 @@ function FormGdLop({
             return;
         }
 
-        // Thêm dữ liệu CSV vào dataSource hiện tại
         const newData = [...dataSource, ...csvPreview];
         setDataSource(newData);
 
@@ -256,7 +248,6 @@ function FormGdLop({
             `Đã nhập thành công ${csvPreview.length} lớp học phần từ CSV. Vui lòng kiểm tra và bổ sung thông tin còn thiếu.`
         );
 
-        // Reset và đóng modal
         setCsvPreview([]);
         setIsImportModalVisible(false);
     };
@@ -1632,11 +1623,9 @@ function FormGdLop({
                                             setFieldValue("so_tiet_qd", value);
                                         }}
                                         onBlur={() => {
-                                            // Nếu ô trống, tự động điền giá trị tính toán
+                                            // Nếu ô trống, tự động điền giá trị
                                             if (
-                                                !currentSoTietQD &&
-                                                calculatedValue &&
-                                                calculatedValue !== "0.00"
+                                                !currentSoTietQD && calculatedValue && calculatedValue !== "0.00"
                                             ) {
                                                 setFieldValue(
                                                     "so_tiet_qd",

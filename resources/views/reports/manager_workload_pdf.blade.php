@@ -121,7 +121,6 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
     <div class="header">
         <div class="header-left">
             <h1><strong>BỘ NÔNG NGHIỆP & PTNT</strong></h1>
@@ -134,7 +133,6 @@
         </div>
     </div>
 
-    <!-- Main Report Table -->
     <table class="report-table">
         <thead>
             <tr>
@@ -204,7 +202,6 @@
             </tr>
             @endforeach
             
-            <!-- Total Row -->
             <tr class="total-row">
                 <td colspan="3" class="text-left"><strong>Tổng cộng</strong></td>
                 <td class="number"><strong>{{ number_format($totals['khcn_p9'], 2) }}</strong></td>
@@ -223,7 +220,6 @@
         </tbody>
     </table>
 
-    <!-- Signature Section -->
     <div class="signature-section">
         <div class="signature-block">
             <div class="signature-title">Hiệu trưởng</div>
@@ -252,7 +248,6 @@
         </div>
     </div>
 
-    <!-- Date and Location -->
     <div style="text-align: center; margin-top: 20px;">
         <p><em>Hà Nội, ngày {{ date('d') }} tháng {{ date('m') }} năm {{ date('Y') }}</em></p>
     </div>

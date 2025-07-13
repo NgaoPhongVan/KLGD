@@ -40,15 +40,8 @@ import {
 } from "chart.js";
 
 ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    ArcElement,
-    LineElement,
-    PointElement,
-    ChartTitle,
-    Tooltip,
-    Legend
+    CategoryScale, LinearScale, BarElement, ArcElement,
+    LineElement, PointElement, ChartTitle, Tooltip, Legend
 );
 
 const { Option } = Select;
@@ -820,7 +813,6 @@ function ManagerStatistics() {
                                         padding: "20px 24px",
                                     }}
                                 >
-                                    {" "}
                                     {statsData.activity_stats_bm &&
                                     Object.values(
                                         statsData.activity_stats_bm
@@ -865,7 +857,6 @@ function ManagerStatistics() {
                                         padding: "20px 24px",
                                     }}
                                 >
-                                    {" "}
                                     {statsData.top_giang_viens_bm &&
                                     statsData.top_giang_viens_bm.length > 0 ? (
                                         <div
@@ -947,7 +938,6 @@ function ManagerStatistics() {
                                         padding: "20px 24px",
                                     }}
                                 >
-                                    {" "}
                                     <div
                                         style={{ height: 400 }}
                                         className="p-4 chart-container"
@@ -960,7 +950,7 @@ function ManagerStatistics() {
                                 </Card>
                             )}
                     </>
-                )}{" "}
+                )}
                 <style jsx>{`
                     @keyframes slideInFromRight {
                         from {

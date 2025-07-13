@@ -11,7 +11,6 @@ import DinhMucCaNhanManagement from '../components/Admin/DinhMucCaNhanManagement
 import DmHeSoChungManagement from '../components/Admin/DmHeSoChungManagement';
 import LuongGiangVienManagement from '../components/Admin/LuongGiangVienManagement';
 import MienGiamDinhMucManagement from '../components/Admin/MienGiamDinhMucManagement';
-import Logout from '../components/Auth/Logout';
 
 function AdminDashboard() {
     const navigate = useNavigate();
@@ -24,7 +23,6 @@ function AdminDashboard() {
     const [welcomePopupVisible, setWelcomePopupVisible] = useState(false);
     const [welcomeAnimationComplete, setWelcomeAnimationComplete] = useState(false);
 
-    // Enhanced welcome popup with better timing
     useEffect(() => {
         if (!isLoading && !authChecking && adminInfo) {
             const timer1 = setTimeout(() => {
@@ -33,7 +31,6 @@ function AdminDashboard() {
                     setWelcomeAnimationComplete(true);
                 }, 100);
                 
-                // Auto-dismiss after 6 seconds
                 const timer3 = setTimeout(() => {
                     dismissWelcomePopup();
                 }, 6000);
@@ -55,7 +52,6 @@ function AdminDashboard() {
         }, 500);
     };
 
-    // Authentication and role verification
     useEffect(() => {
         const verifyAuth = async () => {
             setAuthChecking(true);
@@ -88,7 +84,6 @@ function AdminDashboard() {
                 
                 fetchAdminInfo();
             } catch (error) {
-                console.error("Authentication verification failed:", error);
                 localStorage.removeItem("token");
                 navigate("/login", { 
                     state: { 
@@ -113,7 +108,6 @@ function AdminDashboard() {
             });
             setAdminInfo(response.data);
         } catch (error) {
-            console.error("Error fetching admin info:", error);
             if (error.response && (error.response.status === 401 || error.response.status === 403)) {
                 localStorage.removeItem("token");
                 navigate("/login", { 
@@ -129,7 +123,9 @@ function AdminDashboard() {
 
     const toggleSidebar = () => {
         setSidebarCollapsed(!sidebarCollapsed);
-    };    const modules = [
+    };
+
+    const modules = [
         { 
             id: 'users', 
             label: 'Quản lý người dùng', 
@@ -192,27 +188,22 @@ function AdminDashboard() {
         },
     ];
 
-    // Enhanced loading screen
     if (authChecking || isLoading) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-purple-50 via-slate-50/50 to-indigo-50/30 flex items-center justify-center overflow-hidden relative">
-                {/* Enhanced background decorations */}
                 <div className="absolute inset-0 overflow-hidden">
                     <div className="absolute top-20 left-20 w-64 h-64 bg-gradient-to-r from-purple-400/8 to-indigo-400/8 rounded-full blur-3xl animate-float"></div>
                     <div className="absolute bottom-20 right-20 w-56 h-56 bg-gradient-to-r from-violet-400/8 to-purple-400/8 rounded-full blur-3xl animate-float-delayed"></div>
                 </div>
                 
-                {/* Enhanced loading card */}
                 <div className="relative z-10">
                     <div className="bg-white/90 backdrop-blur-xl shadow-2xl rounded-2xl p-8 border border-white/20 max-w-sm w-full mx-4 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none"></div>
 
                         <div className="relative z-10 flex flex-col items-center">
-                            {/* Enhanced loading animation */}
                             <div className="relative mb-6">
                                 <div className="w-16 h-16 relative flex justify-center items-center">
                                     <div className="absolute w-full h-full border-3 border-purple-200/30 rounded-full"></div>
-                                    <div className="absolute w-full h-full border-t-3 border-r-3 border-purple-600 rounded-full animate-spin"></div>
                                     <div className="absolute w-10 h-10 border-t-2 border-indigo-400 rounded-full animate-spin-reverse"></div>
                                     <div className="w-8 h-8 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-full shadow-lg flex items-center justify-center">
                                         <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -271,37 +262,12 @@ function AdminDashboard() {
 
     return (
         <div className="flex h-screen bg-gradient-to-br from-purple-50 via-slate-50/50 to-indigo-50/30 overflow-hidden font-sans relative">
-            {/* Enhanced background elements */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-0 left-1/4 w-64 h-64 bg-gradient-to-r from-purple-400/3 to-indigo-400/3 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-0 right-1/4 w-56 h-56 bg-gradient-to-r from-violet-400/3 to-purple-400/3 rounded-full blur-3xl"></div>
-            </div>
-
-            {/* Enhanced mobile menu button */}
-            <div className="lg:hidden fixed top-4 left-4 z-50">
-                <button
-                    onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className="w-10 h-10 rounded-xl bg-white/90 backdrop-blur-xl shadow-lg border border-white/20 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500/30 active:scale-95 flex items-center justify-center"
-                >
-                    <svg className={`h-4 w-4 transition-transform duration-300 ${sidebarOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
-                    </svg>
-                </button>
-            </div>
-
-            {/* Enhanced mobile backdrop */}
-            {sidebarOpen && (
-                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden transition-all duration-300" onClick={() => setSidebarOpen(false)}></div>
-            )}
-
-            {/* Enhanced Sidebar */}
             <aside className={`fixed lg:relative inset-y-0 left-0 z-50 transform transition-all duration-500 ease-out ${
                 sidebarOpen ? "translate-x-0" : "-translate-x-full"
             } lg:translate-x-0 ${
                 sidebarCollapsed ? "w-20" : "w-72"
             } bg-white/95 backdrop-blur-xl border-r border-white/20 shadow-2xl flex flex-col h-screen overflow-hidden`}>
                 
-                {/* Enhanced toggle button */}
                 <div className="absolute -right-4 top-24 hidden lg:block z-10">
                     <button 
                         onClick={toggleSidebar}
@@ -313,9 +279,7 @@ function AdminDashboard() {
                     </button>
                 </div>
                 
-                {/* Enhanced header */}
                 <div className={`${sidebarCollapsed ? "px-4 py-6" : "px-6 py-6"} relative bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-600 text-white overflow-hidden`}>
-                    {/* Enhanced background pattern */}
                     <div className="absolute inset-0 opacity-15">
                         <div className="absolute top-0 right-0 w-24 h-24 bg-white/20 rounded-full -mr-16 -mt-16"></div>
                         <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/10 rounded-full -ml-12 -mb-12"></div>
@@ -323,7 +287,7 @@ function AdminDashboard() {
                     
                     <div className={`relative z-10 flex ${sidebarCollapsed ? "justify-center" : "items-center space-x-4"}`}>
                         <div className="flex-shrink-0 w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 flex items-center justify-center group hover:scale-110 transition-transform duration-300">
-                            <svg className="h-6 w-6 text-white transform transition-transform duration-700 ease-out group-hover:rotate-[360deg]" viewBox="0 0 20 20" fill="currentColor">
+                            <svg className="mx-auto h-7 w-7 text-white transform transition-transform duration-700 ease-out group-hover:rotate-[360deg]" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                             </svg>
                         </div>
@@ -336,7 +300,6 @@ function AdminDashboard() {
                     </div>
                 </div>
                 
-                {/* Enhanced navigation */}
                 <nav className="flex-1 py-6 px-4 overflow-y-auto bg-gradient-to-b from-white/80 to-white/95 backdrop-blur-sm">
                     {!sidebarCollapsed && (
                         <div className="mb-6 px-3">
@@ -379,7 +342,6 @@ function AdminDashboard() {
                                         </span>
                                     )}
                                     
-                                    {/* Enhanced tooltip for collapsed state */}
                                     {sidebarCollapsed && (
                                         <div className="absolute left-full ml-6 bg-white/95 backdrop-blur-xl shadow-xl rounded-xl py-3 px-4 text-sm text-gray-700 whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 transform translate-x-4 group-hover:translate-x-0 z-50 border border-white/20">
                                             {module.label}
@@ -391,7 +353,6 @@ function AdminDashboard() {
                     </ul>
                 </nav>
                 
-                {/* Enhanced User Profile Section */}
                 <div className={`border-t border-gray-100/50 ${sidebarCollapsed ? "p-4" : "p-0"} bg-white/50 backdrop-blur-sm`}>
                     {sidebarCollapsed ? (
                         <div className="relative group flex justify-center">
@@ -403,7 +364,6 @@ function AdminDashboard() {
                                 </div>
                             </div>
                             
-                            {/* Enhanced tooltip */}
                             <div className="absolute left-full bottom-0 ml-6 bg-white/95 backdrop-blur-xl shadow-xl rounded-xl py-3 px-2 text-sm text-gray-700 whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 transform translate-x-4 group-hover:translate-x-0 z-50 border border-white/20">
                                 <div className="px-4 py-2">
                                     <div className="font-bold text-gray-800 mb-1">
@@ -469,9 +429,7 @@ function AdminDashboard() {
                 </div>
             </aside>
 
-            {/* Enhanced Main Content */}
             <main className="flex-1 flex flex-col overflow-hidden transition-all duration-500 relative z-10">
-                {/* Enhanced Header */}
                 <header className="bg-white/90 backdrop-blur-xl border-b border-white/20 shadow-lg sticky top-0 z-30">
                     <div className="max-w-7xl mx-auto px-6 lg:px-8 h-18 flex items-center justify-between">
                         <div className="flex items-center">
@@ -513,7 +471,6 @@ function AdminDashboard() {
                     </div>
                 </header>
 
-                {/* Content Area */}
                 <div className="flex-1 overflow-auto py-8 px-6 lg:px-8">
                     <div className="max-w-7xl mx-auto">
                         <div className="animate-slide-up">
@@ -522,7 +479,6 @@ function AdminDashboard() {
                     </div>
                 </div>
                 
-                {/* Enhanced Welcome Popup */}
                 {welcomePopupVisible && (
                     <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
                         <div
@@ -536,13 +492,11 @@ function AdminDashboard() {
                                     : "opacity-0 scale-75 rotate-3"
                             }`}
                         >
-                            {/* Enhanced Background Pattern */}
                             <div className="absolute inset-0 overflow-hidden rounded-2xl">
                                 <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-r from-purple-400/8 to-indigo-400/8 rounded-full -mr-12 -mt-12"></div>
                                 <div className="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-r from-violet-400/8 to-purple-400/8 rounded-full -ml-10 -mb-10"></div>
                             </div>
 
-                            {/* Enhanced Close Button */}
                             <button
                                 onClick={dismissWelcomePopup}
                                 className="absolute top-3 right-3 w-8 h-8 bg-gray-100/90 hover:bg-gray-200/90 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-700 transition-all duration-300 hover:scale-110 shadow-lg border border-gray-200/50 z-20"
@@ -561,9 +515,7 @@ function AdminDashboard() {
                                 </svg>
                             </button>
 
-                            {/* Main Content */}
                             <div className="relative z-10 flex flex-col items-center text-center">
-                                {/* Enhanced Welcome Icon */}
                                 <div className="relative mb-5">
                                     <div className="w-16 h-16 bg-gradient-to-br from-purple-500 via-violet-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-xl border-2 border-white/50">
                                         <svg
@@ -581,13 +533,11 @@ function AdminDashboard() {
                                             />
                                         </svg>
                                     </div>
-                                    {/* Floating particles */}
                                     <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-yellow-400 rounded-full animate-bounce shadow-lg"></div>
                                     <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow-lg"></div>
                                     <div className="absolute top-1/2 -right-2 w-1 h-1 bg-pink-400 rounded-full animate-ping"></div>
                                 </div>
 
-                                {/* Enhanced Title */}
                                 <div className="mb-5">
                                     <div className="bg-gradient-to-r from-purple-50/80 via-indigo-50/80 to-violet-50/80 backdrop-blur-sm p-3 rounded-lg border border-purple-200/20 mb-3 shadow-lg max-w-md mx-auto">
                                         <h2 className="text-lg font-bold bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 bg-clip-text text-transparent">
@@ -604,7 +554,6 @@ function AdminDashboard() {
                                     </div>
                                 </div>
 
-                                {/* Enhanced Feature Grid */}
                                 <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2.5 mb-5 max-w-2xl">
                                     {[{
                                         icon: (
@@ -650,12 +599,10 @@ function AdminDashboard() {
                                             key={index}
                                             className={`bg-gradient-to-br ${feature.color} backdrop-blur-sm p-3 rounded-lg border shadow-sm hover:shadow-md transition-all duration-300 group hover:scale-105 cursor-pointer`}
                                         >
-                                            {/* Feature Icon */}
                                             <div className="text-purple-600 mb-2 group-hover:scale-110 transition-transform duration-300 flex justify-center">
                                                 {feature.icon}
                                             </div>
                                             
-                                            {/* Feature Content */}
                                             <div className="text-left">
                                                 <h4 className="flex justify-center text-xs font-bold text-gray-800 mb-1 group-hover:text-purple-700 transition-colors duration-300">
                                                     {feature.title}
@@ -665,7 +612,6 @@ function AdminDashboard() {
                                                 </p>
                                             </div>
 
-                                            {/* Hover Arrow */}
                                             <div className="flex justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                                 <div className="w-4 h-4 bg-white/80 rounded-full flex items-center justify-center">
                                                     <svg className="w-2 h-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -677,7 +623,6 @@ function AdminDashboard() {
                                     ))}
                                 </div>
 
-                                {/* Enhanced Stats Bar */}
                                 <div className="w-full flex items-center justify-center gap-4 mb-5 p-3 bg-gradient-to-r from-gray-50/80 via-white/80 to-gray-50/80 backdrop-blur-sm rounded-lg border border-gray-200/50 max-w-md mx-auto">
                                     <div className="text-center">
                                         <div className="flex justify-center mb-1">
@@ -710,7 +655,6 @@ function AdminDashboard() {
                                     </div>
                                 </div>
 
-                                {/* Enhanced Action Buttons */}
                                 <div className="flex flex-col sm:flex-row gap-2.5 w-full max-w-md mx-auto">
                                     <button
                                         onClick={dismissWelcomePopup}
@@ -743,7 +687,6 @@ function AdminDashboard() {
                                     </button>
                                 </div>
 
-                                {/* Skip option */}
                                 <button
                                     onClick={dismissWelcomePopup}
                                     className="mt-3 text-xs text-gray-500 hover:text-gray-700 transition-colors duration-300 underline underline-offset-2"
@@ -755,7 +698,6 @@ function AdminDashboard() {
                     </div>
                 )}
 
-                {/* Enhanced Animations */}
                 <style>{`
                     @keyframes slide-up {
                         from { opacity: 0; transform: translateY(30px); }

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đặt lại mật khẩu</title>
     <style>
-        /* Modern Email Styles */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif !important;
             line-height: 1.6;
@@ -33,7 +32,6 @@
             border: 1px solid #e2e8f0;
         }
 
-        /* Enhanced Header with Blue Gradient for Password Reset */
         .header {
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 25%, #1d4ed8 75%, #1e40af 100%);
             position: relative;
@@ -42,7 +40,6 @@
             text-align: center;
         }
 
-        /* Password Reset Logo */
         .header-logo {
             width: 80px;
             height: 80px;
@@ -95,7 +92,6 @@
             padding: 0 !important;
         }
 
-        /* Enhanced Content Area */
         .content {
             padding: 48px 32px !important;
             background-color: #ffffff;
@@ -117,7 +113,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif !important;
         }
 
-        /* Clean Info Cards */
         .info-card {
             border-radius: 16px;
             padding: 24px !important;
@@ -179,7 +174,6 @@
             margin-bottom: 8px !important;
         }
 
-        /* Enhanced Button */
         .button-container {
             text-align: center !important;
             margin: 40px 0 !important;
@@ -209,7 +203,6 @@
             box-shadow: 0 15px 25px -3px rgba(59, 130, 246, 0.4) !important;
         }
 
-        /* URL Container */
         .url-container {
             background-color: #f8fafc;
             border-radius: 12px;
@@ -226,7 +219,6 @@
             font-size: 14px !important;
         }
 
-        /* Enhanced Signature */
         .signature-section {
             margin-top: 40px !important;
             padding: 32px !important;
@@ -275,7 +267,6 @@
             font-weight: 500 !important;
         }
 
-        /* Enhanced Footer */
         .footer-section {
             background-color: #f8fafc;
             padding: 24px 32px !important;
@@ -305,7 +296,6 @@
             text-decoration: underline !important;
         }
 
-        /* Responsive Design */
         @media only screen and (max-width: 680px) {
             .email-wrapper {
                 padding: 20px 10px !important;
@@ -338,7 +328,6 @@
             }
         }
 
-        /* Force visibility for all content */
         * {
             max-height: none !important;
             visibility: visible !important;
@@ -349,7 +338,6 @@
 <body>
     <div class="email-wrapper">
         <div class="container">
-            <!-- Enhanced Header -->
             <div class="header">
                 <div class="header-logo">
                     <div class="logo-inner">
@@ -361,7 +349,6 @@
                 <p>Hệ thống Quản lý Khối lượng Công việc</p>
             </div>
             
-            <!-- Enhanced Content -->
             <div class="content">
                 <div class="greeting">
                     Xin chào!
@@ -371,20 +358,17 @@
                     Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn. Để tiếp tục quá trình đặt lại mật khẩu, vui lòng thực hiện theo hướng dẫn bên dưới.
                 </div>
                 
-                <!-- Email Info Card -->
                 <div class="info-card email-card">
                     <div class="card-title">📧 Tài khoản email</div>
                     <div class="card-content">{{ $notifiable }}</div>
                 </div>
                 
-                <!-- Enhanced Button -->
                 <div class="button-container">
                     <a href="{{ $url }}" class="cta-button">
                         🔑 Đặt lại mật khẩu
                     </a>
                 </div>
 
-                <!-- Security Card -->
                 <div class="info-card security-card">
                     <div class="card-title">⚠️ Lưu ý bảo mật quan trọng</div>
                     <div class="card-content">
@@ -405,7 +389,6 @@
                     <a href="{{ $url }}">{{ $url }}</a>
                 </div>
                 
-                <!-- Enhanced Signature -->
                 <div class="signature-section">
                     <div class="signature-greeting">
                         Trân trọng,
@@ -419,7 +402,6 @@
                         </div>
                     </div>
                     
-                    <!-- Contact Information -->
                     <div class="contact-info">
                         <div class="contact-item">
                             Email hỗ trợ: support@university.edu.vn
@@ -431,7 +413,6 @@
                 </div>
             </div>
             
-            <!-- Enhanced Footer -->
             <div class="footer-section">
                 <div>© {{ date('Y') }} Trường Đại học Thủy lợi. Tất cả quyền được bảo lưu.</div>
                 <div style="margin-top: 8px; font-size: 13px; color: #94a3b8;">

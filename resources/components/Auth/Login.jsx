@@ -38,17 +38,8 @@ function Login() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-            {/* Background decorative elements */}
-            <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-blue-400/20 to-indigo-600/20 rounded-full blur-3xl"></div>
-                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-cyan-400/20 to-blue-600/20 rounded-full blur-3xl"></div>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-indigo-400/10 to-purple-600/10 rounded-full blur-3xl"></div>
-            </div>
-
             <div className="relative max-w-md w-full">
-                {/* Main login card */}
                 <div className="bg-white/80 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-white/20 transition-all duration-300 hover:shadow-3xl">
-                    {/* University branding */}
                     <div className="text-center mb-8">
                         <div className="relative inline-block group">
                             <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-2xl p-4 shadow-lg transition-all duration-500 group-hover:shadow-2xl group-hover:scale-105 animate-gentle-sway">
@@ -80,18 +71,13 @@ function Login() {
                                 </svg>
                             </div>
                             
-                            {/* Enhanced animated accent */}
                             <div className="absolute -top-2 -right-2 flex items-center justify-center">
                                 <div className="relative">
-                                    {/* Animated ring */}
                                     <div className="absolute inset-0 w-8 h-8 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full animate-ping opacity-20"></div>
                                     
-                                    {/* Main accent dot */}
                                     <div className="relative w-7 h-7 bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-500 rounded-full border-3 border-white shadow-lg flex items-center justify-center group-hover:animate-bounce">
-                                        {/* Inner sparkle */}
                                         <div className="w-2 h-2 bg-white rounded-full opacity-80 animate-pulse"></div>
                                         
-                                        {/* Subtle glow effect */}
                                         <div className="absolute inset-0 bg-gradient-to-r from-yellow-300 to-amber-400 rounded-full blur-sm opacity-40 group-hover:opacity-70 transition-opacity duration-300"></div>
                                     </div>
                                 </div>
@@ -107,7 +93,6 @@ function Login() {
                         <div className="mt-4 h-1 w-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full mx-auto"></div>
                     </div>
 
-                    {/* Login form */}
                     <form onSubmit={handleLogin} className="space-y-6">
                         <div className="space-y-5">
                             <div className="group">
@@ -279,7 +264,6 @@ function Login() {
                         </button>
                     </form>
 
-                    {/* Footer */}
                     <div className="mt-8 text-center">
                         <p className="text-xs text-gray-500">
                             © 2024 Đại học Thủy Lợi. Tất cả quyền được bảo lưu.

@@ -25,10 +25,9 @@ const { TextArea } = Input;
 function FormNckh({
     dataSource,
     setDataSource,
-    keKhaiTongHopId, // Cần ID này để có thể liên kết minh chứng nếu lưu ngay
 }) {
     const [form] = Form.useForm();
-    const [editingItem, setEditingItem] = useState(null); // { index: number, record: object }
+    const [editingItem, setEditingItem] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     const handleAddItem = () => {
@@ -79,7 +78,6 @@ function FormNckh({
             form.resetFields();
             setEditingItem(null);
         } catch (errorInfo) {
-            console.log("Validate Failed:", errorInfo);
             message.error("Vui lòng kiểm tra lại thông tin đã nhập.");
         }
     };

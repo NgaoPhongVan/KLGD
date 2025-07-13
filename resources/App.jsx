@@ -16,7 +16,6 @@ function App() {
                 <Route path="/lecturer/*" element={<LecturerDashboard />} />
                 <Route path="/" element={<Login />} />
                 
-                {/* 404 Page - catch all unmatched routes */}
                 <Route path="*" element={<NotFound />} />
             </Routes>
         </Router>

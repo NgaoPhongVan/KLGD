@@ -12,7 +12,7 @@ import {
     Tag,
     Modal,
     message,
-    Select, // Thêm Select
+    Select,
     Row,
     Col,
 } from "antd";
@@ -28,14 +28,13 @@ const { Option } = Select;
 
 function FormHdLaTiensi({ dataSource, setDataSource }) {
     const [form] = Form.useForm();
-    const [editingItem, setEditingItem] = useState(null); // { index: number, record: object }
+    const [editingItem, setEditingItem] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    // Không cần state cho selectedFile và currentMinhChung nữa
 
     const handleAddItem = () => {
         setEditingItem(null);
         form.resetFields();
-        form.setFieldsValue({ loai_dao_tao_ts: "4 năm" }); // Mặc định
+        form.setFieldsValue({ loai_dao_tao_ts: "4 năm" });
         setIsModalVisible(true);
     };
 
@@ -69,7 +68,6 @@ function FormHdLaTiensi({ dataSource, setDataSource }) {
                     editingItem?.record.id_temp || Date.now() + Math.random(),
                 id_database: editingItem?.record.id_database || null,
                 ...values,
-                // tong_gio_quydoi_gv_nhap đã có trong values
             };
 
             let newData = [...dataSource];
@@ -89,7 +87,6 @@ function FormHdLaTiensi({ dataSource, setDataSource }) {
             form.resetFields();
             setEditingItem(null);
         } catch (errorInfo) {
-            console.log("Validate Failed:", errorInfo);
             message.error("Vui lòng kiểm tra lại thông tin đã nhập.");
         }
     };
@@ -280,11 +277,7 @@ function FormHdLaTiensi({ dataSource, setDataSource }) {
             />
 
             <Modal
-                title={
-                    editingItem
-                        ? `Chỉnh sửa Hướng dẫn LA TS`
-                        : `Thêm Hướng dẫn LA TS`
-                }
+                title={editingItem ? `Chỉnh sửa Hướng dẫn LA TS` : `Thêm Hướng dẫn LA TS`}
                 open={isModalVisible}
                 onOk={handleModalOk}
                 onCancel={handleModalCancel}
@@ -416,7 +409,6 @@ function FormHdLaTiensi({ dataSource, setDataSource }) {
                             placeholder="Nhập ghi chú (nếu có)"
                         />
                     </Form.Item>
-                    {/* Không có Upload minh chứng */}
                 </Form>
             </Modal>
         </div>

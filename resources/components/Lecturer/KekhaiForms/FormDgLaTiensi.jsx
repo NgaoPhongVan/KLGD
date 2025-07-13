@@ -24,26 +24,25 @@ const { Text, Title: AntTitle } = Typography;
 const { Option } = Select;
 
 function FormDgLaTiensi({
-    dataSource, // Danh sách các đợt đánh giá LA TS đã kê khai
+    dataSource,
     setDataSource
 }) {
-    const [dotForm] = Form.useForm(); // Form cho thông tin chung của đợt đánh giá
-    const [nhiemVuForm] = Form.useForm(); // Form riêng cho việc thêm/sửa nhiệm vụ
+    const [dotForm] = Form.useForm(); 
+    const [nhiemVuForm] = Form.useForm(); 
     
-    const [editingDotDanhGia, setEditingDotDanhGia] = useState(null); // Đợt đánh giá đang được sửa/thêm { index: number, record: object }
+    const [editingDotDanhGia, setEditingDotDanhGia] = useState(null);
     const [isDotModalVisible, setIsDotModalVisible] = useState(false);
     
-    const [currentNhiemVuList, setCurrentNhiemVuList] = useState([]); // Nhiệm vụ của đợt đang sửa/thêm
-    const [editingNhiemVu, setEditingNhiemVu] = useState(null); // Nhiệm vụ đang được sửa/thêm { index: number, record: object }
+    const [currentNhiemVuList, setCurrentNhiemVuList] = useState([]);
+    const [editingNhiemVu, setEditingNhiemVu] = useState(null); 
     const [isNhiemVuModalVisible, setIsNhiemVuModalVisible] = useState(false);
-    // Không cần state cho selectedFile và currentMinhChung nữa
 
     // == XỬ LÝ CHO ĐỢT ĐÁNH GIÁ CHUNG ==
     const handleAddDotDanhGia = () => {
         setEditingDotDanhGia(null);
         setCurrentNhiemVuList([]);
         dotForm.resetFields();
-        dotForm.setFieldsValue({loai_hoat_dong_ts: 'HĐ đánh giá LA'}); // Mặc định
+        dotForm.setFieldsValue({loai_hoat_dong_ts: 'HĐ đánh giá LA'});
         setIsDotModalVisible(true);
     };
 
@@ -54,8 +53,8 @@ function FormDgLaTiensi({
             loai_hoat_dong_ts: record.loai_hoat_dong_ts,
             hoi_dong_dot_hk: record.hoi_dong_dot_hk,
             ten_ncs_hoac_ten_cd: record.ten_ncs_hoac_ten_cd,
-            ten_luan_an: record.ten_luan_an, // Nếu có trường này trong record.data
-            ghi_chu: record.ghi_chu, // Ghi chú cho cả đợt
+            ten_luan_an: record.ten_luan_an,
+            ghi_chu: record.ghi_chu,
         });
         setIsDotModalVisible(true);
     };
@@ -83,11 +82,11 @@ function FormDgLaTiensi({
             const newItem = {
                 id_temp: editingDotDanhGia?.record.id_temp || Date.now() + Math.random(),
                 id_database: editingDotDanhGia?.record.id_database || null,
-                ...values, // Bao gồm loai_hoat_dong_ts, hoi_dong_dot_hk, ten_ncs_hoac_ten_cd, ten_luan_an, ghi_chu
-                nhiem_vu_ts_arr: currentNhiemVuList.map(nv => ({ // Chỉ lưu các trường cần thiết của nhiệm vụ
+                ...values, 
+                nhiem_vu_ts_arr: currentNhiemVuList.map(nv => ({ 
                     ten_nhiem_vu: nv.ten_nhiem_vu,
                     so_tiet_gv_nhap: nv.so_tiet_gv_nhap,
-                    ghi_chu_nhiem_vu: nv.ghi_chu_nhiem_vu, // Đổi tên để phân biệt với ghi chú của đợt
+                    ghi_chu_nhiem_vu: nv.ghi_chu_nhiem_vu,
                     id_database_chi_tiet: nv.id_database_chi_tiet || null
                 })),
                 tong_gio_quydoi_cho_dot: tongGioQuyDoiDot.toFixed(2),
@@ -146,7 +145,7 @@ function FormDgLaTiensi({
             const newNhiemVu = {
                 id_temp_nv: editingNhiemVu?.record.id_temp_nv || Date.now() + Math.random() + '_nv',
                 id_database_chi_tiet: editingNhiemVu?.record.id_database_chi_tiet || null,
-                ...values, // ten_nhiem_vu, so_tiet_gv_nhap, ghi_chu_nhiem_vu
+                ...values,
             };
 
             let newNhiemVuList = [...currentNhiemVuList];
@@ -237,7 +236,6 @@ function FormDgLaTiensi({
                 }}
             />
 
-            {/* Modal cho thông tin chung của Đợt Đánh giá LA TS */}
             <Modal
                 title={editingDotDanhGia ? `Chỉnh sửa Đợt Đánh giá/HD CĐ TS` : `Thêm Đợt Đánh giá/HD CĐ TS`}
                 open={isDotModalVisible}
@@ -322,11 +320,9 @@ function FormDgLaTiensi({
                     <Form.Item name="ghi_chu" label="Ghi chú chung cho Đợt đánh giá này" style={{marginTop: '20px'}}>
                         <Input.TextArea rows={2} placeholder="Nhập ghi chú chung (nếu có)" />
                     </Form.Item>
-                     {/* Không có Upload minh chứng */}
                 </Form>
             </Modal>
 
-            {/* Modal cho thêm/sửa Nhiệm vụ chi tiết */}
             <Modal
                 title={editingNhiemVu ? `Chỉnh sửa Nhiệm vụ TS` : `Thêm Nhiệm vụ TS`}
                 open={isNhiemVuModalVisible}
@@ -345,7 +341,7 @@ function FormDgLaTiensi({
                        <Input placeholder="Ví dụ: Phản biện 1 Tiểu ban, Chủ tịch Hội đồng..." />
                     </Form.Item>
                      <Form.Item
-                        name="so_luong_thuc_hien_ts_nv" // Giảng viên tự nhập số lượng cho nhiệm vụ này (thường là 1)
+                        name="so_luong_thuc_hien_ts_nv" 
                         label="Số lượng (thường là 1 cho mỗi nhiệm vụ cụ thể)"
                         initialValue={1}
                         rules={[{ required: true, message: 'Vui lòng nhập số lượng!' }, {type: 'number', min: 1}]}
@@ -353,7 +349,7 @@ function FormDgLaTiensi({
                         <InputNumber min={1} style={{ width: '100%' }} />
                     </Form.Item>
                      <Form.Item
-                        name="so_tiet_gv_nhap" // Giảng viên tự nhập số tiết quy đổi cho nhiệm vụ này
+                        name="so_tiet_gv_nhap"
                         label="Số tiết/giờ Quy đổi cho Nhiệm vụ này (GV tự nhập)"
                         rules={[{ required: true, message: 'Vui lòng nhập số tiết/giờ!' }, {type: 'number', min: 0}]}
                     >

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thông báo kê khai hoạt động</title>
     <style>
-        /* Modern Email Styles */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif !important;
             line-height: 1.6;
@@ -33,7 +32,6 @@
             border: 1px solid #e2e8f0;
         }
 
-        /* Enhanced Header with Orange Gradient for Notification */
         .header {
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 25%, #b45309 75%, #92400e 100%);
             position: relative;
@@ -42,7 +40,6 @@
             text-align: center;
         }
 
-        /* Notification Logo */
         .header-logo {
             width: 80px;
             height: 80px;
@@ -95,7 +92,6 @@
             padding: 0 !important;
         }
 
-        /* Enhanced Content Area */
         .content {
             padding: 48px 32px !important;
             background-color: #ffffff;
@@ -117,7 +113,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif !important;
         }
 
-        /* Clean Info Cards */
         .info-card {
             border-radius: 16px;
             padding: 24px !important;
@@ -170,7 +165,6 @@
             color: #9a3412 !important;
         }
 
-        /* Status Badge */
         .status-badge {
             display: inline-flex !important;
             align-items: center !important;
@@ -193,7 +187,6 @@
             animation: pulse 2s infinite !important;
         }
 
-        /* Enhanced Table Styling */
         .table-container {
             background-color: #ffffff;
             border-radius: 16px;
@@ -236,7 +229,6 @@
             border-bottom: none !important;
         }
 
-        /* Activity Type Badge */
         .activity-type {
             display: inline-block !important;
             padding: 4px 8px !important;
@@ -249,7 +241,6 @@
             letter-spacing: 0.05em !important;
         }
 
-        /* Enhanced Button */
         .button-container {
             text-align: center !important;
             margin: 40px 0 !important;
@@ -279,7 +270,6 @@
             box-shadow: 0 15px 25px -3px rgba(245, 158, 11, 0.4) !important;
         }
 
-        /* Enhanced Signature */
         .signature-section {
             margin-top: 40px !important;
             padding: 32px !important;
@@ -328,7 +318,6 @@
             font-weight: 500 !important;
         }
 
-        /* Enhanced Footer */
         .footer-section {
             background-color: #f8fafc;
             padding: 24px 32px !important;
@@ -358,7 +347,6 @@
             text-decoration: underline !important;
         }
 
-        /* Responsive Design */
         @media only screen and (max-width: 680px) {
             .email-wrapper {
                 padding: 20px 10px !important;
@@ -396,7 +384,6 @@
             }
         }
 
-        /* Animation Keyframes */
         @keyframes pulse {
             0%, 100% {
                 opacity: 1;
@@ -406,7 +393,6 @@
             }
         }
 
-        /* Force visibility for all content */
         * {
             max-height: none !important;
             visibility: visible !important;
@@ -417,7 +403,6 @@
 <body>
     <div class="email-wrapper">
         <div class="container">
-            <!-- Enhanced Header -->
             <div class="header">
                 <div class="header-logo">
                     <div class="logo-inner">
@@ -429,7 +414,6 @@
                 <p>Hệ thống Quản lý Khối lượng Giảng dạy</p>
             </div>
             
-            <!-- Enhanced Content -->
             <div class="content">
                 <div class="greeting">
                     Kính chào Thầy/Cô,
@@ -439,13 +423,11 @@
                     Hệ thống ghi nhận thông tin kê khai hoạt động của Thầy/Cô trong học kỳ dưới đây:
                 </div>
                 
-                <!-- Semester Info Card -->
                 <div class="info-card semester-card">
                     <div class="card-title">Thông tin học kỳ</div>
                     <div class="card-content">{{ $hoc_ky }} - {{ $nam_hoc }}</div>
                 </div>
                 
-                <!-- Activity Table -->
                 <div class="table-container">
                     <table>
                         <thead>
@@ -481,7 +463,6 @@
                     </table>
                 </div>
                 
-                <!-- Status Card -->
                 <div class="info-card status-card">
                     <div class="card-title">Trạng thái kê khai</div>
                     <div class="card-content">
@@ -495,14 +476,12 @@
                     </div>
                 </div>
                 
-                <!-- Enhanced Button -->
                 <div class="button-container">
                     <a href="{{ env('APP_URL') }}" class="cta-button">
                         Xem chi tiết kê khai
                     </a>
                 </div>
                 
-                <!-- Enhanced Signature -->
                 <div class="signature-section">
                     <div class="signature-greeting">
                         Trân trọng,
@@ -516,7 +495,6 @@
                         </div>
                     </div>
                     
-                    <!-- Contact Information -->
                     <div class="contact-info">
                         <div class="contact-item">
                             Email hỗ trợ: support@tlu.edu.vn
@@ -528,7 +506,6 @@
                 </div>
             </div>
             
-            <!-- Enhanced Footer -->
             <div class="footer-section">
                 <div>© 2024 Đại học Thủy Lợi. Tất cả quyền được bảo lưu.</div>
                 <div style="margin-top: 8px; font-size: 13px; color: #94a3b8;">

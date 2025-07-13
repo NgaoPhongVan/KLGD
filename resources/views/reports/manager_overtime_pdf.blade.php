@@ -230,7 +230,6 @@
         </div>
     </div>
 
-    <!-- Date and Location -->
     <div style="text-align: center; margin-top: 20px;">
         <p><em>Hà Nội, ngày {{ date('d') }} tháng {{ date('m') }} năm {{ date('Y') }}</em></p>
     </div>

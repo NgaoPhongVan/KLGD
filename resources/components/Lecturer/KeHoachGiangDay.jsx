@@ -9,7 +9,6 @@ import {
     Divider,
     Form,
     message,
-    Spin,
     Tabs,
     Alert,
     Row,
@@ -17,23 +16,12 @@ import {
     Tag,
     Statistic,
     Progress,
-    Modal,
-    Table,
-    Timeline,
-    Tooltip,
-    Radio,
     DatePicker,
-    Switch,
-    Badge,
-    List,
-    Empty,
-    InputNumber
+    Empty
 } from 'antd';
 import {
     SaveOutlined,
-    CalendarOutlined,
     BookOutlined,
-    SolutionOutlined,
     UserSwitchOutlined,
     AuditOutlined,
     CarryOutOutlined,
@@ -41,25 +29,13 @@ import {
     ExperimentOutlined,
     TeamOutlined,
     CalculatorOutlined,
-    EyeOutlined,
     ReloadOutlined,
-    ExclamationCircleOutlined,
-    InfoCircleOutlined,
     BarChartOutlined,
     PieChartOutlined,
-    LineChartOutlined,
-    TrophyOutlined,
-    RiseOutlined,
-    FallOutlined,
-    DashboardOutlined,
     SwapOutlined,
-    HistoryOutlined,
-    AimOutlined,
-    CheckCircleOutlined,
-    CloseCircleOutlined,
     DeleteOutlined
 } from '@ant-design/icons';
-import { Bar, Pie, Line, Doughnut, Radar, PolarArea } from 'react-chartjs-2';
+import { Bar, Pie } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -94,255 +70,6 @@ import FormCongTacKhac from './KekhaiForms/FormCongTacKhac';
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 const { Option } = Select;
-const { RangePicker } = DatePicker;
-
-const ThongKeTongQuanNangCao = ({ apiStatisticsData, namHocSelected }) => {
-    if (!apiStatisticsData) {
-        return (
-            <Card className="stat-overview-empty">
-                <Empty
-                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                    description="Chưa có dữ liệu thống kê"
-                    imageStyle={{ height: 60 }}
-                >
-                    <Text type="secondary">Chưa có dữ liệu thống kê cho năm học này</Text>
-                </Empty>
-            </Card>
-        );
-    }
-
-    const currentYearData = namHocSelected ? apiStatisticsData.statistics_by_year?.find(item => item.nam_hoc_id === parseInt(namHocSelected.id)) : null;
-
-    if (!currentYearData) {
-        return (
-            <Card className="stat-overview-empty">
-                <Empty
-                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                    description="Không tìm thấy dữ liệu cho năm học này"
-                    imageStyle={{ height: 60 }}
-                >
-                    <Text type="secondary">Vui lòng chọn năm học khác hoặc thực hiện kê khai</Text>
-                </Empty>
-            </Card>
-        );
-    }
-
-    const {
-        tong_gio_thuc_hien,
-        phan_bo_gio,
-        dinh_muc_gd,
-        dinh_muc_khcn,
-        ty_le_hoanthanh_gd,
-        ty_le_hoanthanh_khcn,
-        thua_thieu_gd,
-        hoan_thanh_khcn_so_voi_dm
-    } = currentYearData;
-
-    const tongDinhMuc = dinh_muc_gd + dinh_muc_khcn;
-    const tyLeChung = tongDinhMuc > 0 ? (tong_gio_thuc_hien / tongDinhMuc * 100) : 0;
-
-    // Tính tổng giờ GD và KHCN từ phân bố
-    const tongGioGD = (phan_bo_gio.giang_day_lop_danhgia_khacgd || 0) + 
-                     (phan_bo_gio.huong_dan || 0) + 
-                     (phan_bo_gio.coi_cham_thi_dh || 0) + 
-                     (phan_bo_gio.cong_tac_khac_gd || 0);
-    const tongGioKHCN = phan_bo_gio.khcn || 0;
-
-    const tagMap = {
-        0: { color: 'default', text: 'Nháp' },
-        1: { color: 'processing', text: 'Chờ duyệt / Đã nộp' },
-        3: { color: 'success', text: 'Đã duyệt' },
-        4: { color: 'error', text: 'BM trả lại' },
-    };
-
-    const tagInfo = tagMap[currentYearData.trang_thai_phe_duyet] || { color: 'default', text: 'Không xác định' };
-
-    return (
-        <div className="space-y-6">
-            <Row gutter={[16, 16]}>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card className="stat-card-enhanced">
-                        <Statistic
-                            title="Tỷ lệ hoàn thành chung"
-                            value={tyLeChung}
-                            precision={1}
-                            suffix="%"
-                            prefix={<DashboardOutlined style={{ color: '#1890ff' }} />}
-                            valueStyle={{ 
-                                color: tyLeChung >= 100 ? '#52c41a' : tyLeChung >= 80 ? '#faad14' : '#ff4d4f',
-                                fontSize: '28px',
-                                fontWeight: 'bold'
-                            }}
-                        />
-                        <Progress 
-                            percent={Math.min(tyLeChung, 200)} 
-                            strokeColor={tyLeChung >= 100 ? '#52c41a' : tyLeChung >= 80 ? '#faad14' : '#ff4d4f'}
-                            trailColor="#f0f0f0"
-                            style={{ marginTop: 12 }}
-                            strokeWidth={8}
-                        />
-                    </Card>
-                </Col>
-                
-                <Col xs={24} sm={12} lg={6}>
-                    <Card className="stat-card-enhanced">
-                        <Statistic
-                            title="Giờ Giảng dạy"
-                            value={tongGioGD}
-                            precision={1}
-                            suffix="giờ"
-                            prefix={<BookOutlined style={{ color: '#52c41a' }} />}
-                            valueStyle={{ color: ty_le_hoanthanh_gd >= 100 ? '#52c41a' : '#faad14' }}
-                        />
-                        <div style={{ marginTop: 8 }}>
-                            <Text type="secondary">Định mức: {dinh_muc_gd} giờ</Text>
-                            <br />
-                            <Tag color={thua_thieu_gd >= 0 ? 'success' : 'warning'}>
-                                {thua_thieu_gd >= 0 ? '+' : ''}{thua_thieu_gd.toFixed(1)} giờ
-                            </Tag>
-                        </div>
-                    </Card>
-                </Col>
-                
-                <Col xs={24} sm={12} lg={6}>
-                    <Card className="stat-card-enhanced">
-                        <Statistic
-                            title="Giờ NCKH"
-                            value={tongGioKHCN}
-                            precision={1}
-                            suffix="giờ"
-                            prefix={<ExperimentOutlined style={{ color: '#722ed1' }} />}
-                            valueStyle={{ color: ty_le_hoanthanh_khcn >= 100 ? '#52c41a' : '#faad14' }}
-                        />
-                        <div style={{ marginTop: 8 }}>
-                            <Text type="secondary">Định mức: {dinh_muc_khcn} giờ</Text>
-                            <br />
-                            <Tag color={hoan_thanh_khcn_so_voi_dm >= 0 ? 'success' : 'warning'}>
-                                {hoan_thanh_khcn_so_voi_dm >= 0 ? '+' : ''}{hoan_thanh_khcn_so_voi_dm.toFixed(1)} giờ
-                            </Tag>
-                        </div>
-                    </Card>
-                </Col>
-                
-                <Col xs={24} sm={12} lg={6}>
-                    <Card className="stat-card-enhanced">
-                        <Statistic
-                            title="Tổng cộng"
-                            value={tong_gio_thuc_hien}
-                            precision={1}
-                            suffix="giờ"
-                            prefix={<TrophyOutlined style={{ color: '#fa8c16' }} />}
-                            valueStyle={{ color: '#fa8c16', fontSize: '24px' }}
-                        />
-                        <div style={{ marginTop: 8 }}>
-                            <Text type="secondary">Năm học: {currentYearData.nam_hoc || 'N/A'}</Text>
-                            <br />
-                            <Tag color={currentYearData.trang_thai_phe_duyet ? 'success' : 'processing'}>
-                                {currentYearData.trang_thai_phe_duyet ? 'Đã phê duyệt' : 'Chưa phê duyệt'}
-                            </Tag>
-                        </div>
-                    </Card>
-                </Col>
-            </Row>
-
-            {/* Phân tích chi tiết */}
-            <Row gutter={[16, 16]}>
-                <Col xs={24} md={12}>
-                    <Card title="Phân tích cơ cấu Giảng dạy" className="analysis-card">
-                        <div className="space-y-3">
-                            <div className="flex justify-between items-center">
-                                <span>Giảng dạy lớp & Đánh giá:</span>
-                                <div className="flex items-center space-x-2">
-                                    <Text strong>{(phan_bo_gio.giang_day_lop_danhgia_khacgd || 0).toFixed(1)} giờ</Text>
-                                    <div className="w-16 bg-gray-200 rounded-full h-2">
-                                        <div 
-                                            className="bg-blue-600 h-2 rounded-full" 
-                                            style={{ width: `${tongGioGD > 0 ? ((phan_bo_gio.giang_day_lop_danhgia_khacgd || 0) / tongGioGD) * 100 : 0}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span>Hướng dẫn:</span>
-                                <div className="flex items-center space-x-2">
-                                    <Text strong>{(phan_bo_gio.huong_dan || 0).toFixed(1)} giờ</Text>
-                                    <div className="w-16 bg-gray-200 rounded-full h-2">
-                                        <div 
-                                            className="bg-green-600 h-2 rounded-full" 
-                                            style={{ width: `${tongGioGD > 0 ? ((phan_bo_gio.huong_dan || 0) / tongGioGD) * 100 : 0}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span>Coi/Chấm thi:</span>
-                                <div className="flex items-center space-x-2">
-                                    <Text strong>{(phan_bo_gio.coi_cham_thi_dh || 0).toFixed(1)} giờ</Text>
-                                    <div className="w-16 bg-gray-200 rounded-full h-2">
-                                        <div 
-                                            className="bg-purple-600 h-2 rounded-full" 
-                                            style={{ width: `${tongGioGD > 0 ? ((phan_bo_gio.coi_cham_thi_dh || 0) / tongGioGD) * 100 : 0}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span>Công tác khác (GD):</span>
-                                <div className="flex items-center space-x-2">
-                                    <Text strong>{(phan_bo_gio.cong_tac_khac_gd || 0).toFixed(1)} giờ</Text>
-                                    <div className="w-16 bg-gray-200 rounded-full h-2">
-                                        <div 
-                                            className="bg-orange-600 h-2 rounded-full" 
-                                            style={{ width: `${tongGioGD > 0 ? ((phan_bo_gio.cong_tac_khac_gd || 0) / tongGioGD) * 100 : 0}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </Card>
-                </Col>
-                
-                <Col xs={24} md={12}>
-                    <Card title="Thống kê định mức" className="analysis-card">
-                        <div className="space-y-3">
-                            <div className="flex justify-between items-center">
-                                <span>Tỷ lệ hoàn thành GD:</span>
-                                <div className="flex items-center space-x-2">
-                                    <Text strong>{ty_le_hoanthanh_gd.toFixed(1)}%</Text>
-                                    <Tag color={ty_le_hoanthanh_gd >= 100 ? 'success' : 'warning'}>
-                                        {ty_le_hoanthanh_gd >= 100 ? 'Đạt' : 'Chưa đạt'}
-                                    </Tag>
-                                </div>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span>Tỷ lệ hoàn thành KHCN:</span>
-                                <div className="flex items-center space-x-2">
-                                    <Text strong>{ty_le_hoanthanh_khcn.toFixed(1)}%</Text>
-                                    <Tag color={ty_le_hoanthanh_khcn >= 100 ? 'success' : 'warning'}>
-                                        {ty_le_hoanthanh_khcn >= 100 ? 'Đạt' : 'Chưa đạt'}
-                                    </Tag>
-                                </div>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span>NCKH:</span>
-                                <div className="flex items-center space-x-2">
-                                    <Text strong>{tongGioKHCN.toFixed(1)} giờ</Text>
-                                    <Tag color="purple">{tongGioKHCN > 0 ? '100%' : '0%'}</Tag>
-                                </div>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span>Trạng thái:</span>
-                                <div className="flex items-center space-x-2">
-                                    <Tag color={tagInfo.color} size="large">{tagInfo.text}</Tag>
-                                </div>
-                            </div>
-                        </div>
-                    </Card>
-                </Col>
-            </Row>
-        </div>
-    );
-};
 
 const SoSanhThucVsMoPhong = ({ apiStatisticsData, simulationResults, namHocSelected }) => {
     if (!apiStatisticsData || !simulationResults || !namHocSelected) {
@@ -598,10 +325,10 @@ const BieuDoPhantichNangCao = ({ apiStatisticsData, namHocSelected }) => {
         labels: pieDataGD.map(item => item.type),
         datasets: [
             {
-            data: pieDataGD.map(item => item.value),
-            backgroundColor: pieDataGD.map(item => item.color),
-            borderColor: '#fff',
-            borderWidth: 2
+                data: pieDataGD.map(item => item.value),
+                backgroundColor: pieDataGD.map(item => item.color),
+                borderColor: '#fff',
+                borderWidth: 2
             }
         ]
     };
@@ -1140,15 +867,6 @@ function KeHoachGiangDay() {
                         </Col>
                     </Row>
                 </Card>
-
-                {apiStatisticsData && selectedNamHocId && (
-                    <Card className="bg-white/95 backdrop-blur-lg shadow-lg" style={{ borderRadius: '12px' }}>
-                        <ThongKeTongQuanNangCao 
-                            apiStatisticsData={apiStatisticsData}
-                            namHocSelected={namHocList.find(nh => nh.id.toString() === selectedNamHocId)}
-                        />
-                    </Card>
-                )}
 
                 {selectedNamHocId && (
                     <Card className="bg-white/95 backdrop-blur-lg border-gray-200/50 shadow-xl" style={{ borderRadius: '16px' }}>

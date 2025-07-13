@@ -7,31 +7,10 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\KeKhaiTongHopNamHoc;
 use App\Models\LuongGiangVien; 
-use App\Models\KekhaiGdLopDhTrongbm;
-use App\Models\KekhaiGdLopDhNgoaibm;
-use App\Models\KekhaiGdLopDhNgoaics;
-use App\Models\KekhaiGdLopThs;
-use App\Models\KekhaiGdLopTs;
-use App\Models\KekhaiHdDatnDaihoc;
-use App\Models\KekhaiHdLvThacsi;
-use App\Models\KekhaiHdLaTiensi;
-use App\Models\KekhaiDgHpTnDaihoc;
-use App\Models\KekhaiDgLvThacsi;
-use App\Models\KekhaiDgLaTiensiDot;
-use App\Models\KekhaiKhaothiDaihocTrongbm;
-use App\Models\KekhaiKhaothiDaihocNgoaibm;
-use App\Models\KekhaiKhaothiThacsi;
-use App\Models\KekhaiKhaothiTiensi;
-use App\Models\KekhaiXdCtdtVaKhacGd;
-use App\Models\KekhaiNckhNamHoc;
-use App\Models\KekhaiCongtacKhacNamHoc;
-use App\Models\MinhChung; 
 use App\Models\LichSuPheDuyet;
 use App\Models\NamHoc; 
 use App\Models\BoMon;
 use App\Models\KeKhaiThoiGian; 
-use App\Models\Notification; 
-use App\Models\DinhMucCaNhanTheoNam; 
 use Illuminate\Support\Facades\Auth;
 use App\Mail\ReminderNotification; 
 use App\Mail\KeKhaiApproved;
@@ -43,11 +22,8 @@ use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\KekhaiReportExport; 
-use App\Jobs\ExportReportJob;
-use Carbon\Carbon;
 use ZipArchive;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Schema;
 use App\Services\WorkloadService; 
 
@@ -64,47 +40,6 @@ class ManagerController extends Controller
     {
         return response()->json($request->user()->load('boMon.khoa'));
     }
-
-    // API dashboard tổng quan: số lượng kê khai, trạng thái, tổng giờ, danh sách năm học
-    // public function dashboard(Request $request)
-    // {
-    //     $namHocId = $request->query('nam_hoc_id');
-    //     $manager = Auth::user();
-    //     $boMonIdCuaManager = $manager->bo_mon_id;
-
-    //     if (!$boMonIdCuaManager) {
-    //         return response()->json(['message' => 'Quản lý không thuộc bộ môn nào.'], 403);
-    //     }
-
-    //     $baseQuery = KeKhaiTongHopNamHoc::whereHas('nguoiDung', function ($query) use ($boMonIdCuaManager) {
-    //         $query->where('bo_mon_id', $boMonIdCuaManager);
-    //     });
-
-    //     if ($namHocId) {
-    //         $baseQuery->where('nam_hoc_id', $namHocId);
-    //     }
-
-    //     $totalKeKhai = (clone $baseQuery)->count();
-    //     $pending = (clone $baseQuery)->where('trang_thai_phe_duyet', 1)->count(); // 1: Chờ duyệt BM
-    //     $approved = (clone $baseQuery)->where('trang_thai_phe_duyet', 3)->count(); // 3: Đã duyệt BM
-    //     $rejected = (clone $baseQuery)->where('trang_thai_phe_duyet', 4)->count(); // 4: BM Trả lại
-
-    //     $totalHours = (clone $baseQuery)
-    //         ->whereIn('trang_thai_phe_duyet', [1, 3]) // Chờ duyệt hoặc Đã duyệt
-    //         ->sum(DB::raw('IFNULL(tong_gio_thuc_hien_final_duyet, tong_gio_thuc_hien_final_tam_tinh)'));
-
-
-    //     $namHocList = NamHoc::orderBy('ngay_bat_dau', 'desc')->get(['id', 'ten_nam_hoc', 'la_nam_hien_hanh']);
-
-    //     return response()->json([
-    //         'total_ke_khai' => $totalKeKhai,
-    //         'pending' => $pending,
-    //         'approved' => $approved,
-    //         'rejected' => $rejected,
-    //         'total_hours' => round(floatval($totalHours), 2),
-    //         'nam_hoc_list' => $namHocList,
-    //     ]);
-    // }
 
     // API lấy danh sách kê khai tổng hợp của giảng viên trong bộ môn
     public function keKhaiList(Request $request)
@@ -153,21 +88,9 @@ class ManagerController extends Controller
 
         $boMonTrongKhoa = BoMon::where('khoa_id', $manager->boMon->khoa_id ?? null)->select('id', 'ten_bo_mon')->get();
 
-        // $debugInfo = [
-        //     'total_in_bo_mon' => KeKhaiTongHopNamHoc::whereHas('nguoiDung', function ($q) use ($boMonIdCuaManager) {
-        //         $q->where('bo_mon_id', $boMonIdCuaManager);
-        //     })->count(),
-        //     'filters_applied' => [
-        //         'nam_hoc_id' => $namHocId,
-        //         'trang_thai' => $trangThai,
-        //         'search' => $search
-        //     ]
-        // ];
-
         return response()->json([
             'ke_khai_list' => $keKhaiList,
             'bo_mon_list' => $boMonTrongKhoa,
-            // 'debug_info' => $debugInfo,
         ]);
     }
 
@@ -215,7 +138,6 @@ class ManagerController extends Controller
 
         return response()->json($keKhaiTongHop);
     }
-
 
     // API phê duyệt bản kê khai tổng hợp (chuyển trạng thái sang Đã duyệt BM)
     public function keKhaiApprove(Request $request, $id)
@@ -315,8 +237,6 @@ class ManagerController extends Controller
                 } catch (\Exception $e) {
                     
                 }
-            } else {
-
             }
 
             DB::commit();
@@ -383,8 +303,6 @@ class ManagerController extends Controller
                 } catch (\Exception $e) {
                     
                 }
-            } else {
-                
             }
 
             DB::commit();
@@ -511,6 +429,7 @@ class ManagerController extends Controller
         $baseQuery = KeKhaiTongHopNamHoc::whereHas('nguoiDung', function ($q) use ($boMonIdCuaManager) {
             $q->where('bo_mon_id', $boMonIdCuaManager);
         });
+
         if ($namHocId) {
             $baseQuery->where('nam_hoc_id', $namHocId);
         }
@@ -530,6 +449,7 @@ class ManagerController extends Controller
             'gd_xa_truong'    => round(floatval($approvedQuery->sum('tong_gio_gdxatruong_duyet')), 2)        // C12.I2
         ];
         $totalActivityHours = array_sum($activityStats);
+        
         foreach ($activityStats as $key => $value) {
             $activityStats[$key . '_percentage'] = $totalActivityHours > 0 ? round(($value / $totalActivityHours) * 100, 1) : 0;
         }
@@ -581,84 +501,6 @@ class ManagerController extends Controller
 
         return response()->json($statsData);
     }
-
-    // public function getSalaryInfo(Request $request)
-    // {
-    //     $manager = Auth::user();
-    //     $boMonIdCuaManager = $manager->bo_mon_id;
-    //     $namHocId = $request->query('nam_hoc_id');
-
-    //     if (!$boMonIdCuaManager) {
-    //         return response()->json(['message' => 'Quản lý không thuộc bộ môn nào.'], 403);
-    //     }
-
-    //     $query = LuongGiangVien::whereHas('nguoiDung', function ($q) use ($boMonIdCuaManager) {
-    //         $q->where('bo_mon_id', $boMonIdCuaManager);
-    //     })
-    //         ->with(['nguoiDung:id,ho_ten,ma_gv,hoc_ham,hoc_vi', 'namHoc:id,ten_nam_hoc']);
-
-    //     if ($namHocId) {
-    //         $query->where('nam_hoc_id', $namHocId);
-    //     }
-
-    //     $salaryData = $query->get();
-
-    //     return response()->json($salaryData);
-    // }
-
-    // public function updateSalaryInfo(Request $request, $id)
-    // {
-    //     $manager = Auth::user();
-    //     $boMonIdCuaManager = $manager->bo_mon_id;
-
-    //     $validator = Validator::make($request->all(), [
-    //         'muc_luong_co_ban' => 'nullable|numeric|min:0',
-    //         'don_gia_gio_vuot_muc' => 'nullable|numeric|min:0',
-    //         'ghi_chu' => 'nullable|string|max:1000'
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json(['message' => 'Dữ liệu không hợp lệ.', 'errors' => $validator->errors()], 422);
-    //     }
-
-    //     $luongGV = LuongGiangVien::whereHas('nguoiDung', function ($q) use ($boMonIdCuaManager) {
-    //         $q->where('bo_mon_id', $boMonIdCuaManager);
-    //     })->findOrFail($id);
-
-    //     $luongGV->update($request->only(['muc_luong_co_ban', 'don_gia_gio_vuot_muc', 'ghi_chu']));
-
-    //     $this->calculateSalaryFields($luongGV);
-
-    //     return response()->json(['message' => 'Cập nhật thông tin lương thành công.', 'data' => $luongGV]);
-    // }
-
-    // /**
-    //  * Hàm helper: Tính lại các trường lương phụ thuộc vào kê khai đã duyệt
-    //  * @param LuongGiangVien $luongGV
-    //  * Lưu ý: Chỉ tính nếu có kê khai đã duyệt
-    //  */
-    // private function calculateSalaryFields(LuongGiangVien $luongGV)
-    // {
-    //     $keKhai = KeKhaiTongHopNamHoc::where('nguoi_dung_id', $luongGV->nguoi_dung_id)
-    //         ->where('nam_hoc_id', $luongGV->nam_hoc_id)
-    //         ->where('trang_thai_phe_duyet', 3)
-    //         ->first();
-
-    //     if ($keKhai) {
-    //         $luongGV->tong_gio_chuan_thuc_hien = $keKhai->tong_gio_thuc_hien_final_duyet;
-    //         $luongGV->so_gio_vuot_muc = max(0, $keKhai->ket_qua_thua_thieu_gio_gd_duyet ?? 0);
-
-    //         if ($luongGV->don_gia_gio_vuot_muc && $luongGV->so_gio_vuot_muc) {
-    //             $luongGV->tong_tien_luong_vuot_gio = $luongGV->so_gio_vuot_muc * $luongGV->don_gia_gio_vuot_muc;
-    //         }
-
-    //         if ($luongGV->muc_luong_co_ban && $luongGV->tong_tien_luong_vuot_gio) {
-    //             $luongGV->thanh_tien_nam = $luongGV->muc_luong_co_ban + $luongGV->tong_tien_luong_vuot_gio;
-    //         }
-
-    //         $luongGV->save();
-    //     }
-    // }
 
     // API xuất báo cáo tổng hợp, chi tiết, vượt giờ (Excel/PDF/ZIP)
     public function exportReport(Request $request)

@@ -4,7 +4,6 @@ import {
     Card,
     Select,
     Typography,
-    Spin,
     Row,
     Col,
     Table,
@@ -26,7 +25,6 @@ import {
     CloseCircleOutlined,
     ExclamationCircleOutlined,
     SyncOutlined,
-    InfoCircleOutlined,
     RadarChartOutlined,
     AreaChartOutlined,
     DotChartOutlined,
@@ -364,8 +362,7 @@ function ThongKe() {
         const datas = statisticsOverview[0];
         const completion = parseFloat(datas.ty_le_hoanthanh_gd || 0);
         const remaining = Math.max(0, 100 - completion);
-        // console.log("Completion:", completion, "Remaining:", remaining);
-        // console.log("Selected Year Data:", statisticsOverview);
+
         // Xử lý trường hợp tỷ lệ > 100%
         const displayCompletion = Math.min(completion, 100);
         const displayRemaining = Math.max(0, 100 - displayCompletion);

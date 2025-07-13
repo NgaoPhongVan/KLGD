@@ -14,10 +14,8 @@ import {
     Typography,
     Row,
     Col,
-    Checkbox,
     Pagination,
     Spin,
-    Alert,
     Divider,
     Tooltip,
     message,
@@ -26,7 +24,6 @@ import {
 } from "antd";
 import {
     SearchOutlined,
-    BellOutlined,
     CheckOutlined,
     CloseOutlined,
     EyeOutlined,
@@ -37,17 +34,12 @@ import {
     FileTextOutlined,
     CalendarOutlined,
     SyncOutlined,
-    ExclamationCircleOutlined,
-    PrinterOutlined,
-    DownloadOutlined,
     ExperimentOutlined,
     CarryOutOutlined,
     BuildOutlined,
     TeamOutlined,
     UserSwitchOutlined,
     AuditOutlined,
-    SolutionOutlined,
-    DashboardOutlined,
     SettingOutlined,
     MailOutlined,
     BarChartOutlined
@@ -94,79 +86,33 @@ const BaoCaoKeKhaiPreviewManager = ({
     const isApproved = keKhaiData.trang_thai_phe_duyet === 3;
 
     const dataMucI1 = {
-        dmGD: getValue(
-            keKhaiData.dinhmuc_gd_apdung
-        ),
-        dmKHCN: getValue(
-            keKhaiData.dinhmuc_khcn_apdung
-        ),
-        gdThucHienKHCN: getValue(
-            isApproved ? keKhaiData.gio_khcn_thuchien_xet_dinhmuc_duyet : keKhaiData.gio_khcn_thuchien_xet_dinhmuc_tam_tinh
-        ),
-        gdCongDG: getValue(
-            isApproved ? keKhaiData.gio_gd_danhgia_xet_dinhmuc_duyet : keKhaiData.gio_gd_danhgia_xet_dinhmuc_tam_tinh
-        ),
-        gdXaTruong: getValue(
-            isApproved ? keKhaiData.gio_gdxatruong_xet_dinhmuc_duyet : keKhaiData.gio_gdxatruong_xet_dinhmuc_tam_tinh
-        ),
-        gdHoanThanhSauBuTru: getValue(
-            isApproved ? keKhaiData.gio_gd_hoanthanh_sau_butru_duyet : keKhaiData.gio_gd_hoanthanh_sau_butru_tam_tinh
-        ),
-        laConLai: getValue(
-            isApproved ? keKhaiData.sl_huongdan_la_conlai_duyet : keKhaiData.sl_huongdan_la_conlai_tam_tinh, 0, 0
-        ),
-        lvConLai: getValue(
-            isApproved ? keKhaiData.sl_huongdan_lv_conlai_duyet : keKhaiData.sl_huongdan_lv_conlai_tam_tinh, 0, 0
-        ),
-        daklConLai: getValue(
-            isApproved ? keKhaiData.sl_huongdan_dakl_conlai_duyet : keKhaiData.sl_huongdan_dakl_conlai_tam_tinh, 0, 0
-        ),
+        dmGD: getValue(keKhaiData.dinhmuc_gd_apdung),
+        dmKHCN: getValue(keKhaiData.dinhmuc_khcn_apdung),
+        gdThucHienKHCN: getValue(isApproved ? keKhaiData.gio_khcn_thuchien_xet_dinhmuc_duyet : keKhaiData.gio_khcn_thuchien_xet_dinhmuc_tam_tinh),
+        gdCongDG: getValue(isApproved ? keKhaiData.gio_gd_danhgia_xet_dinhmuc_duyet : keKhaiData.gio_gd_danhgia_xet_dinhmuc_tam_tinh),
+        gdXaTruong: getValue(isApproved ? keKhaiData.gio_gdxatruong_xet_dinhmuc_duyet : keKhaiData.gio_gdxatruong_xet_dinhmuc_tam_tinh),
+        gdHoanThanhSauBuTru: getValue(isApproved ? keKhaiData.gio_gd_hoanthanh_sau_butru_duyet : keKhaiData.gio_gd_hoanthanh_sau_butru_tam_tinh),
+        laConLai: getValue(isApproved ? keKhaiData.sl_huongdan_la_conlai_duyet : keKhaiData.sl_huongdan_la_conlai_tam_tinh, 0, 0),
+        lvConLai: getValue(isApproved ? keKhaiData.sl_huongdan_lv_conlai_duyet : keKhaiData.sl_huongdan_lv_conlai_tam_tinh, 0, 0),
+        daklConLai: getValue(isApproved ? keKhaiData.sl_huongdan_dakl_conlai_duyet : keKhaiData.sl_huongdan_dakl_conlai_tam_tinh, 0, 0),
         ghiChuBuTru: isApproved ? keKhaiData.ghi_chu_butru_duyet : keKhaiData.ghi_chu_butru_tam_tinh,
-        gdVuotKhongHD: getValue(
-            isApproved ? keKhaiData.gio_vuot_gd_khong_hd_duyet : keKhaiData.gio_vuot_gd_khong_hd_tam_tinh
-        ),
-        thuaThieuCuoiCung: getValue(
-            isApproved ? keKhaiData.ket_qua_thua_thieu_gio_gd_duyet : keKhaiData.ket_qua_thua_thieu_gio_gd_tam_tinh
-        ),
-        khcnHoanThanhSoVoiDM: getValue(
-            isApproved ? keKhaiData.gio_khcn_hoanthanh_so_voi_dinhmuc_duyet : keKhaiData.gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh
-        ),
+        gdVuotKhongHD: getValue(isApproved ? keKhaiData.gio_vuot_gd_khong_hd_duyet : keKhaiData.gio_vuot_gd_khong_hd_tam_tinh),
+        thuaThieuCuoiCung: getValue(isApproved ? keKhaiData.ket_qua_thua_thieu_gio_gd_duyet : keKhaiData.ket_qua_thua_thieu_gio_gd_tam_tinh),
+        khcnHoanThanhSoVoiDM: getValue(isApproved ? keKhaiData.gio_khcn_hoanthanh_so_voi_dinhmuc_duyet : keKhaiData.gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh),
     };
 
     const dataMucI2 = {
-        c1: getValue(
-            isApproved ? keKhaiData.tong_gio_khcn_kekhai_duyet : keKhaiData.tong_gio_khcn_kekhai_tam_tinh
-        ),
-        c2: getValue(
-            isApproved ? keKhaiData.tong_gio_congtackhac_quydoi_duyet : keKhaiData.tong_gio_congtackhac_quydoi_tam_tinh
-        ),
-        c3: getValue(
-            isApproved ? keKhaiData.tong_gio_coithi_chamthi_dh_duyet : keKhaiData.tong_gio_coithi_chamthi_dh_tam_tinh
-        ),
-        c4: getValue(
-            isApproved ? keKhaiData.tong_gio_gd_danhgia_duyet : keKhaiData.tong_gio_gd_danhgia_tam_tinh
-        ),
-        c6: getValue(
-            isApproved ? keKhaiData.tong_sl_huongdan_la_duyet : keKhaiData.tong_sl_huongdan_la_tam_tinh, 0, 0
-        ),
-        c7: getValue(
-            isApproved ? keKhaiData.tong_sl_huongdan_lv_duyet : keKhaiData.tong_sl_huongdan_lv_tam_tinh, 0, 0
-        ),
-        c8: getValue(
-            isApproved ? keKhaiData.tong_sl_huongdan_dakl_duyet : keKhaiData.tong_sl_huongdan_dakl_tam_tinh, 0, 0
-        ),
-        c9: getValue(
-            isApproved ? keKhaiData.tong_gio_huongdan_quydoi_duyet : keKhaiData.tong_gio_huongdan_quydoi_tam_tinh
-        ),
-        c10: getValue(
-            isApproved ? keKhaiData.tong_gio_khcn_kekhai_duyet : keKhaiData.tong_gio_khcn_kekhai_tam_tinh
-        ),
-        c11: getValue(
-            isApproved ? keKhaiData.tong_gio_giangday_final_duyet : keKhaiData.tong_gio_giangday_final_tam_tinh
-        ),
-        c12: getValue(
-            isApproved ? keKhaiData.tong_gio_gdxatruong_duyet : keKhaiData.tong_gio_gdxatruong_tam_tinh
-        ),
+        c1: getValue(isApproved ? keKhaiData.tong_gio_khcn_kekhai_duyet : keKhaiData.tong_gio_khcn_kekhai_tam_tinh),
+        c2: getValue(isApproved ? keKhaiData.tong_gio_congtackhac_quydoi_duyet : keKhaiData.tong_gio_congtackhac_quydoi_tam_tinh),
+        c3: getValue(isApproved ? keKhaiData.tong_gio_coithi_chamthi_dh_duyet : keKhaiData.tong_gio_coithi_chamthi_dh_tam_tinh),
+        c4: getValue(isApproved ? keKhaiData.tong_gio_gd_danhgia_duyet : keKhaiData.tong_gio_gd_danhgia_tam_tinh),
+        c6: getValue(isApproved ? keKhaiData.tong_sl_huongdan_la_duyet : keKhaiData.tong_sl_huongdan_la_tam_tinh, 0, 0),
+        c7: getValue(isApproved ? keKhaiData.tong_sl_huongdan_lv_duyet : keKhaiData.tong_sl_huongdan_lv_tam_tinh, 0, 0),
+        c8: getValue(isApproved ? keKhaiData.tong_sl_huongdan_dakl_duyet : keKhaiData.tong_sl_huongdan_dakl_tam_tinh, 0, 0),
+        c9: getValue(isApproved ? keKhaiData.tong_gio_huongdan_quydoi_duyet : keKhaiData.tong_gio_huongdan_quydoi_tam_tinh),
+        c10: getValue(isApproved ? keKhaiData.tong_gio_khcn_kekhai_duyet : keKhaiData.tong_gio_khcn_kekhai_tam_tinh),
+        c11: getValue(isApproved ? keKhaiData.tong_gio_giangday_final_duyet : keKhaiData.tong_gio_giangday_final_tam_tinh),
+        c12: getValue(isApproved ? keKhaiData.tong_gio_gdxatruong_duyet : keKhaiData.tong_gio_gdxatruong_tam_tinh),
     };
 
     const renderChiTietTable = (title, dataSource, columns, icon, type) => {

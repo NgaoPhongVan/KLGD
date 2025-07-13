@@ -54,7 +54,7 @@ class WorkloadService
             'tong_gio_butru_dakl_tam_tinh',
             'sl_huongdan_dakl_conlai_tam_tinh',
             'tong_gio_butru_khcn_tam_tinh',
-            'gio_khcn_conlai_sau_butru_tam_tinh', // Giờ KHCN còn lại sau khi bù cho GD
+            'gio_khcn_conlai_sau_butru_tam_tinh',
             'tong_gio_butru_xatruong_tam_tinh',
             'gio_gdxatruong_conlai_sau_butru_tam_tinh',
             'gio_gd_hoanthanh_sau_butru_tam_tinh',
@@ -294,14 +294,8 @@ class WorkloadService
         Log::info("WorkloadService: Đã tính toán xong cho KeKhaiTongHopNamHoc ID: {$keKhaiTongHopNamHocId}");
         return true;
     }
-    /**
-     * Helper để tính tổng giờ quy đổi cho một số lượng hướng dẫn cụ thể.
-     * Hàm này sẽ lấy hệ số từ bảng dm_he_so_chung.
-     *
-     * @param int $soLuong Số lượng SV/HV/NCS
-     * @param string $trinhDo 'Đại học', 'Thạc sĩ', 'Tiến sĩ'
-     * @return float
-     */
+    
+    // Helper để tính tổng giờ quy đổi cho một số lượng hướng dẫn cụ thể.
     private function calculateGioHuongDanTheoSoLuong($soLuong, $trinhDo, User $user = null, $namHocId = null, $loaiDaoTaoTS = null, $vaiTroCuThe = null, $laCTTT = false)
     {
         if ($soLuong <= 0) return 0.00;
@@ -325,14 +319,7 @@ class WorkloadService
         return round(floatval($soLuong) * $heSoGio, 2);
     }
 
-    /**
-     * Helper để tính số lượng đơn vị (SV/HV/NCS) từ số giờ đã bù.
-     * Hàm này sẽ lấy hệ số từ bảng dm_he_so_chung.
-     *
-     * @param float $gioDaBu Số giờ đã dùng để bù
-     * @param string $trinhDo 'Đại học', 'Thạc sĩ', 'Tiến sĩ'
-     * @return int Số lượng SV/HV/NCS tương ứng (làm tròn lên)
-     */
+    // Helper để tính số lượng đơn vị (SV/HV/NCS) từ số giờ đã bù.
     private function calculateSoLuongTuGio($gioDaBu, $trinhDo, User $user = null, $namHocId = null, $loaiDaoTaoTS = null, $vaiTroCuThe = null, $laCTTT = false)
     {
         if ($gioDaBu <= 0) return 0;

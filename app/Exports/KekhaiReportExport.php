@@ -14,7 +14,6 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use Illuminate\Support\Facades\Log;
 
 class KekhaiReportExport implements WithMultipleSheets
 {

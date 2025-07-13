@@ -26,7 +26,7 @@ const { Text } = Typography;
 
 function FormHdDatnDaihoc({ dataSource, setDataSource }) {
     const [form] = Form.useForm();
-    const [editingItem, setEditingItem] = useState(null); // { index: number, record: object }
+    const [editingItem, setEditingItem] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     const handleAddItem = () => {
@@ -96,7 +96,6 @@ function FormHdDatnDaihoc({ dataSource, setDataSource }) {
             form.resetFields();
             setEditingItem(null);
         } catch (errorInfo) {
-            console.log("Validate Failed:", errorInfo);
             message.error("Vui lòng kiểm tra lại thông tin đã nhập.");
         }
     };
@@ -276,9 +275,7 @@ function FormHdDatnDaihoc({ dataSource, setDataSource }) {
 
             <Modal
                 title={
-                    editingItem
-                        ? `Chỉnh sửa Hướng dẫn ĐATN/KLTN`
-                        : `Thêm Hướng dẫn ĐATN/KLTN`
+                    editingItem ? `Chỉnh sửa Hướng dẫn ĐATN/KLTN` : `Thêm Hướng dẫn ĐATN/KLTN`
                 }
                 open={isModalVisible}
                 onOk={handleModalOk}
@@ -377,10 +374,7 @@ function FormHdDatnDaihoc({ dataSource, setDataSource }) {
 
                                 // Chỉ tự động cập nhật nếu người dùng chưa nhập hoặc giá trị tính toán khác
                                 if (
-                                    currentTongSVQD_Form === undefined ||
-                                    currentTongSVQD_Form === "" ||
-                                    parseFloat(currentTongSVQD_Form) !==
-                                        calculatedTongSVQD
+                                    currentTongSVQD_Form === undefined || currentTongSVQD_Form === "" || parseFloat(currentTongSVQD_Form) !== calculatedTongSVQD
                                 ) {
                                     // Để tránh vòng lặp vô hạn, chỉ set nếu giá trị khác
                                     if (
@@ -389,7 +383,6 @@ function FormHdDatnDaihoc({ dataSource, setDataSource }) {
                                         ) !== calculatedTongSVQD
                                     ) {
                                         // setTimeout(() => form.setFieldsValue({ tong_sv_quy_doi: calculatedTongSVQD }), 0);
-                                        // Bỏ setFieldsValue tự động, để GV tự nhập nếu muốn
                                     }
                                 }
                                 return (

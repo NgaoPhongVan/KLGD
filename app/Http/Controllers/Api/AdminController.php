@@ -25,7 +25,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 use App\Imports\UsersImport;
-use App\Imports\KhoaImport;
 use App\Imports\BoMonImport;
 use App\Imports\NamHocImport;
 use App\Imports\HocKyImport;
@@ -184,7 +183,7 @@ class AdminController extends Controller
             'ma_gv' => $request->ma_gv,
             'ho_ten' => $request->ho_ten,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => Hash::make($request->password), //bcrypt
             'vai_tro' => $request->vai_tro,
             'bo_mon_id' => $request->bo_mon_id,
             'trang_thai' => $request->trang_thai,
@@ -1568,6 +1567,4 @@ class AdminController extends Controller
             ], 500);
         }
     }
-
-    
 }

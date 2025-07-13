@@ -27,9 +27,8 @@ function FormKhaoThi({
     setDataSource
 }) {
     const [form] = Form.useForm();
-    const [editingItem, setEditingItem] = useState(null); // { index: number, record: object }
+    const [editingItem, setEditingItem] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    // Không có minh chứng
 
     const getTitleAndTrinhDo = () => {
         let title = "Hoạt động Khảo thí";
@@ -42,7 +41,6 @@ function FormKhaoThi({
 
         if (type.includes('_trongbm')) phamViDisplay = " (Trong Bộ môn)";
         else if (type.includes('_ngoaibm')) phamViDisplay = " (Ngoài Bộ môn)";
-        // Đối với ThS, TS có thể không cần phân biệt phạm vi này trong tên bảng
 
         title = `Khảo thí ${trinhDoDisplay}${phamViDisplay}`;
         return { title, trinhDoDisplay };
@@ -54,7 +52,6 @@ function FormKhaoThi({
     const handleAddItem = () => {
         setEditingItem(null);
         form.resetFields();
-        // Đặt giá trị mặc định nếu cần, ví dụ pham_vi cho ĐH
         if (type === 'khaothi_dh_trongbm') form.setFieldsValue({ pham_vi_display: 'Trong BM' });
         else if (type === 'khaothi_dh_ngoaibm') form.setFieldsValue({ pham_vi_display: 'Ngoài BM' });
 
@@ -66,14 +63,13 @@ function FormKhaoThi({
         let phamViValue;
         if (type === 'khaothi_dh_trongbm') phamViValue = 'Trong BM';
         else if (type === 'khaothi_dh_ngoaibm') phamViValue = 'Ngoài BM';
-        // Đối với ThS, TS, nếu không có trường phạm vi trong bảng DB, thì không cần set
 
         form.setFieldsValue({
             hang_muc: record.hang_muc,
             so_ca_bai_mon: record.so_ca_bai_mon,
             dinh_muc_gv_nhap: record.dinh_muc_gv_nhap,
             ghi_chu: record.ghi_chu,
-            pham_vi_display: phamViValue, // Chỉ hiển thị, không lưu trực tiếp nếu đã tách bảng
+            pham_vi_display: phamViValue,
         });
         setIsModalVisible(true);
     };
@@ -99,9 +95,7 @@ function FormKhaoThi({
                 id_database: editingItem?.record.id_database || null,
                 ...values,
                 so_tiet_qd: so_tiet_qd,
-                // Phạm vi đã được xác định bởi `type` khi lưu vào bảng tương ứng ở backend
             };
-            // Xóa pham_vi_display nếu nó không phải là cột trong DB
             delete newItem.pham_vi_display;
 
 
@@ -118,7 +112,6 @@ function FormKhaoThi({
             form.resetFields();
             setEditingItem(null);
         } catch (errorInfo) {
-            console.log('Validate Failed:', errorInfo);
             message.error("Vui lòng kiểm tra lại thông tin đã nhập.");
         }
     };
@@ -296,7 +289,6 @@ function FormKhaoThi({
                     >
                         <Input.TextArea rows={2} placeholder="Nhập ghi chú (nếu có)" />
                     </Form.Item>
-                    {/* Không có Upload minh chứng */}
                 </Form>
             </Modal>
         </div>

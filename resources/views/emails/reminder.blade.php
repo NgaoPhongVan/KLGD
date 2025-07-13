@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }}</title>
     <style>
-        /* Enhanced Modern Email Styles */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif !important;
             line-height: 1.6;
@@ -58,7 +57,6 @@
             background: linear-gradient(90deg, #f59e0b 0%, #d97706 25%, #ea580c 50%, #dc2626 75%, #b91c1c 100%);
         }
 
-        /* Enhanced Header with Premium Gradient */
         .header {
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 20%, #ea580c 60%, #dc2626 90%, #b91c1c 100%);
             position: relative;
@@ -88,7 +86,6 @@
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
         }
 
-        /* Premium Bell Logo */
         .header-logo {
             width: 88px;
             height: 88px;
@@ -165,7 +162,6 @@
             text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
-        /* Enhanced Content Area */
         .content {
             padding: 56px 40px !important;
             background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%);
@@ -217,7 +213,6 @@
             opacity: 0.6;
         }
 
-        /* Enhanced Info Cards */
         .info-card {
             border-radius: 20px;
             padding: 28px !important;
@@ -354,7 +349,6 @@
             box-shadow: 0 2px 8px rgba(34, 197, 94, 0.1);
         }
 
-        /* Enhanced Button */
         .button-container {
             text-align: center !important;
             margin: 48px 0 !important;
@@ -403,7 +397,6 @@
             box-shadow: 0 20px 40px -4px rgba(245, 158, 11, 0.5) !important;
         }
 
-        /* Enhanced Signature */
         .signature-section {
             margin-top: 48px !important;
             padding: 40px !important;
@@ -484,7 +477,6 @@
             content: '📞';
         }
 
-        /* Enhanced Footer */
         .footer-section {
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
             padding: 32px 40px !important;
@@ -531,7 +523,6 @@
             transform: translateY(-1px);
         }
 
-        /* Responsive Design */
         @media only screen and (max-width: 680px) {
             .email-wrapper {
                 padding: 20px 10px !important;
@@ -584,7 +575,6 @@
             }
         }
 
-        /* Enhanced animations */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -608,7 +598,6 @@
             animation-delay: 0.2s;
         }
 
-        /* Force visibility for all content */
         * {
             max-height: none !important;
             visibility: visible !important;
@@ -620,7 +609,6 @@
 <body>
     <div class="email-wrapper">
         <div class="container">
-            <!-- Enhanced Header -->
             <div class="header">
                 <div class="header-logo">
                     <div class="logo-inner">
@@ -632,7 +620,6 @@
                 <p>Thông báo từ Hệ thống Quản lý Khối lượng Giảng dạy</p>
             </div>
 
-            <!-- Enhanced Content -->
             <div class="content">
                 <div class="greeting">
                     Kính chào Thầy/Cô,
@@ -642,13 +629,11 @@
                     {{ $content }}
                 </div>
 
-                <!-- Enhanced Semester Info Card -->
                 <div class="info-card semester-card">
                     <div class="card-title">Thông tin năm học</div>
                     <div class="card-content"> ({{ $namHoc->ten_nam_hoc ?? 'N/A' }})</div>
                 </div>
 
-                <!-- Enhanced Time Information Card -->
                 @if($keKhaiThoiGian)
                 <div class="info-card time-card">
                     <div class="card-title">Thông tin thời gian kê khai</div>
@@ -672,7 +657,6 @@
                     </div>
                 </div>
 
-                <!-- Check if deadline is approaching (within 3 days) -->
                 @php
                     $now = \Carbon\Carbon::now();
                     $deadline = \Carbon\Carbon::parse($keKhaiThoiGian->thoi_gian_ket_thuc);
@@ -699,14 +683,12 @@
                     Để đảm bảo việc kê khai được thực hiện đúng thời hạn và chính xác, vui lòng đăng nhập vào hệ thống và hoàn thành kê khai khối lượng giảng dạy của mình.
                 </div>
 
-                <!-- Enhanced Button -->
                 <div class="button-container">
                     <a href="{{ env('APP_URL') }}" class="cta-button">
                         🚀 Đăng nhập Hệ thống ngay
                     </a>
                 </div>
 
-                <!-- Enhanced Signature -->
                 <div class="signature-section">
                     <div class="signature-greeting">
                         Trân trọng,
@@ -720,7 +702,6 @@
                         </div>
                     </div>
 
-                    <!-- Enhanced Contact Information -->
                     <div class="contact-info">
                         <div class="contact-item">
                             support@tlu.edu.vn
@@ -732,7 +713,6 @@
                 </div>
             </div>
 
-            <!-- Enhanced Footer -->
             <div class="footer-section">
                 <div>© 2024 Đại học Thủy Lợi. Tất cả quyền được bảo lưu.</div>
                 <div style="margin-top: 8px; font-size: 13px; color: #94a3b8;">

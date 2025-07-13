@@ -12,13 +12,13 @@ import {
     Tag,
     Modal,
     message,
-    Select // Thêm Select
+    Select
 } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined, TeamOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;
 const { TextArea } = Input;
-const { Option } = Select; // Thêm Option
+const { Option } = Select;
 
 function FormCongTacKhac({
     dataSource,
@@ -38,9 +38,9 @@ function FormCongTacKhac({
         setEditingItem({ index, record });
         form.setFieldsValue({
             ten_cong_tac: record.ten_cong_tac,
-            ket_qua_dat_duoc: record.ket_qua_dat_duoc, // Đổi tên từ ket_qua_quy_doi
+            ket_qua_dat_duoc: record.ket_qua_dat_duoc,
             loai_gio_quy_doi: record.loai_gio_quy_doi,
-            so_gio_quy_doi_gv_nhap: record.so_gio_quy_doi_gv_nhap, // Đổi tên từ tong_gio_congtac_gv_nhap
+            so_gio_quy_doi_gv_nhap: record.so_gio_quy_doi_gv_nhap,
             ghi_chu: record.ghi_chu,
         });
         setIsModalVisible(true);
@@ -59,8 +59,6 @@ function FormCongTacKhac({
                 id_temp: editingItem?.record.id_temp || Date.now() + Math.random(),
                 id_database: editingItem?.record.id_database || null,
                 ...values,
-                // Đảm bảo các trường có tên đúng với $fillable của model
-                // ten_cong_tac, ket_qua_dat_duoc, loai_gio_quy_doi, so_gio_quy_doi_gv_nhap, ghi_chu
             };
 
             let newData = [...dataSource];
@@ -76,7 +74,6 @@ function FormCongTacKhac({
             form.resetFields();
             setEditingItem(null);
         } catch (errorInfo) {
-            console.log('Validate Failed:', errorInfo);
             message.error("Vui lòng kiểm tra lại thông tin đã nhập.");
         }
     };
@@ -97,8 +94,8 @@ function FormCongTacKhac({
             render: (text) => <Tooltip title={text}>{text}</Tooltip>
         },
         {
-            title: 'Kết quả đạt được/Mô tả', // Đổi tên cột
-            dataIndex: 'ket_qua_dat_duoc',    // Đổi dataIndex
+            title: 'Kết quả đạt được/Mô tả',
+            dataIndex: 'ket_qua_dat_duoc', 
             key: 'ket_qua_dat_duoc',
             ellipsis: true,
             width: 250,
@@ -117,8 +114,8 @@ function FormCongTacKhac({
             }
         },
         {
-            title: 'Số Giờ QĐ (GV nhập)', // Đổi tên cột
-            dataIndex: 'so_gio_quy_doi_gv_nhap', // Đổi dataIndex
+            title: 'Số Giờ QĐ (GV nhập)',
+            dataIndex: 'so_gio_quy_doi_gv_nhap',
             key: 'so_gio_quy_doi_gv_nhap',
             width: 160,
             align: 'center',
@@ -214,7 +211,7 @@ function FormCongTacKhac({
                     </Form.Item>
 
                     <Form.Item
-                        name="ket_qua_dat_duoc" // Đổi tên
+                        name="ket_qua_dat_duoc"
                         label="Kết quả đạt được/Mô tả quy đổi (GV tự nhập nếu có)"
                     >
                         <Input placeholder="Ví dụ: Hoàn thành tốt, Lớp đạt danh hiệu Lớp tiên tiến..." />

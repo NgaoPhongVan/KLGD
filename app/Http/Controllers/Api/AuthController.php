@@ -2,19 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-// ========================
-// AuthController - Controller xác thực và phân quyền người dùng
-// ========================
-// Chức năng: Đăng nhập, đăng xuất, dashboard theo vai trò, quên mật khẩu, đặt lại mật khẩu, xác thực vai trò.
-// Lưu ý:
-// - Sử dụng chuẩn Laravel Sanctum cho API Token
-// - Validation dữ liệu đầu vào chặt chẽ, trả về lỗi rõ ràng
-// - Đảm bảo bảo mật: kiểm tra trạng thái tài khoản, không tiết lộ thông tin nhạy cảm
-// - Ghi log các sự kiện quan trọng (login, gửi mail, lỗi...)
-// - Các API trả về JSON, dùng cho frontend SPA/mobile
-// - Không thay đổi logic code, chỉ bổ sung/chỉnh sửa ghi chú
-// ========================
-
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -66,30 +53,6 @@ class AuthController extends Controller
         return response()->json(['message' => 'Đăng xuất thành công']);
     }
 
-    public function adminDashboard()
-    {
-        return response()->json([
-            'message' => 'Chào mừng Admin!',
-            'user' => auth()->user(),
-        ]);
-    }
-
-    public function managerDashboard()
-    {
-        return response()->json([
-            'message' => 'Chào mừng Manager!',
-            'user' => auth()->user(),
-        ]);
-    }
-
-    public function lecturerDashboard()
-    {
-        return response()->json([
-            'message' => 'Chào mừng Giảng viên!',
-            'user' => auth()->user(),
-        ]);
-    }
-
     public function forgotPassword(Request $request)
     {
         $request->validate(['email' => 'required|email']);
@@ -106,13 +69,7 @@ class AuthController extends Controller
             $mailConfig = config('mail');
             $currentDriver = config('mail.default');
             
-            if ($currentDriver === 'log' || $currentDriver === 'array') {
-                Log::warning('Mail is configured for testing', [
-                    'driver' => $currentDriver,
-                    'email' => $request->email,
-                    'user_id' => $user->id
-                ]);
-                
+            if ($currentDriver === 'log' || $currentDriver === 'array') {             
                 return response()->json([
                     'message' => 'Hệ thống đang ở chế độ test. Email đã được ghi vào log thay vì gửi thực tế. Vui lòng liên hệ quản trị viên để cấu hình email.',
                     'status' => 'warning',

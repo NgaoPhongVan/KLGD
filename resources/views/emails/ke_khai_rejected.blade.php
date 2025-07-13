@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kê khai bị từ chối</title>
     <style>
-        /* Modern Email Styles */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif !important;
             line-height: 1.6;
@@ -33,7 +32,6 @@
             border: 1px solid #e2e8f0;
         }
 
-        /* Enhanced Header with Warning Gradient */
         .header {
             background: linear-gradient(135deg, #dc2626 0%, #b91c1c 25%, #991b1b 75%, #7f1d1d 100%);
             position: relative;
@@ -42,7 +40,6 @@
             text-align: center;
         }
 
-        /* Warning Logo */
         .header-logo {
             width: 80px;
             height: 80px;
@@ -95,7 +92,6 @@
             padding: 0 !important;
         }
 
-        /* Enhanced Content Area */
         .content {
             padding: 48px 32px !important;
             background-color: #ffffff;
@@ -117,7 +113,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif !important;
         }
 
-        /* Clean Info Cards */
         .info-card {
             border-radius: 16px;
             padding: 24px !important;
@@ -170,7 +165,6 @@
             color: #7f1d1d !important;
         }
 
-        /* Status Badge */
         .status-badge {
             display: inline-flex !important;
             align-items: center !important;
@@ -193,7 +187,6 @@
             animation: pulse 2s infinite !important;
         }
 
-        /* Enhanced Button */
         .button-container {
             text-align: center !important;
             margin: 40px 0 !important;
@@ -223,7 +216,6 @@
             box-shadow: 0 15px 25px -3px rgba(220, 38, 38, 0.4) !important;
         }
 
-        /* Enhanced Signature */
         .signature-section {
             margin-top: 40px !important;
             padding: 32px !important;
@@ -272,7 +264,6 @@
             font-weight: 500 !important;
         }
 
-        /* Enhanced Footer */
         .footer-section {
             background-color: #f8fafc;
             padding: 24px 32px !important;
@@ -302,7 +293,6 @@
             text-decoration: underline !important;
         }
 
-        /* Responsive Design */
         @media only screen and (max-width: 680px) {
             .email-wrapper {
                 padding: 20px 10px !important;
@@ -335,7 +325,6 @@
             }
         }
 
-        /* Animation Keyframes */
         @keyframes pulse {
             0%, 100% {
                 opacity: 1;
@@ -345,7 +334,6 @@
             }
         }
 
-        /* Force visibility for all content */
         * {
             max-height: none !important;
             visibility: visible !important;
@@ -356,7 +344,6 @@
 <body>
     <div class="email-wrapper">
         <div class="container">
-            <!-- Enhanced Header -->
             <div class="header">
                 <div class="header-logo">
                     <div class="logo-inner">
@@ -368,7 +355,6 @@
                 <p>Hệ thống Quản lý Khối lượng Giảng dạy</p>
             </div>
             
-            <!-- Enhanced Content -->
             <div class="content">
                 <div class="greeting">
                     Kính chào Thầy/Cô {{ $keKhai->nguoiDung->ho_ten ?? 'Giảng viên' }},
@@ -378,13 +364,11 @@
                     Chúng tôi xin thông báo rằng kê khai hoạt động của Thầy/Cô cho năm học dưới đây đã bị từ chối và cần được chỉnh sửa lại.
                 </div>
                 
-                <!-- Semester Info Card -->
                 <div class="info-card semester-card">
                     <div class="card-title">Thông tin năm học</div>
                     <div class="card-content">{{ $namHoc->ten_nam_hoc ?? 'N/A' }}</div>
                 </div>
                 
-                <!-- Rejection Reason Card -->
                 <div class="info-card reason-card">
                     <div class="card-title">Kết quả đánh giá</div>
                     <div class="card-content">
@@ -405,14 +389,12 @@
                     Thầy/Cô vui lòng xem xét lý do từ chối và thực hiện chỉnh sửa kê khai theo hướng dẫn. Nếu cần hỗ trợ thêm, vui lòng liên hệ với quản lý bộ môn hoặc phòng đào tạo.
                 </div>
                 
-                <!-- Enhanced Button -->
                 <div class="button-container">
                     <a href="{{ env('APP_URL') }}" class="cta-button">
                         Chỉnh sửa kê khai
                     </a>
                 </div>
                 
-                <!-- Enhanced Signature -->
                 <div class="signature-section">
                     <div class="signature-greeting">
                         Trân trọng,
@@ -426,7 +408,6 @@
                         </div>
                     </div>
                     
-                    <!-- Contact Information -->
                     <div class="contact-info">
                         <div class="contact-item">
                             Email hỗ trợ: support@tlu.edu.vn
@@ -438,7 +419,6 @@
                 </div>
             </div>
             
-            <!-- Enhanced Footer -->
             <div class="footer-section">
                 <div>© 2024 Đại học Thủy Lợi. Tất cả quyền được bảo lưu.</div>
                 <div style="margin-top: 8px; font-size: 13px; color: #94a3b8;">

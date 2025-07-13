@@ -4,11 +4,9 @@ import { Link, useNavigate } from 'react-router-dom';
 const NotFound = () => {
     const navigate = useNavigate();
     const [countdown, setCountdown] = useState(10);
-    const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
     const [clickCount, setClickCount] = useState(0);
     const [showConfetti, setShowConfetti] = useState(false);
     
-    // Get user's role from localStorage if available
     const getUserRole = () => {
         try {
             const token = localStorage.getItem('token');
@@ -24,7 +22,6 @@ const NotFound = () => {
         }
     };
 
-    // Get appropriate dashboard route based on user role
     const getDashboardRoute = () => {
         const role = getUserRole();
         if (role === 1) return '/admin/dashboard';
@@ -33,7 +30,6 @@ const NotFound = () => {
         return '/login';
     };
     
-    // Countdown timer effect
     useEffect(() => {
         if (countdown > 0) {
             const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
@@ -43,16 +39,6 @@ const NotFound = () => {
         }
     }, [countdown, navigate]);
     
-    // Mouse tracking for parallax effect
-    const handleMouseMove = (e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        setMousePosition({
-            x: (e.clientX - rect.left) / rect.width,
-            y: (e.clientY - rect.top) / rect.height
-        });
-    };
-    
-    // Easter egg click handler
     const handleEasterEgg = () => {
         const newCount = clickCount + 1;
         setClickCount(newCount);
@@ -69,43 +55,7 @@ const NotFound = () => {
     return (
         <div 
             className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 flex items-center justify-center p-4 relative overflow-hidden"
-            onMouseMove={handleMouseMove}
         >
-            {/* Animated Background Elements */}
-            <div className="absolute inset-0 pointer-events-none">
-                {/* Floating orbs with parallax */}
-                <div 
-                    className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-r from-indigo-400/20 to-purple-400/20 rounded-full blur-xl animate-float"
-                    style={{ 
-                        transform: `translate(${mousePosition.x * 30}px, ${mousePosition.y * 30}px)` 
-                    }}
-                />
-                <div 
-                    className="absolute bottom-20 right-20 w-40 h-40 bg-gradient-to-r from-blue-400/20 to-teal-400/20 rounded-full blur-xl animate-float-delayed"
-                    style={{ 
-                        transform: `translate(${-mousePosition.x * 40}px, ${-mousePosition.y * 40}px)` 
-                    }}
-                />
-                <div 
-                    className="absolute top-1/2 left-1/4 w-24 h-24 bg-gradient-to-r from-pink-400/20 to-rose-400/20 rounded-full blur-xl animate-pulse"
-                    style={{ 
-                        transform: `translate(${mousePosition.y * 20}px, ${mousePosition.x * 20}px)` 
-                    }}
-                />
-                
-                {/* Grid pattern */}
-                <div className="absolute inset-0 opacity-[0.03]">
-                    <div className="h-full w-full" style={{
-                        backgroundImage: `
-                            linear-gradient(90deg, #6366f1 1px, transparent 1px),
-                            linear-gradient(#6366f1 1px, transparent 1px)
-                        `,
-                        backgroundSize: '50px 50px'
-                    }} />
-                </div>
-            </div>
-
-            {/* Confetti Effect */}
             {showConfetti && (
                 <div className="fixed inset-0 pointer-events-none z-50">
                     {[...Array(30)].map((_, i) => (
@@ -123,30 +73,19 @@ const NotFound = () => {
                 </div>
             )}
             
-            {/* Main Content */}
             <div className="relative z-10 max-w-4xl w-full">
                 <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-8 md:p-12 hover:shadow-indigo-100/50 transition-all duration-500">
                     <div className="text-center mb-12">
-                        {/* Animated 404 */}
                         <div className="relative inline-block group cursor-pointer" onClick={handleEasterEgg}>
                             <div className="text-8xl md:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 hover:from-pink-500 hover:via-red-500 hover:to-yellow-500 transition-all duration-700 transform hover:scale-110 select-none">
                                 404
                             </div>
                             
-                            {/* Floating decorations */}
                             <div className="absolute -top-4 -left-4 text-4xl animate-bounce">✨</div>
                             <div className="absolute -top-2 -right-2 text-3xl animate-pulse">🚀</div>
                             <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 text-2xl animate-ping">💫</div>
-                            
-                            {/* Click counter hint */}
-                            {clickCount > 0 && (
-                                <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-sm text-indigo-500 font-medium animate-fade-in">
-                                    {clickCount}/5 🎯
-                                </div>
-                            )}
                         </div>
                         
-                        {/* Title with gradient */}
                         <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6 leading-tight">
                             <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                                 Oops! Trang không tồn tại
@@ -160,7 +99,6 @@ const NotFound = () => {
                         </p>
                     </div>
                     
-                    {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
                         <Link 
                             to={getDashboardRoute()}
@@ -188,7 +126,6 @@ const NotFound = () => {
                         </button>
                     </div>
                     
-                    {/* Auto-redirect Notice */}
                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 relative overflow-hidden">
                         <div 
                             className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-1000"
@@ -214,14 +151,12 @@ const NotFound = () => {
                     </div>
                 </div>
                 
-                {/* Footer */}
                 <div className="mt-8 text-center text-gray-500">
                     <p className="font-medium">© Đại học Thủy Lợi - Hệ thống quản lý khối lượng công việc</p>
                     <p className="mt-2 text-sm">Liên hệ quản trị viên nếu bạn gặp sự cố kỹ thuật</p>
                 </div>
             </div>
             
-            {/* Enhanced CSS Animations */}
             <style jsx="true">{`
                 @keyframes float {
                     0%, 100% { transform: translateY(0px) rotate(0deg); }

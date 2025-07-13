@@ -38,7 +38,7 @@ class ReminderNotification extends Mailable
                             'keKhaiThoiGian' => $this->keKhaiThoiGian,
                         ]);
         } catch (\Exception $e) {
-            Log::error('Error building ReminderNotification: ' . $e->getMessage());
+            Log::error('Loi gui mail thong bao: ' . $e->getMessage());
             throw $e;
         }
     }

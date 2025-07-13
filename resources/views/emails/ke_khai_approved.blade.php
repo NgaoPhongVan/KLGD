@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kê khai đã được phê duyệt</title>
     <style>
-        /* Modern Email Styles */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif !important;
             line-height: 1.6;
@@ -33,7 +32,6 @@
             border: 1px solid #e2e8f0;
         }
 
-        /* Enhanced Header with Success Gradient */
         .header {
             background: linear-gradient(135deg, #059669 0%, #047857 25%, #065f46 75%, #064e3b 100%);
             position: relative;
@@ -42,7 +40,6 @@
             text-align: center;
         }
 
-        /* Success Logo */
         .header-logo {
             width: 80px;
             height: 80px;
@@ -95,7 +92,6 @@
             padding: 0 !important;
         }
 
-        /* Enhanced Content Area */
         .content {
             padding: 48px 32px !important;
             background-color: #ffffff;
@@ -117,7 +113,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif !important;
         }
 
-        /* Clean Info Cards */
         .info-card {
             border-radius: 16px;
             padding: 24px !important;
@@ -170,7 +165,6 @@
             color: #0c4a6e !important;
         }
 
-        /* Status Badge */
         .status-badge {
             display: inline-flex !important;
             align-items: center !important;
@@ -193,7 +187,6 @@
             animation: pulse 2s infinite !important;
         }
 
-        /* Summary Table */
         .summary-table {
             width: 100% !important;
             border-collapse: collapse !important;
@@ -221,7 +214,6 @@
             text-align: right !important;
         }
 
-        /* Enhanced Button */
         .button-container {
             text-align: center !important;
             margin: 40px 0 !important;
@@ -251,7 +243,6 @@
             box-shadow: 0 15px 25px -3px rgba(5, 150, 105, 0.4) !important;
         }
 
-        /* Enhanced Signature */
         .signature-section {
             margin-top: 40px !important;
             padding: 32px !important;
@@ -300,7 +291,6 @@
             font-weight: 500 !important;
         }
 
-        /* Enhanced Footer */
         .footer-section {
             background-color: #f8fafc;
             padding: 24px 32px !important;
@@ -330,7 +320,6 @@
             text-decoration: underline !important;
         }
 
-        /* Responsive Design */
         @media only screen and (max-width: 680px) {
             .email-wrapper {
                 padding: 20px 10px !important;
@@ -368,7 +357,6 @@
             }
         }
 
-        /* Animation Keyframes */
         @keyframes pulse {
             0%, 100% {
                 opacity: 1;
@@ -378,7 +366,6 @@
             }
         }
 
-        /* Force visibility for all content */
         * {
             max-height: none !important;
             visibility: visible !important;
@@ -389,7 +376,6 @@
 <body>
     <div class="email-wrapper">
         <div class="container">
-            <!-- Enhanced Header -->
             <div class="header">
                 <div class="header-logo">
                     <div class="logo-inner">
@@ -401,7 +387,6 @@
                 <p>Hệ thống Quản lý Khối lượng Giảng dạy</p>
             </div>
             
-            <!-- Enhanced Content -->
             <div class="content">
                 <div class="greeting">
                     Kính chào Thầy/Cô {{ $keKhai->nguoiDung->ho_ten ?? 'Giảng viên' }},
@@ -411,13 +396,11 @@
                     Chúng tôi xin thông báo rằng kê khai hoạt động của Thầy/Cô cho năm học dưới đây đã được phê duyệt thành công.
                 </div>
                 
-                <!-- Semester Info Card -->
                 <div class="info-card semester-card">
                     <div class="card-title">Thông tin năm học</div>
                     <div class="card-content">{{ $namHoc->ten_nam_hoc ?? 'N/A' }}</div>
                 </div>
                 
-                <!-- Summary Card -->
                 <div class="info-card summary-card">
                     <div class="card-title">Kết quả phê duyệt</div>
                     <div class="card-content">
@@ -462,14 +445,12 @@
                     Kê khai của Thầy/Cô đã được xem xét và phê duyệt. Thầy/Cô có thể xem chi tiết kết quả trong hệ thống và tải về báo cáo nếu cần thiết.
                 </div>
                 
-                <!-- Enhanced Button -->
                 <div class="button-container">
                     <a href="{{ env('APP_URL') }}" class="cta-button">
                         Xem chi tiết kê khai
                     </a>
                 </div>
                 
-                <!-- Enhanced Signature -->
                 <div class="signature-section">
                     <div class="signature-greeting">
                         Trân trọng,
@@ -483,7 +464,6 @@
                         </div>
                     </div>
                     
-                    <!-- Contact Information -->
                     <div class="contact-info">
                         <div class="contact-item">
                             Email hỗ trợ: support@tlu.edu.vn
@@ -495,7 +475,6 @@
                 </div>
             </div>
             
-            <!-- Enhanced Footer -->
             <div class="footer-section">
                 <div>© 2024 Đại học Thủy Lợi. Tất cả quyền được bảo lưu.</div>
                 <div style="margin-top: 8px; font-size: 13px; color: #94a3b8;">

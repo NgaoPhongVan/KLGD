@@ -24,9 +24,8 @@ function FormXdCtdtVaKhacGd({
     setDataSource
 }) {
     const [form] = Form.useForm();
-    const [editingItem, setEditingItem] = useState(null); // { index: number, record: object }
+    const [editingItem, setEditingItem] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    // Không cần state cho selectedFile và currentMinhChung
 
     const handleAddItem = () => {
         setEditingItem(null);
@@ -59,7 +58,6 @@ function FormXdCtdtVaKhacGd({
                 id_temp: editingItem?.record.id_temp || Date.now() + Math.random(),
                 id_database: editingItem?.record.id_database || null,
                 ...values,
-                // tong_gio_quydoi_gv_nhap đã có trong values
             };
 
             let newData = [...dataSource];
@@ -75,7 +73,6 @@ function FormXdCtdtVaKhacGd({
             form.resetFields();
             setEditingItem(null);
         } catch (errorInfo) {
-            console.log('Validate Failed:', errorInfo);
             message.error("Vui lòng kiểm tra lại thông tin đã nhập.");
         }
     };
@@ -229,7 +226,6 @@ function FormXdCtdtVaKhacGd({
                     >
                         <Input.TextArea rows={2} placeholder="Nhập ghi chú (nếu có)" />
                     </Form.Item>
-                    {/* Không có Upload minh chứng */}
                 </Form>
             </Modal>
         </div>

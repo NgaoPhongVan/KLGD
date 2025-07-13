@@ -1,21 +1,5 @@
 <?php
 
-/**
- * LecturerController - Controller chính cho các chức năng liên quan đến giảng viên tự kê khai khối lượng công việc hàng năm.
- * 
- * Chức năng chính:
- * - Quản lý thông tin kê khai tổng hợp và chi tiết theo năm học cho từng giảng viên.
- * - Lưu, cập nhật, xóa, nộp bản kê khai, thống kê tổng hợp, lấy dữ liệu phục vụ báo cáo, biểu đồ.
- * - Đảm bảo các nghiệp vụ về thời gian kê khai, trạng thái phê duyệt, định mức cá nhân, kiểm tra dữ liệu hợp lệ.
- * 
- * Lưu ý quan trọng:
- * - Các hàm helper, hàm private chỉ dùng nội bộ controller, không expose ra ngoài API.
- * - Khi chỉnh sửa nghiệp vụ cần kiểm tra kỹ các hàm liên quan đến trạng thái, định mức, thời gian kê khai.
- * - Đảm bảo các hàm validate dữ liệu đầu vào, kiểm tra quyền truy cập, trạng thái bản ghi trước khi thao tác.
- * - Các thao tác ghi/xóa dữ liệu đều đặt trong transaction để đảm bảo toàn vẹn dữ liệu.
- * - Khi thêm mới nghiệp vụ cần chú thích rõ ràng, cập nhật lại các điểm lưu ý liên quan.
- */
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -49,10 +33,8 @@ use App\Models\DmHeSoChung;
 
 use App\Services\WorkloadService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class LecturerController extends Controller
@@ -111,7 +93,7 @@ class LecturerController extends Controller
             return response()->json(['success' => true, 'message' => 'Cập nhật số điện thoại thành công', 'data' => ['dien_thoai' => $user->dien_thoai]]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Lỗi khi cập nhật số điện thoại: ' . $e->getMessage()], 500);
-        }
+        } 
     }
 
     public function getNamHoc()
@@ -136,6 +118,7 @@ class LecturerController extends Controller
         $validated = $request->validate([
             'nam_hoc_id' => 'required|exists:nam_hoc,id',
         ]);
+        
         $namHocId = $validated['nam_hoc_id'];
 
         $keKhaiTongHop = KeKhaiTongHopNamHoc::where('nguoi_dung_id', $user->id)
@@ -237,15 +220,6 @@ class LecturerController extends Controller
         KekhaiCongtacKhacNamHoc::where('ke_khai_tong_hop_nam_hoc_id', $keKhaiTongHopNamHocId)->delete();
     }
 
-    /**
-     * Lưu toàn bộ dữ liệu kê khai chi tiết (batch) cho một bản kê khai tổng hợp.
-     * Lưu ý:
-     * - Kiểm tra quyền sở hữu bản kê khai, trạng thái, thời gian kê khai trước khi lưu.
-     * - Dữ liệu truyền lên dạng JSON, cần validate kỹ cấu trúc và kiểu dữ liệu.
-     * - Tất cả thao tác ghi dữ liệu đặt trong transaction để đảm bảo toàn vẹn.
-     * - Nếu có lỗi sẽ rollback và log chi tiết lỗi.
-     * - Khi lưu thành công sẽ tự động tính toán lại khối lượng qua WorkloadService.
-     */
     public function storeKekhaiChiTietBatch(Request $request)
     {
         $user = auth()->user();
@@ -270,7 +244,7 @@ class LecturerController extends Controller
         $keKhaiItemsInput = json_decode($keKhaiItemsJsonString, true);
         if (json_last_error() !== JSON_ERROR_NONE || !is_array($keKhaiItemsInput)) {
             return response()->json(['message' => 'Dữ liệu ke_khai_items_json không hợp lệ.'], 422);
-        }
+        }  
 
         DB::beginTransaction();
         try {
@@ -391,10 +365,7 @@ class LecturerController extends Controller
         }
     }
 
-    /**
-     * Lấy toàn bộ chi tiết kê khai cho một bản tổng hợp (dùng cho giao diện chỉnh sửa).
-     * Lưu ý: Trả về đầy đủ các loại chi tiết, bao gồm cả minh chứng nếu có.
-     */
+    // Lấy toàn bộ chi tiết kê khai cho một bản tổng hợp (dùng cho giao diện chỉnh sửa).
     public function getKekhaiChiTiet(Request $request)
     {
         $user = auth()->user();
@@ -638,17 +609,11 @@ class LecturerController extends Controller
             'namHoc',
             'nguoiDung:id,ho_ten,ma_gv,chuc_danh_id,hoc_ham,hoc_vi',
             'nguoiDung:hoc_ham', 
-            'lichSuPheDuyet.nguoiThucHien:id,ho_ten'
+            'lichSuPheDuyet.nguoiThucHien:id,ho_ten',
         ];
     }
 
-     /**
-     * API lấy dữ liệu thống kê tổng hợp của giảng viên qua các năm học.
-     * Lưu ý:
-     * - Chỉ lấy các bản kê khai đã duyệt hoặc đang chờ duyệt.
-     * - Tính toán tỷ lệ hoàn thành, tổng giờ, phân bổ giờ theo từng năm.
-     * - Nếu chưa có dữ liệu sẽ trả về thông báo phù hợp.
-     */
+    // API lấy dữ liệu thống kê tổng hợp của giảng viên qua các năm học.
     public function getLecturerStatisticsOverview(Request $request)
     {
         $user = auth()->user();
@@ -731,10 +696,7 @@ class LecturerController extends Controller
     }
 
 
-    /**
-     * API lấy dữ liệu chi tiết cho một năm học cụ thể để vẽ biểu đồ.
-     * Lưu ý: Trả về dữ liệu chi tiết cho từng thành phần để hiển thị biểu đồ cột/tròn.
-     */
+    // API lấy dữ liệu chi tiết cho một năm học cụ thể để vẽ biểu đồ.
     public function getLecturerYearlyStatisticsDetail(Request $request)
     {
         $user = auth()->user();

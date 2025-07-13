@@ -16,17 +16,14 @@ import {
     Empty,
     Alert,
     message,
-    Spin
 } from 'antd';
 import {
     FolderOpenOutlined,
     ClockCircleOutlined,
     CheckCircleOutlined,
-    CloseCircleOutlined,
     EyeOutlined,
     PrinterOutlined,
     DownloadOutlined,
-    EditOutlined,
     SyncOutlined,
     CalendarOutlined,
     ExclamationCircleOutlined,
@@ -280,9 +277,7 @@ function KetQuaKeKhai() {
             const currentNamHoc = namHocs.find(nh => nh.la_nam_hien_hanh === 1);
             if (currentNamHoc) {
                 setSelectedNamHocId(currentNamHoc.id.toString());
-            } else if (namHocs.length > 0) {
-                
-            }
+            } else if (namHocs.length > 0) { }
         } catch (error) {
             message.error("Không thể tải danh sách năm học.");
         } finally {
@@ -291,7 +286,7 @@ function KetQuaKeKhai() {
     };
 
     const fetchKeKhaiByNamHoc = async (namHocId) => {
-        if (!namHocId) { // Nếu namHocId rỗng (khi người dùng clear select)
+        if (!namHocId) {
             setDeclarations([]);
             return;
         }
@@ -358,7 +353,7 @@ function KetQuaKeKhai() {
         },
         {
             title: 'Định mức GD áp dụng', dataIndex: 'dinhmuc_gd_apdung', key: 'dinhmuc_gd_apdung', align: 'center',
-            render: (text, record) => parseFloat(record.trang_thai_phe_duyet === 3 ? record.dinhmuc_gd_apdung_duyet : record.dinhmuc_gd_apdung || 0).toFixed(2)
+            render: (text, record) => parseFloat(record.trang_thai_phe_duyet === 3 ? record.dinhmuc_gd_apdung : record.dinhmuc_gd_apdung || 0).toFixed(2)
         },
         {
             title: 'Ngày gửi', dataIndex: 'thoi_gian_gui', key: 'thoi_gian_gui', align: 'center',
@@ -427,7 +422,7 @@ function KetQuaKeKhai() {
             if (window.html2pdf) {
                 const opt = {
                     margin:       [0.5, 0.3, 0.5, 0.3],
-                    filename:     `KeKhai_${itemToPrint.namHoc?.ten_nam_hoc}_${itemToPrint.nguoiDung?.ma_gv}.pdf`,
+                    filename:     `KeKhai_${itemToPrint.nam_hoc?.ten_nam_hoc}_${itemToPrint.nguoi_dung?.ma_gv}.pdf`,
                     image:        { type: 'jpeg', quality: 0.95 },
                     html2canvas:  { scale: 2, useCORS: true, logging: false, removeContainer: true, scrollY: -window.scrollY },
                     jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait', compress: true },

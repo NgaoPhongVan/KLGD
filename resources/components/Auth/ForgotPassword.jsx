@@ -27,26 +27,16 @@ function ForgotPassword() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-            {/* Enhanced background decorative elements */}
             <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-purple-400/20 to-indigo-600/20 rounded-full blur-3xl animate-float"></div>
-                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-cyan-400/20 to-blue-600/20 rounded-full blur-3xl animate-float-delayed"></div>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-indigo-400/10 to-purple-600/10 rounded-full blur-3xl"></div>
-                
-                {/* Additional floating elements */}
                 <div className="absolute top-20 left-20 w-4 h-4 bg-blue-400/30 rounded-full animate-bounce"></div>
                 <div className="absolute bottom-20 right-20 w-3 h-3 bg-purple-400/40 rounded-full animate-ping"></div>
                 <div className="absolute top-1/3 right-1/4 w-2 h-2 bg-indigo-400/50 rounded-full animate-pulse"></div>
             </div>
 
             <div className="relative max-w-md w-full">
-                {/* Main forgot password card */}
                 <div className="bg-white/80 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-white/20 transition-all duration-300 hover:shadow-3xl">
-                    
-                    {/* Enhanced header with icon animation */}
                     <div className="text-center mb-8">
                         <div className="relative inline-block group">
-                            {/* Main icon container */}
                             <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-4 shadow-lg transition-all duration-500 group-hover:shadow-2xl group-hover:scale-105 animate-gentle-sway">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -64,20 +54,15 @@ function ForgotPassword() {
                                 </svg>
                             </div>
                             
-                            {/* Enhanced animated accent with key icon */}
                             <div className="absolute -top-2 -right-2 flex items-center justify-center">
                                 <div className="relative">
-                                    {/* Animated ring */}
                                     <div className="absolute inset-0 w-8 h-8 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full animate-ping opacity-20"></div>
                                     
-                                    {/* Main accent with key icon */}
                                     <div className="relative w-7 h-7 bg-gradient-to-br from-blue-400 via-indigo-500 to-purple-600 rounded-full border-3 border-white shadow-lg flex items-center justify-center group-hover:animate-bounce">
-                                        {/* Key icon */}
                                         <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 16.5H9v1.5H7.5V20H3v-4.5l8.257-8.257A6 6 0 0115 7z" />
                                         </svg>
                                         
-                                        {/* Subtle glow effect */}
                                         <div className="absolute inset-0 bg-gradient-to-r from-blue-300 to-indigo-400 rounded-full blur-sm opacity-40 group-hover:opacity-70 transition-opacity duration-300"></div>
                                     </div>
                                 </div>
@@ -93,7 +78,6 @@ function ForgotPassword() {
                         <div className="mt-4 h-1 w-20 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full mx-auto"></div>
                     </div>
 
-                    {/* Enhanced form */}
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="group">
                             <label
@@ -131,7 +115,6 @@ function ForgotPassword() {
                             </div>
                         </div>
 
-                        {/* Enhanced success message */}
                         {message && (
                             <div className="rounded-xl bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 p-4 animate-fade-in">
                                 <div className="flex">
@@ -150,7 +133,6 @@ function ForgotPassword() {
                             </div>
                         )}
 
-                        {/* Enhanced error message */}
                         {error && (
                             <div className="rounded-xl bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 p-4 animate-fade-in">
                                 <div className="flex">
@@ -169,7 +151,6 @@ function ForgotPassword() {
                             </div>
                         )}
 
-                        {/* Enhanced buttons */}
                         <div className="space-y-4">
                             <button
                                 type="submit"
@@ -252,7 +233,6 @@ function ForgotPassword() {
                         </div>
                     </form>
 
-                    {/* Enhanced helpful information */}
                     <div className="mt-8 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
                         <div className="flex items-start">
                             <div className="flex-shrink-0">
@@ -271,7 +251,6 @@ function ForgotPassword() {
                         </div>
                     </div>
 
-                    {/* Footer */}
                     <div className="mt-8 text-center">
                         <p className="text-xs text-gray-500">
                             © 2024 Đại học Thủy Lợi. Tất cả quyền được bảo lưu.

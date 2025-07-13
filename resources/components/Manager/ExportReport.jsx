@@ -31,7 +31,8 @@ import {
     SearchOutlined,
     QuestionCircleOutlined,
     BarChartOutlined,
-    TableOutlined
+    TableOutlined,
+    CloseOutlined
 } from "@ant-design/icons";
 
 const { Option } = Select;
@@ -49,39 +50,107 @@ function ExportReport() {
 
     const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-    const [notificationList, setNotificationList] = useState([]);
-    const notificationId = useRef(0);
 
-    const showNotification = (type, title, message, duration = 4000) => {
-        const id = notificationId.current++;
-        const newNotification = {
-            id,
-            type,
-            title,
-            message,
-            timestamp: new Date(),
-            visible: true,
-        };
-
-        setNotificationList((prev) => [...prev, newNotification]);
-
-        setTimeout(() => {
-            setNotificationList((prev) =>
-                prev.map((n) => (n.id === id ? { ...n, visible: false } : n))
-            );
+    const [notification, setNotification] = useState({
+            show: false,
+            type: "",
+            message: "",
+            title: "",
+    });
+    
+    const showNotification = (type, message, title = "") => {
+            setNotification({ show: true, type, message, title });
             setTimeout(() => {
-                setNotificationList((prev) => prev.filter((n) => n.id !== id));
-            }, 300);
-        }, duration);
+                setNotification({ show: false, type: "", message: "", title: "" });
+            }, 5000);
     };
-
-    const removeNotification = (id) => {
-        setNotificationList((prev) =>
-            prev.map((n) => (n.id === id ? { ...n, visible: false } : n))
-        );
-        setTimeout(() => {
-            setNotificationList((prev) => prev.filter((n) => n.id !== id));
-        }, 300);
+    
+    const dismissNotification = () => {
+            setNotification({ show: false, type: "", message: "", title: "" });
+    };
+    
+    const renderNotification = () => {
+            if (!notification.show) return null;
+    
+            const notificationStyles = {
+                success: {
+                    bg: "bg-gradient-to-r from-emerald-50 to-green-50",
+                    border: "border-emerald-200",
+                    icon: "✅",
+                    iconBg: "bg-emerald-100",
+                    iconColor: "text-emerald-600",
+                    textColor: "text-emerald-800",
+                    titleColor: "text-emerald-900",
+                },
+                error: {
+                    bg: "bg-gradient-to-r from-red-50 to-rose-50",
+                    border: "border-red-200",
+                    icon: "❌",
+                    iconBg: "bg-red-100",
+                    iconColor: "text-red-600",
+                    textColor: "text-red-800",
+                    titleColor: "text-red-900",
+                },
+                warning: {
+                    bg: "bg-gradient-to-r from-amber-50 to-orange-50",
+                    border: "border-amber-200",
+                    icon: "⚠️",
+                    iconBg: "bg-amber-100",
+                    iconColor: "text-amber-600",
+                    textColor: "text-amber-800",
+                    titleColor: "text-amber-900",
+                },
+                info: {
+                    bg: "bg-gradient-to-r from-blue-50 to-sky-50",
+                    border: "border-blue-200",
+                    icon: "ℹ️",
+                    iconBg: "bg-blue-100",
+                    iconColor: "text-blue-600",
+                    textColor: "text-blue-800",
+                    titleColor: "text-blue-900",
+                },
+            };
+    
+            const style = notificationStyles[notification.type] || notificationStyles.info;
+    
+            return (
+                <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right-full duration-300 ease-out">
+                    <div
+                        className={`max-w-md w-full ${style.bg} ${style.border} border-2 rounded-2xl shadow-2xl backdrop-blur-xl overflow-hidden`}
+                    >
+                        <div className="p-6">
+                            <div className="flex items-start space-x-4">
+                                <div
+                                    className={`w-12 h-12 ${style.iconBg} rounded-xl flex items-center justify-center flex-shrink-0`}
+                                >
+                                    <span className="text-xl">{style.icon}</span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    {notification.title && (
+                                        <h3
+                                            className={`text-lg font-bold ${style.titleColor} mb-2`}
+                                        >
+                                            {notification.title}
+                                        </h3>
+                                    )}
+                                    <p
+                                        className={`text-sm ${style.textColor} leading-relaxed break-words`}
+                                    >
+                                        {notification.message}
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={dismissNotification}
+                                    className={`w-8 h-8 ${style.iconColor} hover:bg-white/50 rounded-lg flex items-center justify-center transition-colors duration-200 flex-shrink-0`}
+                                >
+                                    <CloseOutlined className="text-sm" />
+                                </button>
+                            </div>
+                        </div>
+                        <div className="h-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                    </div>
+                </div>
+            );
     };
 
     useEffect(() => {
@@ -114,7 +183,7 @@ function ExportReport() {
             showNotification(
                 "success",
                 "Thành công",
-                "Đã tải danh sách năm học thành công"
+                "Tải danh sách năm học"
             );
         } catch (error) {
             showNotification("error", "Lỗi", "Không thể tải danh sách năm học");
@@ -142,7 +211,7 @@ function ExportReport() {
             showNotification(
                 "success",
                 "Thành công",
-                "Đã tải xem trước thành công!"
+                "Đã tải xem trước"
             );
         } catch (error) {
             if (error.response?.data?.message) {
@@ -218,62 +287,6 @@ function ExportReport() {
         }
     };
 
-    const NotificationContainer = () => (
-        <div className="fixed top-6 right-6 z-50 space-y-3">
-            {notificationList.map((notif) => (
-                <div
-                    key={notif.id}
-                    className={`transform transition-all duration-300 ease-out ${ notif.visible ? "translate-x-0 opacity-100 scale-100" : "translate-x-full opacity-0 scale-95" }`}
-                >
-                    <div
-                        className={`
-                        min-w-80 max-w-md bg-white/95 backdrop-blur-xl rounded-xl shadow-lg border p-4
-                        ${ notif.type === "success" ? "border-l-4 border-l-emerald-500" : "" }
-                        ${ notif.type === "error" ? "border-l-4 border-l-red-500" : "" }
-                        ${ notif.type === "warning" ? "border-l-4 border-l-amber-500" : "" }
-                        ${ notif.type === "info" ? "border-l-4 border-l-blue-500" : "" }
-                        hover:shadow-xl transition-all duration-200
-                    `}
-                    >
-                        <div className="flex items-start space-x-3">
-                            <div
-                                className={`
-                                flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium
-                                ${ notif.type === "success" ? "bg-emerald-500" : "" }
-                                ${ notif.type === "error" ? "bg-red-500" : ""}
-                                ${ notif.type === "warning" ? "bg-amber-500" : "" }
-                                ${ notif.type === "info" ? "bg-blue-500" : ""}
-                            `}
-                            >
-                                {notif.type === "success" && "✓"}
-                                {notif.type === "error" && "✕"}
-                                {notif.type === "warning" && "!"}
-                                {notif.type === "info" && "i"}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <Text
-                                    strong
-                                    className="text-sm text-gray-900 block mb-1"
-                                >
-                                    {notif.title}
-                                </Text>
-                                <Text className="text-sm text-gray-600">
-                                    {notif.message}
-                                </Text>
-                            </div>
-                            <button
-                                onClick={() => removeNotification(notif.id)}
-                                className="flex-shrink-0 w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors duration-150 text-xs"
-                            >
-                                ×
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-
     if (isInitialLoading) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 relative overflow-hidden flex items-center justify-center">
@@ -333,7 +346,7 @@ function ExportReport() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 relative overflow-hidden">
-            <NotificationContainer />
+            {renderNotification()}
 
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-blue-400/8 to-indigo-400/8 rounded-full blur-3xl animate-pulse"></div>

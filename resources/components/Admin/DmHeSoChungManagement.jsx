@@ -171,16 +171,6 @@ function DmHeSoChungManagement() {
         setSearchTerm(value);
     };
 
-    const clearSearch = () => {
-        setSearchTerm("");
-        setIsSearching(false);
-        setPagination((prev) => ({
-            ...prev,
-            current_page: 1,
-        }));
-        fetchHeSo(1, pagination.per_page, "");
-    };
-
     const clearAll = () => {
         setSearchTerm("");
         setIsSearching(false);
@@ -263,8 +253,6 @@ function DmHeSoChungManagement() {
             await fetchHeSo();
             
         } catch (error) {
-            console.error("Delete error:", error);
-            
             let errorMessage = "Có lỗi xảy ra khi xóa hệ số chung";
             
             if (error.response?.status === 401) {
@@ -585,7 +573,7 @@ function DmHeSoChungManagement() {
                                             <Button
                                                 type="text"
                                                 size="small"
-                                                onClick={clearSearch}
+                                                onClick={clearAll}
                                                 className="text-gray-400 hover:text-gray-600"
                                             >
                                                 ✕
