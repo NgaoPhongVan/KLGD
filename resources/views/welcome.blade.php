@@ -19,7 +19,7 @@
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:title" content="Hệ thống Quản lý Khối lượng Giảng dạy - Đại học Thủy Lợi">
     <meta property="og:description" content="Hệ thống quản lý khối lượng công việc giảng viên Đại học Thủy Lợi. Hỗ trợ kê khai, phê duyệt và tính toán giờ chuẩn giảng dạy, nghiên cứu khoa học một cách tự động và minh bạch.">
-    <meta property="og:image" content="{{ asset('images/logo.jpg') }}">
+    <meta property="og:image" content="{{ asset('images/logo.png') }}">
     <meta property="og:site_name" content="Đại học Thủy Lợi">
     <meta property="og:locale" content="vi_VN">
     
@@ -27,7 +27,7 @@
     <meta property="twitter:url" content="{{ url()->current() }}">
     <meta property="twitter:title" content="Hệ thống Quản lý Khối lượng Giảng dạy - Đại học Thủy Lợi">
     <meta property="twitter:description" content="Hệ thống quản lý khối lượng công việc giảng viên Đại học Thủy Lợi. Hỗ trợ kê khai, phê duyệt và tính toán giờ chuẩn giảng dạy, nghiên cứu khoa học một cách tự động và minh bạch.">
-    <meta property="twitter:image" content="{{ asset('images/logo.jpg') }}">
+    <meta property="twitter:image" content="{{ asset('images/logo.png') }}">
     
     <meta name="theme-color" content="#1e40af">
     <meta name="msapplication-TileColor" content="#1e40af">
@@ -39,9 +39,9 @@
     
     <link rel="canonical" href="{{ url()->current() }}">
     
-    <link rel="icon" href="{{ asset('images/logo.jpg') }}" type="image/jpg">
-    <link rel="apple-touch-icon" href="{{ asset('images/logo.jpg') }}">
-    <link rel="mask-icon" href="{{ asset('images/logo.jpg') }}" color="#1e40af">
+    <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/png">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}">
+    <link rel="mask-icon" href="{{ asset('images/logo.png') }}" color="#1e40af">
     
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">

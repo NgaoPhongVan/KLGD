@@ -69,7 +69,7 @@ class OvertimeReportSheet implements FromCollection, WithTitle, WithHeadings, Wi
     public function headings(): array
     {
         return [
-            ['BỘ NÔNG NGHIỆP & MT', '', '', '', '', '', '', '', 'BẢNG TỔNG HỢP KHỐI LƯỢNG TÍNH VƯỢT GIỜ', '', '', '', '', '', '', '', ''],
+            ['BỘ NÔNG NGHIỆP & MÔI TRƯỜNG', '', '', '', '', '', '', '', 'BẢNG TỔNG HỢP KHỐI LƯỢNG TÍNH VƯỢT GIỜ', '', '', '', '', '', '', '', ''],
             ['TRƯỜNG ĐẠI HỌC THỦY LỢI', '', '', '', '', '', '', '', 'NĂM HỌC ' . ($this->namHoc->ten_nam_hoc ?? 'N/A'), '', '', '', '', '', '', '', ''],
             ['', '', '', '', '', '', '', '', 'Bộ môn: ' . ($this->boMon->ten_bo_mon ?? 'N/A'), '', '', '', '', '', '', '', ''],
             ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
@@ -314,7 +314,7 @@ class WorkloadReportSheet implements FromCollection, WithTitle, WithHeadings, Wi
     public function headings(): array
     {
         return [
-            ['BỘ NÔNG NGHIỆP & MT', '', '', '', '', '', 'BẢNG TỔNG HỢP KHỐI LƯỢNG CÔNG TÁC', '', '', '', '', '', '', ''],
+            ['BỘ NÔNG NGHIỆP & MÔI TRƯỜNG', '', '', '', '', '', 'BẢNG TỔNG HỢP KHỐI LƯỢNG CÔNG TÁC', '', '', '', '', '', '', ''],
             ['TRƯỜNG ĐẠI HỌC THỦY LỢI', '', '', '', '', '', 'NĂM HỌC ' . ($this->namHoc->ten_nam_hoc ?? 'N/A'), '', '', '', '', '', '', ''],
             ['', '', '', '', '', '', 'Bộ môn: ' . ($this->boMon->ten_bo_mon ?? 'N/A'), '', '', '', '', '', '', ''],
             ['', '', '', '', '', '', '', '', '', '', '', '', '', ''],
