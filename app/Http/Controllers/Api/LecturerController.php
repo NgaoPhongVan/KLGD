@@ -365,7 +365,7 @@ class LecturerController extends Controller
         }
     }
 
-    // Lấy toàn bộ chi tiết kê khai cho một bản tổng hợp (dùng cho giao diện chỉnh sửa).
+    // Lấy toàn bộ chi tiết kê khai cho một bản tổng hợp (dùng cho giao diện chỉnh sửa)
     public function getKekhaiChiTiet(Request $request)
     {
         $user = auth()->user();
@@ -524,10 +524,7 @@ class LecturerController extends Controller
         return response()->json($keKhaiTongHops);
     }
 
-    /**
-     * Lấy chi tiết đầy đủ của một bản kê khai tổng hợp theo năm học (bao gồm tất cả các chi tiết con).
-     * Được sử dụng cho việc Xem chi tiết/In báo cáo.
-     */
+    // Lấy chi tiết đầy đủ của một bản kê khai tổng hợp theo năm học (bao gồm tất cả các chi tiết con) sử dụng cho việc Xem chi tiết/In báo cáo
     public function getChiTietKeKhaiNamHoc(Request $request, $id) 
     {
         $user = auth()->user();
@@ -571,7 +568,7 @@ class LecturerController extends Controller
         }
     }
 
-    // Hàm helper lấy các quan hệ cần eager load cho view chi tiết (dùng cho in báo cáo).
+    // Hàm helper lấy các quan hệ cần eager load cho view chi tiết (dùng cho in báo cáo)
     private function getEagerLoadRelationsForTongHopDetailView()
     {
         return array_merge($this->getEagerLoadRelationsForTongHopListView(), [
@@ -602,7 +599,7 @@ class LecturerController extends Controller
         ]);
     }
 
-    // Hàm helper lấy các quan hệ cần eager load cho view danh sách.
+    // Hàm helper lấy các quan hệ cần eager load cho view danh sách
     private function getEagerLoadRelationsForTongHopListView()
     {
         return [
@@ -613,7 +610,7 @@ class LecturerController extends Controller
         ];
     }
 
-    // API lấy dữ liệu thống kê tổng hợp của giảng viên qua các năm học.
+    // API lấy dữ liệu thống kê tổng hợp của giảng viên qua các năm học
     public function getLecturerStatisticsOverview(Request $request)
     {
         $user = auth()->user();
@@ -696,7 +693,7 @@ class LecturerController extends Controller
     }
 
 
-    // API lấy dữ liệu chi tiết cho một năm học cụ thể để vẽ biểu đồ.
+    // API lấy dữ liệu chi tiết cho một năm học cụ thể để vẽ biểu đồ
     public function getLecturerYearlyStatisticsDetail(Request $request)
     {
         $user = auth()->user();

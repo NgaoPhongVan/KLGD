@@ -43,6 +43,14 @@ const BaoCaoKeKhaiPreview = ({ keKhaiData }) => {
         return isNaN(num) ? defaultValue.toFixed(toFixed) : num.toFixed(toFixed);
     };
 
+    const gioKHCNQD = keKhaiData.kekhai_congtac_khac_nam_hocs
+    .filter(item => item.loai_gio_quy_doi === 'KHCN')
+    .map(item => parseFloat(item.so_gio_quy_doi_gv_nhap ?? 0));
+
+    const gioGKQD = keKhaiData.kekhai_congtac_khac_nam_hocs
+    .filter(item => item.loai_gio_quy_doi === 'GD')
+    .map(item => parseFloat(item.so_gio_quy_doi_gv_nhap ?? 0));
+
     // Dữ liệu cho bảng "BẢNG TỔNG HỢP KHỐI LƯỢNG TÍNH VƯỢT GIỜ"
     const vuotGioData = {
         hd_la_sl_quy_doi: getValue(keKhaiData.tong_gio_butru_la_duyet ?? keKhaiData.tong_gio_butru_la_tam_tinh, 0, 2), // Giờ đã dùng bù từ LA
@@ -95,21 +103,22 @@ const BaoCaoKeKhaiPreview = ({ keKhaiData }) => {
                 <thead>
                     <tr className="header-row-1">
                         <th colSpan="2">Định mức</th>
-                        <th rowSpan="2">Số tiết GD thực hiện KHCN (C3)</th>
-                        <th rowSpan="2">GD+Đgiá (C4)</th>
-                        <th rowSpan="2">Số tiết GD xa trường (C5)</th>
-                        <th colSpan="4">Khối lượng giảng dạy đã hoàn thành / SL Hướng dẫn còn lại</th>
+                        <th colSpan="2">Số tiết GD thực hiện</th>
+                        <th rowSpan="2">Số tiết GD xa trường</th>
+                        <th colSpan="4">Khối lượng vượt giờ</th>
                     </tr>
                     <tr className="header-row-2">
-                        <th>GD (C1)</th>
-                        <th>KHCN (C2)</th>
-                        <th>Số tiết GD đã HT (Sau bù trừ) (C6)</th>
-                        <th>LA còn lại (C7)</th>
-                        <th>LV còn lại (C8)</th>
-                        <th>ĐA/KL còn lại (C9)</th>
+                        <th>GD</th>
+                        <th>KHCN</th>
+                        <th>KHCN</th>
+                        <th>GD+Đgiá</th>
+                        <th>Số tiết GD đã HT (Sau bù trừ)</th>
+                        <th>LA còn lại</th>
+                        <th>LV còn lại</th>
+                        <th>ĐA/KL còn lại</th>
                     </tr>
                      <tr className="header-row-3">
-                        <th>C1</th><th>C2</th><th>C3</th><th>C4</th><th>C5</th><th>C6</th><th>C7</th><th>C8</th><th>C9</th>
+                        <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -142,8 +151,7 @@ const BaoCaoKeKhaiPreview = ({ keKhaiData }) => {
                 <thead>
                     <tr>
                         <th colSpan="3">SL Hướng dẫn quy đổi (giờ)</th>
-                        <th rowSpan="2">Hoàn thành KHCN (giờ)</th>
-                        <th rowSpan="2">Hoàn thành GD (giờ)</th>
+                        <th colSpan="2">Hoàn thành</th>
                         <th rowSpan="2">Số tiết GD vượt (không tính HD)</th>
                         <th colSpan="2">Luận án TS</th>
                         <th colSpan="2">Đồ án/KL</th>
@@ -154,6 +162,8 @@ const BaoCaoKeKhaiPreview = ({ keKhaiData }) => {
                         <th>LA</th>
                         <th>ĐA/KL</th>
                         <th>LV</th>
+                        <th>KHCN</th>
+                        <th>GD</th>
                         <th>Số tiết bù</th>
                         <th>SL còn lại</th>
                         <th>Số tiết bù</th>
@@ -164,11 +174,11 @@ const BaoCaoKeKhaiPreview = ({ keKhaiData }) => {
                 </thead>
                 <tbody>
                     <tr>
-                        <td>{getValue(keKhaiData.tong_gio_butru_la_tam_tinh)}</td> {/* Giờ LA đã dùng để bù */}
-                        <td>{getValue(keKhaiData.tong_gio_butru_dakl_tam_tinh)}</td> {/* Giờ ĐA/KL đã dùng để bù */}
-                        <td>{getValue(keKhaiData.tong_gio_butru_lv_tam_tinh)}</td> {/* Giờ LV đã dùng để bù */}
+                        <td>{getValue(keKhaiData.tong_sl_huongdan_la_duyet)}</td> {/* Giờ LA đã dùng để bù */}
+                        <td>{getValue(keKhaiData.tong_sl_huongdan_dakl_duyet)}</td> {/* Giờ ĐA/KL đã dùng để bù */}
+                        <td>{getValue(keKhaiData.tong_sl_huongdan_lv_duyet)}</td> {/* Giờ LV đã dùng để bù */}
                         <td>{getValue(keKhaiData.gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh)}</td>
-                        <td>{getValue(keKhaiData.gio_gd_hoanthanh_sau_butru_tam_tinh)}</td>
+                        <td>{getValue(keKhaiData.gio_vuot_gd_khong_hd_tam_tinh)}</td>
                         <td>{getValue(keKhaiData.ket_qua_thua_thieu_gio_gd_tam_tinh)}</td>  {/*gio_vuot_gd_khong_hd_tam_tinh*/}
                         <td>{getValue(keKhaiData.tong_gio_butru_la_tam_tinh)}</td>
                         <td>{getValue(keKhaiData.sl_huongdan_la_conlai_tam_tinh,0,0)}</td>
@@ -187,32 +197,32 @@ const BaoCaoKeKhaiPreview = ({ keKhaiData }) => {
             <table className="print-table-kq">
                 <thead>
                     <tr className="header-row-1">
-                        <th>KHCN (P9)</th>
-                        <th>Công tác khác (P7)</th>
-                        <th>Coi chấm thi (CT đại học) - P6</th>
-                        <th colSpan="5">Công tác giảng dạy (P3)</th>
-                        <th rowSpan="2">Tổng số giờ KHCN (Cột 10)</th>
-                        <th rowSpan="2">Tổng số giờ giảng dạy (Cột 11)</th>
-                        <th rowSpan="2">Số tiết GD xa trường (Cột 12)</th>
-                    </tr>
+                        <th rowSpan="2">KHCN (P9)</th>
+                        <th colSpan="2">Công tác khác (P7)</th>
+                        <th rowSpan="2">Coi chấm thi (CT đại học) - P6</th>
+                        <th colSpan="5">Công tác giảng dạy</th>
+                        <th rowSpan="2">Tổng số giờ KHCN</th>
+                        <th rowSpan="2">Tổng số giờ giảng dạy</th>
+                        <th rowSpan="2">Số tiết GD xa trường</th>
+                    </tr>  
                     <tr className="header-row-2">
-                        <th>QĐ giờ KHCN (Cột 1)</th>
-                        <th>Quy đổi tiết (Cột 2)</th>
-                        <th>(Cột 3)</th>
-                        <th>Giảng dạy, đánh giá (Cột 4)</th>
-                        <th>LA (SL) (Cột 6)</th>
-                        <th>LV (SL) (Cột 7)</th>
-                        <th>ĐA/KL (SL) (Cột 8)</th>
-                        <th>Số tiết thuộc công tác giảng dạy (Cột 9)</th>
+                        <th>QĐ giờ KHCN</th>
+                        <th>Quy đổi tiết</th>
+                        <th>Giảng dạy, đánh giá</th>
+                        <th>LA</th>
+                        <th>LV</th>
+                        <th>ĐA/KL</th>
+                        <th>Số tiết</th>
                     </tr>
                      <tr className="header-row-3">
-                        <th>1</th><th>2</th><th>3</th><th>4</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th>
+                        <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr className="data-row">
-                        <td>{getValue(keKhaiData.tong_gio_khcn_kekhai_tam_tinh)}</td>
-                        <td>{getValue(keKhaiData.tong_gio_congtackhac_quydoi_tam_tinh)}</td>
+                        <td>{getValue(keKhaiData.tong_gio_khcn_kekhai_tam_tinh) - gioKHCNQD}</td>
+                        <td>{getValue(gioKHCNQD)}</td>
+                        <td>{getValue(gioGKQD)}</td>
                         <td>{getValue(keKhaiData.tong_gio_coithi_chamthi_dh_tam_tinh)}</td>
                         <td>{getValue(keKhaiData.tong_gio_gd_danhgia_tam_tinh)}</td>
                         <td>{getValue(keKhaiData.tong_sl_huongdan_la_tam_tinh, 0, 0)}</td>
@@ -402,11 +412,11 @@ function KetQuaKeKhai() {
             <body>${printContent.innerHTML}</body>
             </html>
         `);
+
         printWindow.document.close();
         printWindow.onload = () => {
             printWindow.focus();
             printWindow.print();
-            // printWindow.close(); 
         };
     };
 
@@ -462,7 +472,7 @@ function KetQuaKeKhai() {
 
                     <div className="space-y-4">
                         <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-800 via-slate-700 to-gray-800 bg-clip-text text-transparent">
-                            Đang khởi tạo hệ thống
+                            Đang tải dữ liệu kê khai
                         </h2>
                         <p className="text-lg text-gray-600 max-w-md mx-auto">
                             Vui lòng chờ trong giây lát, chúng tôi đang tải dữ liệu cho bạn...

@@ -402,12 +402,12 @@ const BieuDoPhantichNangCao = ({ apiStatisticsData, namHocSelected }) => {
 
     return (
         <Tabs defaultActiveKey="pie" className="chart-tabs-enhanced">
-            <TabPane tab={<span><PieChartOutlined />Phân bố công việc</span>} key="pie">
+            <TabPane tab={<span><PieChartOutlined /> Phân bố công việc</span>} key="pie">
                 <div style={{ width: '300px', height: '300px', margin: '0 auto' }}>
                     <Pie data={pieDatas} options={pieOptions} />
                 </div>
             </TabPane>
-            <TabPane tab={<span><BarChartOutlined />So sánh theo năm</span>} key="column">
+            <TabPane tab={<span><BarChartOutlined /> So sánh theo năm</span>} key="column">
                 <div style={{ textAlign: 'center', padding: '12px' }}>
                     <Bar data={chartData} options={chartOptions} />
                 </div>
@@ -824,7 +824,7 @@ function KeHoachGiangDay() {
                                 {namHocList.map(nh => (
                                     <Option key={nh.id} value={nh.id.toString()}>
                                         {nh.ten_nam_hoc}
-                                        {nh.la_nam_hien_hanh && <Tag color="green" style={{ marginLeft: 5 }}>Hiện hành</Tag>}
+                                        {nh.la_nam_hien_hanh == 1 && <Tag color="green" style={{ marginLeft: 5 }}>Hiện hành</Tag>}
                                     </Option>
                                 ))}
                             </Select>

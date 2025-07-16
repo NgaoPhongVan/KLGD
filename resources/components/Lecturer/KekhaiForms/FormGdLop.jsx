@@ -1489,8 +1489,7 @@ function FormGdLop({
                     });
                     const currentColumns = getColumns();
                     return (
-                        dataSource &&
-                        dataSource.length > 0 && (
+                        dataSource && dataSource.length > 0 && (
                             <Table.Summary.Row
                                 style={{ background: "#fafafa" }}
                             >

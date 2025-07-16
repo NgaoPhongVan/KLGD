@@ -289,14 +289,10 @@ function KeKhaiGiangDayForm() {
                             // Chuyển data từ item.data vào cấp ngoài cùng cho dễ dùng ở form con
                             groupedDetails[item.type].push({
                                 ...item.data, // Lấy các trường từ data
-                                id_temp:
-                                    item.id_database ||
-                                    Date.now() + Math.random(),
+                                id_temp: item.id_database || Date.now() + Math.random(),
                                 id_database: item.id_database,
                                 minh_chung_existing: item.minh_chung_existing,
-                                minh_chung_existing_path:
-                                    item.minh_chung_existing_path,
-                                // Đặc biệt cho dg_la_tiensi, giữ lại nhiem_vu_ts_arr
+                                minh_chung_existing_path: item.minh_chung_existing_path,
                                 ...(item.type === "dg_la_tiensi" && {
                                     nhiem_vu_ts_arr: item.nhiem_vu_ts_arr || [],
                                 }),
@@ -1212,7 +1208,7 @@ function KeKhaiGiangDayForm() {
                                                         renderFileAttachment={renderFileAttachment}
                                                     />
                                                 </div>
-                                            </TabPane>{" "}
+                                            </TabPane>
                                             <TabPane
                                                 tab="Ngoài Bộ môn"
                                                 key="gd_dh_ngoaibm"
@@ -1249,7 +1245,7 @@ function KeKhaiGiangDayForm() {
                                             </TabPane>
                                         </Tabs>
                                     </div>
-                                </TabPane>{" "}
+                                </TabPane>
                                 <TabPane
                                     tab={
                                         <span className="tab-label">
@@ -1489,7 +1485,7 @@ function KeKhaiGiangDayForm() {
                                             </TabPane>
                                         </Tabs>
                                     </div>
-                                </TabPane>{" "}
+                                </TabPane>
                                 <TabPane
                                     tab={
                                         <span className="tab-label">
@@ -1550,7 +1546,7 @@ function KeKhaiGiangDayForm() {
                                         />
                                     </div>
                                 </TabPane>
-                            </Tabs>{" "}
+                            </Tabs>
                             <Divider />
                             <Form.Item
                                 style={{

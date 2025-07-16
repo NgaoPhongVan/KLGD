@@ -54,7 +54,6 @@ class AdminController extends Controller
                 'description' => $description,
             ];
 
-
             $adminLog = AdminLog::create($logData);
         } catch (\Exception $e) {
             Log::error('Lỗi' . $e->getMessage(), [
@@ -823,7 +822,6 @@ class AdminController extends Controller
         $keKhaiThoiGian = KeKhaiThoiGian::with('namHoc')->findOrFail($id);
         return response()->json($keKhaiThoiGian);
     }
-
 
     public function updateKeKhaiThoiGian(Request $request, $id)
     {

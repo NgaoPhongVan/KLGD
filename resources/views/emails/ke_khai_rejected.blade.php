@@ -347,7 +347,7 @@
             <div class="header">
                 <div class="header-logo">
                     <div class="logo-inner">
-                        <div class="logo-text">✖</div>
+                        <div class="logo-text">❌</div>
                     </div>
                 </div>
                 

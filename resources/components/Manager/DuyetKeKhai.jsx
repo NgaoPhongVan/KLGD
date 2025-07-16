@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import {
     Card,
     Select,
@@ -42,15 +41,15 @@ import {
     AuditOutlined,
     SettingOutlined,
     MailOutlined,
-    BarChartOutlined
+    FileDoneOutlined
 } from "@ant-design/icons";
 import moment from "moment";
 import SendNotificationModal from "./SendNotificationModal";
 
 const { TextArea } = Input;
-const { Text, Paragraph, Title } = Typography;
+const { Text, Title } = Typography;
 const { TabPane } = Tabs;
-const { Option } = Select; 
+const { Option } = Select;
 
 const BaoCaoKeKhaiPreviewManager = ({
     keKhaiData,
@@ -101,15 +100,25 @@ const BaoCaoKeKhaiPreviewManager = ({
         khcnHoanThanhSoVoiDM: getValue(isApproved ? keKhaiData.gio_khcn_hoanthanh_so_voi_dinhmuc_duyet : keKhaiData.gio_khcn_hoanthanh_so_voi_dinhmuc_tam_tinh),
     };
 
+    const gioKHCNQD = keKhaiData.kekhai_congtac_khac_nam_hocs
+        .filter(item => item.loai_gio_quy_doi === 'KHCN')
+        .map(item => parseFloat(item.so_gio_quy_doi_gv_nhap ?? 0));
+
+    const gioGKQD = keKhaiData.kekhai_congtac_khac_nam_hocs
+        .filter(item => item.loai_gio_quy_doi === 'GD')
+        .map(item => parseFloat(item.so_gio_quy_doi_gv_nhap ?? 0));
+
+
     const dataMucI2 = {
-        c1: getValue(isApproved ? keKhaiData.tong_gio_khcn_kekhai_duyet : keKhaiData.tong_gio_khcn_kekhai_tam_tinh),
-        c2: getValue(isApproved ? keKhaiData.tong_gio_congtackhac_quydoi_duyet : keKhaiData.tong_gio_congtackhac_quydoi_tam_tinh),
+        c1: getValue((isApproved ? keKhaiData.tong_gio_khcn_kekhai_duyet : keKhaiData.tong_gio_khcn_kekhai_tam_tinh) - gioKHCNQD),
+        c2: getValue(gioGKQD),
         c3: getValue(isApproved ? keKhaiData.tong_gio_coithi_chamthi_dh_duyet : keKhaiData.tong_gio_coithi_chamthi_dh_tam_tinh),
         c4: getValue(isApproved ? keKhaiData.tong_gio_gd_danhgia_duyet : keKhaiData.tong_gio_gd_danhgia_tam_tinh),
+        c5: getValue(gioKHCNQD),
         c6: getValue(isApproved ? keKhaiData.tong_sl_huongdan_la_duyet : keKhaiData.tong_sl_huongdan_la_tam_tinh, 0, 0),
         c7: getValue(isApproved ? keKhaiData.tong_sl_huongdan_lv_duyet : keKhaiData.tong_sl_huongdan_lv_tam_tinh, 0, 0),
         c8: getValue(isApproved ? keKhaiData.tong_sl_huongdan_dakl_duyet : keKhaiData.tong_sl_huongdan_dakl_tam_tinh, 0, 0),
-        c9: getValue(isApproved ? keKhaiData.tong_gio_huongdan_quydoi_duyet : keKhaiData.tong_gio_huongdan_quydoi_tam_tinh),
+        c9: getValue(isApproved && keKhaiData.tong_gio_huongdan_quydoi_duyet ? keKhaiData.tong_gio_huongdan_quydoi_duyet : keKhaiData.tong_gio_huongdan_quydoi_tam_tinh),
         c10: getValue(isApproved ? keKhaiData.tong_gio_khcn_kekhai_duyet : keKhaiData.tong_gio_khcn_kekhai_tam_tinh),
         c11: getValue(isApproved ? keKhaiData.tong_gio_giangday_final_duyet : keKhaiData.tong_gio_giangday_final_tam_tinh),
         c12: getValue(isApproved ? keKhaiData.tong_gio_gdxatruong_duyet : keKhaiData.tong_gio_gdxatruong_tam_tinh),
@@ -199,7 +208,8 @@ const BaoCaoKeKhaiPreviewManager = ({
         { title: "STT", dataIndex: "stt", width: 50, align: "center" },
         { title: "Tên Công tác", dataIndex: "ten_cong_tac", ellipsis: true, width: 200, },
         { title: "Kết quả", dataIndex: "ket_qua_dat_duoc", width: 180, ellipsis: true, },
-        { title: "Loại QĐ", dataIndex: "loai_gio_quy_doi", width: 100, align: "center",
+        {
+            title: "Loại QĐ", dataIndex: "loai_gio_quy_doi", width: 100, align: "center",
             render: (type) =>
                 type === "GD" ? (
                     <Tag color="blue">GD</Tag>
@@ -269,7 +279,7 @@ const BaoCaoKeKhaiPreviewManager = ({
                             <div className="text-right">
                                 <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                                     <FileTextOutlined className="mr-2" /> Trạng thái:{" "}
-                                    {getTrangThaiTag( keKhaiData.trang_thai_phe_duyet )}
+                                    {getTrangThaiTag(keKhaiData.trang_thai_phe_duyet)}
                                 </div>
                             </div>
                         </div>
@@ -287,18 +297,18 @@ const BaoCaoKeKhaiPreviewManager = ({
                                 <tr className="header-row-1">
                                     <th colSpan="2">Định mức</th>
                                     <th colSpan="2"> Số tiết GD thực hiện </th>
-                                    <th rowSpan="2"> Số tiết GD xa trường (C5) </th>
+                                    <th rowSpan="2"> Số tiết GD xa trường</th>
                                     <th colSpan="4"> Khối lượng vượt giờ </th>
                                 </tr>
                                 <tr className="header-row-2">
-                                    <th>GD (C1)</th>
-                                    <th>KHCN (C2)</th>
-                                    <th>KHCN (C3)</th>
-                                    <th>GD+Đgiá (C4)</th>
-                                    <th>Số tiết GD đã HT (Sau bù trừ) (C6)</th>
-                                    <th>LA còn lại (C7)</th>
-                                    <th>LV còn lại (C8)</th>
-                                    <th>ĐA/KL còn lại (C9)</th>
+                                    <th>GD</th>
+                                    <th>KHCN</th>
+                                    <th>KHCN</th>
+                                    <th>GD+Đgiá</th>
+                                    <th>Số tiết GD đã HT (Sau bù trừ)</th>
+                                    <th>LA còn lại</th>
+                                    <th>LV còn lại</th>
+                                    <th>ĐA/KL còn lại</th>
                                 </tr>
                                 <tr className="header-row-3">
                                     <th>1</th>
@@ -319,7 +329,7 @@ const BaoCaoKeKhaiPreviewManager = ({
                                     <td>{dataMucI1.gdThucHienKHCN}</td>
                                     <td>{dataMucI1.gdCongDG}</td>
                                     <td>{dataMucI1.gdXaTruong}</td>
-                                    <td>{dataMucI1.gdHoanThanhSauBuTru}</td>
+                                    <td>{dataMucI1.thuaThieuCuoiCung}</td>
                                     <td>{dataMucI1.laConLai}</td>
                                     <td>{dataMucI1.lvConLai}</td>
                                     <td>{dataMucI1.daklConLai}</td>
@@ -371,29 +381,32 @@ const BaoCaoKeKhaiPreviewManager = ({
                         <table className="print-table-kq">
                             <thead>
                                 <tr className="header-row-1">
-                                    <th>KHCN (P9)</th>
-                                    <th>Công tác khác (P7)</th>
-                                    <th>Coi chấm thi (CT đại học) - P6</th>
-                                    <th colSpan="4">Công tác giảng dạy (P3)</th>
-                                    <th rowSpan="2"> Tổng số giờ KHCN (Cột 10) </th>
-                                    <th rowSpan="2"> Tổng số giờ giảng dạy (Cột 11) </th>
-                                    <th rowSpan="2"> Số tiết GD xa trường (Cột 12) </th>
-                                    <th rowSpan="2"> Giờ Hướng dẫn QĐ (Cột 9)</th>
+                                    <th rowSpan="3">KHCN (P9)</th>
+                                    <th colSpan="2">Công tác khác (P7)</th>
+                                    <th rowSpan="3">Coi chấm thi (CT đại học) - P6</th>
+                                    <th colSpan="5">Công tác giảng dạy</th>
+                                    <th rowSpan="3"> Tổng số giờ KHCN</th>
+                                    <th rowSpan="3"> Tổng số giờ giảng dạy</th>
+                                    <th rowSpan="3"> Số tiết GD xa trường</th>
                                 </tr>
                                 <tr className="header-row-2">
-                                    <th>QĐ giờ KHCN (Cột 1)</th>
-                                    <th>Quy đổi tiết (Cột 2)</th>
-                                    <th>(Cột 3)</th>
-                                    <th>Giảng dạy, đánh giá (Cột 4)</th>
-                                    <th>LA (SL) (Cột 6)</th>
-                                    <th>LV (SL) (Cột 7)</th>
-                                    <th>ĐA/KL (SL) (Cột 8)</th>
+                                    <th rowSpan="2">Quy đổi KHCN</th>
+                                    <th rowSpan="2">Quy đổi tiết</th>
+                                    <th rowSpan="2">Giảng dạy, đánh giá</th>
+                                    <th colSpan="4">Hướng dẫn</th>
+                                    \                                </tr>
+                                <tr className="header-row-2">
+                                    <th>LA</th>
+                                    <th>LV</th>
+                                    <th>ĐA/KL</th>
+                                    <th>Số tiết</th>
                                 </tr>
                                 <tr className="header-row-3">
                                     <th>1</th>
                                     <th>2</th>
                                     <th>3</th>
                                     <th>4</th>
+                                    <th>5</th>
                                     <th>6</th>
                                     <th>7</th>
                                     <th>8</th>
@@ -406,6 +419,7 @@ const BaoCaoKeKhaiPreviewManager = ({
                             <tbody>
                                 <tr className="data-row">
                                     <td>{dataMucI2.c1}</td>
+                                    <td>{dataMucI2.c5}</td>
                                     <td>{dataMucI2.c2}</td>
                                     <td>{dataMucI2.c3}</td>
                                     <td>{dataMucI2.c4}</td>
@@ -437,7 +451,7 @@ const BaoCaoKeKhaiPreviewManager = ({
                         size="small"
                         className="detail-tabs"
                     >
-                        <TabPane tab={ <> <BookOutlined /> Giảng dạy </> } key="giang-day" >
+                        <TabPane tab={<> <BookOutlined /> Giảng dạy </>} key="giang-day" >
                             {renderChiTietTable(
                                 "Giảng dạy Lớp ĐH (Trong BM)",
                                 keKhaiData.kekhaiGdLopDhTrongbms || keKhaiData.kekhai_gd_lop_dh_trongbms || [],
@@ -476,7 +490,7 @@ const BaoCaoKeKhaiPreviewManager = ({
                         </TabPane>
 
                         <TabPane
-                            tab={<> <UserSwitchOutlined /> Hướng dẫn </> } key="huong-dan" >
+                            tab={<> <UserSwitchOutlined /> Hướng dẫn </>} key="huong-dan" >
                             {renderChiTietTable(
                                 "Hướng dẫn ĐATN Đại học",
                                 keKhaiData.kekhaiHdDatnDaihoc || keKhaiData.kekhai_hd_datn_daihoc || [],
@@ -501,7 +515,7 @@ const BaoCaoKeKhaiPreviewManager = ({
                         </TabPane>
 
                         <TabPane
-                            tab={ <> <AuditOutlined /> Đánh giá </> } key="danh-gia" >
+                            tab={<> <AuditOutlined /> Đánh giá </>} key="danh-gia" >
                             {renderChiTietTable(
                                 "Đánh giá HP Tốt nghiệp ĐH",
                                 keKhaiData.kekhaiDgHpTnDaihoc || keKhaiData.kekhai_dg_hp_tn_daihoc || [],
@@ -526,7 +540,7 @@ const BaoCaoKeKhaiPreviewManager = ({
                         </TabPane>
 
                         <TabPane
-                            tab={<> <CarryOutOutlined /> Khảo thí </> } key="khao-thi"
+                            tab={<> <CarryOutOutlined /> Khảo thí </>} key="khao-thi"
                         >
                             {renderChiTietTable(
                                 "Khảo thí ĐH (Trong BM)",
@@ -559,7 +573,7 @@ const BaoCaoKeKhaiPreviewManager = ({
                         </TabPane>
 
                         <TabPane
-                            tab={<> <BuildOutlined /> XD CTĐT & Khác </> } key="xd-ctdt" >
+                            tab={<> <BuildOutlined /> XD CTĐT & Khác </>} key="xd-ctdt" >
                             {renderChiTietTable(
                                 "XD CTĐT & Hoạt động GD Khác",
                                 keKhaiData.kekhaiXdCtdtVaKhacGds || keKhaiData.kekhai_xd_ctdt_va_khac_gds || [],
@@ -570,7 +584,7 @@ const BaoCaoKeKhaiPreviewManager = ({
                         </TabPane>
 
                         <TabPane
-                            tab={<> <ExperimentOutlined /> NCKH </> } key="nckh" >
+                            tab={<> <ExperimentOutlined /> NCKH </>} key="nckh" >
                             {renderChiTietTable(
                                 "Nghiên cứu Khoa học",
                                 keKhaiData.kekhaiNckhNamHocs || keKhaiData.kekhai_nckh_nam_hocs || [],
@@ -581,10 +595,10 @@ const BaoCaoKeKhaiPreviewManager = ({
                         </TabPane>
 
                         <TabPane
-                            tab={ <> <TeamOutlined /> Công tác khác </> } key="cong-tac-khac" >
+                            tab={<> <TeamOutlined /> Công tác khác </>} key="cong-tac-khac" >
                             {renderChiTietTable(
                                 "Công tác khác",
-                                keKhaiData.kekhaiCongtacKhacNamHocs || keKhaiData.kekhai_congtac_khac_nam_hocs ||[],
+                                keKhaiData.kekhaiCongtacKhacNamHocs || keKhaiData.kekhai_congtac_khac_nam_hocs || [],
                                 colCongTacKhac,
                                 <TeamOutlined />,
                                 "cong-tac-khac"
@@ -599,14 +613,14 @@ const BaoCaoKeKhaiPreviewManager = ({
                         (key.startsWith("kekhai_") || key.includes("kekhai")) &&
                         Array.isArray(keKhaiData[key]) &&
                         keKhaiData[key].length > 0
-                ).length === 0 && (                                                     
-                    <div className="text-center py-12">
-                        <Empty
-                            description="Chưa có dữ liệu chi tiết các hoạt động kê khai"
-                            image={Empty.PRESENTED_IMAGE_SIMPLE}
-                        />
-                    </div>
-                )}
+                ).length === 0 && (
+                        <div className="text-center py-12">
+                            <Empty
+                                description="Chưa có dữ liệu chi tiết các hoạt động kê khai"
+                                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                            />
+                        </div>
+                    )}
 
                 {/* Action buttons cho duyệt/từ chối */}
                 {keKhaiData.trang_thai_phe_duyet === 1 && (
@@ -702,9 +716,9 @@ function DuyetKeKhai() {
         to: 0,
     });
     const [namHocList, setNamHocList] = useState([]);
-    const [boMonTrongKhoaList, setBoMonTrongKhoaList] = useState([]); 
-    const [isLoading, setIsLoading] = useState(false); 
-    const [isLoadingInitial, setIsLoadingInitial] = useState(true); 
+    const [boMonTrongKhoaList, setBoMonTrongKhoaList] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingInitial, setIsLoadingInitial] = useState(true);
     const [selectedNamHocId, setSelectedNamHocId] = useState("");
     const [selectedBoMonId, setSelectedBoMonId] = useState("");
     const [filterTrangThai, setFilterTrangThai] = useState("");
@@ -716,14 +730,14 @@ function DuyetKeKhai() {
     });
 
     const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
-    const [currentDetailKeKhai, setCurrentDetailKeKhai] = useState(null); 
+    const [currentDetailKeKhai, setCurrentDetailKeKhai] = useState(null);
     const [isRejectModalVisible, setIsRejectModalVisible] = useState(false);
     const [rejectReason, setRejectReason] = useState("");
     const [rejectingKeKhaiId, setRejectingKeKhaiId] = useState(null);
     const [isNotificationModalVisible, setIsNotificationModalVisible] = useState(false);
 
     const [loadingApproveId, setLoadingApproveId] = useState(null);
-    const [loadingRejectId, setLoadingRejectId] = useState(null);
+    const [loadingReject, setLoadingReject] = useState(null);
 
     const [notification, setNotification] = useState({
         show: false,
@@ -870,7 +884,7 @@ function DuyetKeKhai() {
                     selectedBoMonId
                 );
             } else {
-                setIsLoadingInitial(false); 
+                setIsLoadingInitial(false);
             }
 
             showNotification(
@@ -897,7 +911,7 @@ function DuyetKeKhai() {
             searchForFetch = searchTerm,
             boMonIdForFetch = selectedBoMonId
         ) => {
-            if (!managerProfile) return; 
+            if (!managerProfile) return;
 
             setIsLoading(true);
             const token = localStorage.getItem("token");
@@ -946,7 +960,7 @@ function DuyetKeKhai() {
                 );
             } finally {
                 setIsLoading(false);
-                setIsLoadingInitial(false); 
+                setIsLoadingInitial(false);
             }
         },
         [
@@ -963,7 +977,7 @@ function DuyetKeKhai() {
         if (managerProfile) {
             fetchKeKhaiList(1);
         }
-    }, [selectedNamHocId, filterTrangThai, selectedBoMonId]); 
+    }, [selectedNamHocId, filterTrangThai, selectedBoMonId]);
 
     const handleSearchDebounced = useCallback(
         debounce(() => {
@@ -1022,7 +1036,7 @@ function DuyetKeKhai() {
 
     const handleShowRejectModal = (id) => {
         setRejectingKeKhaiId(id);
-        setRejectReason(""); 
+        setRejectReason("");
         setIsRejectModalVisible(true);
     };
 
@@ -1036,7 +1050,7 @@ function DuyetKeKhai() {
             return;
         }
         if (!rejectingKeKhaiId) return;
-
+        setLoadingReject(true);
         const token = localStorage.getItem("token");
         try {
             await axios.post(
@@ -1061,6 +1075,8 @@ function DuyetKeKhai() {
                 error.response?.data?.message || "Lỗi khi từ chối kê khai.",
                 "Lỗi từ chối"
             );
+        } finally {
+            setLoadingReject(false);
         }
     };
 
@@ -1304,9 +1320,8 @@ function DuyetKeKhai() {
                     <div className="text-center py-2">
                         <div className="flex items-center justify-center space-x-1 mb-1">
                             <div
-                                className={`w-2 h-2 rounded-full ${
-                                    isDraft ? "bg-amber-400" : "bg-emerald-400"
-                                }`}
+                                className={`w-2 h-2 rounded-full ${isDraft ? "bg-amber-400" : "bg-emerald-400"
+                                    }`}
                             ></div>
                             <div className="text-lg font-bold text-gray-800">
                                 {value.toFixed(2)}
@@ -1316,11 +1331,10 @@ function DuyetKeKhai() {
                             tổng giờ
                         </div>
                         <span
-                            className={`inline-block px-2 py-0.5 text-xs rounded-full border ${
-                                isDraft
+                            className={`inline-block px-2 py-0.5 text-xs rounded-full border ${isDraft
                                     ? "bg-amber-50 text-amber-700 border-amber-200"
                                     : "bg-emerald-50 text-emerald-700 border-emerald-200"
-                            }`}
+                                }`}
                         >
                             {isDraft ? "Tạm tính" : "Đã duyệt"}
                         </span>
@@ -1350,16 +1364,14 @@ function DuyetKeKhai() {
                     <div className="text-center py-2">
                         <div className="flex items-center justify-center space-x-1 mb-1">
                             <div
-                                className={`text-sm ${
-                                    isPositive ? "↗️" : "↘️"
-                                }`}
+                                className={`text-sm ${isPositive ? "↗️" : "↘️"
+                                    }`}
                             ></div>
                             <div
-                                className={`text-lg font-bold ${
-                                    isPositive
+                                className={`text-lg font-bold ${isPositive
                                         ? "text-emerald-600"
                                         : "text-red-500"
-                                }`}
+                                    }`}
                             >
                                 {value >= 0 ? "+" : ""}
                                 {value.toFixed(2)}
@@ -1370,9 +1382,8 @@ function DuyetKeKhai() {
                         </div>
                         <div className="w-16 h-1 bg-gray-100 rounded-full mx-auto overflow-hidden">
                             <div
-                                className={`h-full rounded-full transition-all duration-700 ease-out ${
-                                    isPositive ? "bg-emerald-400" : "bg-red-400"
-                                }`}
+                                className={`h-full rounded-full transition-all duration-700 ease-out ${isPositive ? "bg-emerald-400" : "bg-red-400"
+                                    }`}
                                 style={{
                                     width: `${Math.min(
                                         (Math.abs(value) / 50) * 100,
@@ -1515,7 +1526,6 @@ function DuyetKeKhai() {
                         </Tooltip>
                         {record.trang_thai_phe_duyet === 1 && (
                             <div className="flex space-x-1">
-                                {" "}
                                 <Tooltip title="Phê duyệt">
                                     <Button
                                         icon={<CheckOutlined />}
@@ -1614,7 +1624,7 @@ function DuyetKeKhai() {
                             <div className="flex items-center space-x-6">
                                 <div className="relative">
                                     <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl shadow-lg flex items-center justify-center transform rotate-3 hover:rotate-0 transition-transform duration-300">
-                                        <BarChartOutlined className="text-2xl text-white" />
+                                        <FileDoneOutlined className="text-2xl text-white" />
                                     </div>
                                     <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white shadow-md"></div>
                                 </div>
@@ -1624,12 +1634,12 @@ function DuyetKeKhai() {
                                         style={{ margin: 0 }}
                                         className="text-3xl font-bold bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 bg-clip-text text-transparent"
                                     >
-                                        Duyệt Kê Khai 
+                                        Duyệt kê khai công tác
                                     </Title>
                                     <div className="flex items-center space-x-2">
                                         <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
                                         <Text type="secondary">
-                                            Duyệt kê khai giảng viên 
+                                            Duyệt kê khai công tác cho cán bộ giảng viên trong bộ môn
                                         </Text>
                                     </div>
                                 </div>
@@ -1681,7 +1691,7 @@ function DuyetKeKhai() {
                                                     <span>
                                                         {nh.ten_nam_hoc}
                                                     </span>
-                                                    {nh.la_nam_hien_hanh && (
+                                                    {nh.la_nam_hien_hanh == 1 && (
                                                         <Tag
                                                             color="green"
                                                             size="small"
@@ -1736,7 +1746,7 @@ function DuyetKeKhai() {
                             <Col
                                 xs={24}
                                 sm={12}
-                                md={ managerProfile && !managerProfile.bo_mon_id ? 6 : 8 }
+                                md={managerProfile && !managerProfile.bo_mon_id ? 6 : 8}
                             >
                                 <Form.Item
                                     label={
@@ -1793,7 +1803,7 @@ function DuyetKeKhai() {
                             <Col
                                 xs={24}
                                 sm={12}
-                                md={ managerProfile && !managerProfile.bo_mon_id ? 6 : 8 }
+                                md={managerProfile && !managerProfile.bo_mon_id ? 6 : 8}
                             >
                                 <Form.Item
                                     label={
@@ -2001,6 +2011,8 @@ function DuyetKeKhai() {
                     okText="Xác nhận Từ chối"
                     cancelText="Hủy"
                     confirmLoading={isLoading}
+                    loading={loadingReject}
+                    disabled={loadingReject}
                     className="custom-modal"
                 >
                     <Form layout="vertical" className="mt-4">

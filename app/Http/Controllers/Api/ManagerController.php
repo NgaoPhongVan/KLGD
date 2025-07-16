@@ -502,7 +502,7 @@ class ManagerController extends Controller
         return response()->json($statsData);
     }
 
-    // API xuất báo cáo tổng hợp, chi tiết, vượt giờ (Excel/PDF/ZIP)
+    // API xuất báo cáo tổng hợp, chi tiết, vượt giờ (Excel/PDF)
     public function exportReport(Request $request)
     {
         $validator = Validator::make($request->all(), [

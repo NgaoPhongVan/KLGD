@@ -30,7 +30,7 @@ import {
     SyncOutlined,
     SearchOutlined,
     QuestionCircleOutlined,
-    BarChartOutlined,
+    CloudDownloadOutlined,
     TableOutlined,
     CloseOutlined
 } from "@ant-design/icons";
@@ -52,105 +52,105 @@ function ExportReport() {
 
 
     const [notification, setNotification] = useState({
-            show: false,
-            type: "",
-            message: "",
-            title: "",
+        show: false,
+        type: "",
+        message: "",
+        title: "",
     });
-    
+
     const showNotification = (type, message, title = "") => {
-            setNotification({ show: true, type, message, title });
-            setTimeout(() => {
-                setNotification({ show: false, type: "", message: "", title: "" });
-            }, 5000);
-    };
-    
-    const dismissNotification = () => {
+        setNotification({ show: true, type, message, title });
+        setTimeout(() => {
             setNotification({ show: false, type: "", message: "", title: "" });
+        }, 5000);
     };
-    
+
+    const dismissNotification = () => {
+        setNotification({ show: false, type: "", message: "", title: "" });
+    };
+
     const renderNotification = () => {
-            if (!notification.show) return null;
-    
-            const notificationStyles = {
-                success: {
-                    bg: "bg-gradient-to-r from-emerald-50 to-green-50",
-                    border: "border-emerald-200",
-                    icon: "✅",
-                    iconBg: "bg-emerald-100",
-                    iconColor: "text-emerald-600",
-                    textColor: "text-emerald-800",
-                    titleColor: "text-emerald-900",
-                },
-                error: {
-                    bg: "bg-gradient-to-r from-red-50 to-rose-50",
-                    border: "border-red-200",
-                    icon: "❌",
-                    iconBg: "bg-red-100",
-                    iconColor: "text-red-600",
-                    textColor: "text-red-800",
-                    titleColor: "text-red-900",
-                },
-                warning: {
-                    bg: "bg-gradient-to-r from-amber-50 to-orange-50",
-                    border: "border-amber-200",
-                    icon: "⚠️",
-                    iconBg: "bg-amber-100",
-                    iconColor: "text-amber-600",
-                    textColor: "text-amber-800",
-                    titleColor: "text-amber-900",
-                },
-                info: {
-                    bg: "bg-gradient-to-r from-blue-50 to-sky-50",
-                    border: "border-blue-200",
-                    icon: "ℹ️",
-                    iconBg: "bg-blue-100",
-                    iconColor: "text-blue-600",
-                    textColor: "text-blue-800",
-                    titleColor: "text-blue-900",
-                },
-            };
-    
-            const style = notificationStyles[notification.type] || notificationStyles.info;
-    
-            return (
-                <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right-full duration-300 ease-out">
-                    <div
-                        className={`max-w-md w-full ${style.bg} ${style.border} border-2 rounded-2xl shadow-2xl backdrop-blur-xl overflow-hidden`}
-                    >
-                        <div className="p-6">
-                            <div className="flex items-start space-x-4">
-                                <div
-                                    className={`w-12 h-12 ${style.iconBg} rounded-xl flex items-center justify-center flex-shrink-0`}
-                                >
-                                    <span className="text-xl">{style.icon}</span>
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    {notification.title && (
-                                        <h3
-                                            className={`text-lg font-bold ${style.titleColor} mb-2`}
-                                        >
-                                            {notification.title}
-                                        </h3>
-                                    )}
-                                    <p
-                                        className={`text-sm ${style.textColor} leading-relaxed break-words`}
-                                    >
-                                        {notification.message}
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={dismissNotification}
-                                    className={`w-8 h-8 ${style.iconColor} hover:bg-white/50 rounded-lg flex items-center justify-center transition-colors duration-200 flex-shrink-0`}
-                                >
-                                    <CloseOutlined className="text-sm" />
-                                </button>
+        if (!notification.show) return null;
+
+        const notificationStyles = {
+            success: {
+                bg: "bg-gradient-to-r from-emerald-50 to-green-50",
+                border: "border-emerald-200",
+                icon: "✅",
+                iconBg: "bg-emerald-100",
+                iconColor: "text-emerald-600",
+                textColor: "text-emerald-800",
+                titleColor: "text-emerald-900",
+            },
+            error: {
+                bg: "bg-gradient-to-r from-red-50 to-rose-50",
+                border: "border-red-200",
+                icon: "❌",
+                iconBg: "bg-red-100",
+                iconColor: "text-red-600",
+                textColor: "text-red-800",
+                titleColor: "text-red-900",
+            },
+            warning: {
+                bg: "bg-gradient-to-r from-amber-50 to-orange-50",
+                border: "border-amber-200",
+                icon: "⚠️",
+                iconBg: "bg-amber-100",
+                iconColor: "text-amber-600",
+                textColor: "text-amber-800",
+                titleColor: "text-amber-900",
+            },
+            info: {
+                bg: "bg-gradient-to-r from-blue-50 to-sky-50",
+                border: "border-blue-200",
+                icon: "ℹ️",
+                iconBg: "bg-blue-100",
+                iconColor: "text-blue-600",
+                textColor: "text-blue-800",
+                titleColor: "text-blue-900",
+            },
+        };
+
+        const style = notificationStyles[notification.type] || notificationStyles.info;
+
+        return (
+            <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right-full duration-300 ease-out">
+                <div
+                    className={`max-w-md w-full ${style.bg} ${style.border} border-2 rounded-2xl shadow-2xl backdrop-blur-xl overflow-hidden`}
+                >
+                    <div className="p-6">
+                        <div className="flex items-start space-x-4">
+                            <div
+                                className={`w-12 h-12 ${style.iconBg} rounded-xl flex items-center justify-center flex-shrink-0`}
+                            >
+                                <span className="text-xl">{style.icon}</span>
                             </div>
+                            <div className="flex-1 min-w-0">
+                                {notification.title && (
+                                    <h3
+                                        className={`text-lg font-bold ${style.titleColor} mb-2`}
+                                    >
+                                        {notification.title}
+                                    </h3>
+                                )}
+                                <p
+                                    className={`text-sm ${style.textColor} leading-relaxed break-words`}
+                                >
+                                    {notification.message}
+                                </p>
+                            </div>
+                            <button
+                                onClick={dismissNotification}
+                                className={`w-8 h-8 ${style.iconColor} hover:bg-white/50 rounded-lg flex items-center justify-center transition-colors duration-200 flex-shrink-0`}
+                            >
+                                <CloseOutlined className="text-sm" />
+                            </button>
                         </div>
-                        <div className="h-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
                     </div>
+                    <div className="h-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
                 </div>
-            );
+            </div>
+        );
     };
 
     useEffect(() => {
@@ -290,18 +290,18 @@ function ExportReport() {
     if (isInitialLoading) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 relative overflow-hidden flex items-center justify-center">
-                 <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                <div className="fixed inset-0 overflow-hidden pointer-events-none">
                     <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-blue-400/10 to-indigo-400/10 rounded-full blur-3xl animate-pulse"></div>
                     <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-purple-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
                 </div>
 
-                 <div className="relative z-10 text-center space-y-8">
+                <div className="relative z-10 text-center space-y-8">
                     <div className="relative">
-                         <div className="w-24 h-24 bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 rounded-3xl shadow-2xl flex items-center justify-center mx-auto mb-6 animate-bounce">
+                        <div className="w-24 h-24 bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 rounded-3xl shadow-2xl flex items-center justify-center mx-auto mb-6 animate-bounce">
                             <ExportOutlined className="text-4xl text-white" />
                         </div>
 
-                         <div className="absolute -top-2 -right-8 w-4 h-4 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full animate-ping"></div>
+                        <div className="absolute -top-2 -right-8 w-4 h-4 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full animate-ping"></div>
                         <div className="absolute -bottom-2 -left-8 w-3 h-3 bg-gradient-to-r from-orange-400 to-red-500 rounded-full animate-pulse delay-300"></div>
                     </div>
 
@@ -315,14 +315,15 @@ function ExportReport() {
                         </p>
                     </div>
 
-                     <div className="flex justify-center space-x-2">
-                        {[...Array(3)].map((_, i) => (
-                            <div
-                                key={i}
-                                className="w-3 h-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full animate-bounce"
-                                style={{ animationDelay: `${i * 0.2}s` }}
-                            />
-                        ))}
+                    <div className="flex justify-center space-x-2">
+                        <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
+                        <div className="w-3 h-3 bg-indigo-500 rounded-full animate-bounce delay-100"></div>
+                        <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce delay-200"></div>
+                        <div className="w-3 h-3 bg-pink-500 rounded-full animate-bounce delay-300"></div>
+                    </div>
+
+                    <div className="w-64 h-2 bg-gray-200 rounded-full overflow-hidden mx-auto">
+                        <div className="h-full bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600 rounded-full animate-pulse"></div>
                     </div>
                 </div>
             </div>
@@ -361,13 +362,13 @@ function ExportReport() {
                             <div className="flex items-center space-x-6">
                                 <div className="relative">
                                     <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl shadow-lg flex items-center justify-center transform rotate-3 hover:rotate-0 transition-transform duration-300">
-                                        <BarChartOutlined className="text-2xl text-white" />
+                                        <CloudDownloadOutlined className="text-2xl text-white" />
                                     </div>
                                     <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white shadow-md"></div>
                                 </div>
                                 <div className="space-y-2">
                                     <Title level={2} style={{ margin: 0 }} className="text-3xl font-bold bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 bg-clip-text text-transparent">
-                                        Xuẩt báo cáo thống kê 
+                                        Xuẩt báo cáo thống kê
                                     </Title>
                                     <div className="flex items-center space-x-2">
                                         <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
@@ -407,7 +408,7 @@ function ExportReport() {
                                         label={
                                             <span className="flex items-center space-x-2 font-medium text-gray-700">
                                                 <CalendarOutlined className="text-blue-500" />
-                                                <span> Năm học{" "} <Text type="danger">*</Text>
+                                                <span> Năm học <Text type="danger">*</Text>
                                                 </span>
                                             </span>
                                         }
@@ -439,7 +440,7 @@ function ExportReport() {
                                                     >
                                                         <div className="flex items-center justify-between">
                                                             <span> {nh.ten_nam_hoc} </span>
-                                                            {nh.la_nam_hien_hanh && (
+                                                            {nh.la_nam_hien_hanh == 1 && (
                                                                 <Tag color="green" size="small">Hiện tại</Tag>
                                                             )}
                                                         </div>
@@ -467,11 +468,36 @@ function ExportReport() {
                                             allowClear
                                             className="custom-select"
                                         >
-                                            <Option value="">Tất cả</Option>
-                                            <Option value="0">Nháp</Option>
-                                            <Option value="1">Chờ phê duyệt</Option>
-                                            <Option value="3">Đã phê duyệt</Option>
-                                            <Option value="4">BM Trả lại</Option>
+                                            <Select.Option value="">
+                                                <span className="flex items-center space-x-2">
+                                                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                                                    <span>Tất cả</span>
+                                                </span>
+                                            </Select.Option>
+                                            <Select.Option value="0">
+                                                <span className="flex items-center space-x-2">
+                                                    <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                                                    <span>Nháp</span>
+                                                </span>
+                                            </Select.Option>
+                                            <Select.Option value="1">
+                                                <span className="flex items-center space-x-2">
+                                                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                                                    <span>Chờ duyệt BM</span>
+                                                </span>
+                                            </Select.Option>
+                                            <Select.Option value="3">
+                                                <span className="flex items-center space-x-2">
+                                                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                                    <span>Đã duyệt BM</span>
+                                                </span>
+                                            </Select.Option>
+                                            <Select.Option value="4">
+                                                <span className="flex items-center space-x-2">
+                                                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                                    <span>BM Trả lại</span>
+                                                </span>
+                                            </Select.Option>
                                         </Select>
                                     </Form.Item>
                                 </Col>
@@ -664,7 +690,7 @@ function ExportReport() {
                                                                 <div className="flex flex-col items-center space-y-3">
                                                                     <div className="w-full h-48 bg-white border-2 border-gray-300 shadow-lg relative overflow-hidden rounded-lg p-3">
                                                                         <div className="text-center mb-2">
-                                                                            <div 
+                                                                            <div
                                                                                 className="font-bold text-gray-800 text-xs leading-tight"
                                                                                 style={{ fontSize: `${Math.min(Math.max(fontSize * 0.8, 8), 12)}px` }}
                                                                             >
@@ -674,17 +700,17 @@ function ExportReport() {
 
                                                                         <div className="border border-gray-300 rounded text-xs mb-2">
                                                                             <div className="bg-gray-50 p-1 border-b border-gray-300">
-                                                                                <div 
+                                                                                <div
                                                                                     className="font-semibold text-gray-700 text-center leading-tight"
                                                                                     style={{ fontSize: `${Math.min(fontSize * 0.7, 10)}px` }}
                                                                                 >
                                                                                     STT | Mã GV | Họ tên | Giờ
                                                                                 </div>
                                                                             </div>
-                                                                            
+
                                                                             {[1, 2].map(i => (
                                                                                 <div key={i} className="p-1 border-b border-gray-200 last:border-b-0">
-                                                                                    <div 
+                                                                                    <div
                                                                                         className="text-gray-600 leading-tight"
                                                                                         style={{ fontSize: `${Math.min(fontSize * 0.7, 10)}px` }}
                                                                                     >
@@ -694,16 +720,16 @@ function ExportReport() {
                                                                             ))}
                                                                         </div>
 
-                                                                        <div 
+                                                                        <div
                                                                             className="text-gray-600 leading-tight overflow-hidden"
-                                                                            style={{ 
+                                                                            style={{
                                                                                 fontSize: `${Math.min(fontSize * 0.7, 10)}px`,
                                                                                 display: '-webkit-box',
                                                                                 WebkitLineClamp: 3,
                                                                                 WebkitBoxOrient: 'vertical'
                                                                             }}
                                                                         >
-                                                                            Báo cáo này tổng hợp khối lượng công việc của các giảng viên trong năm học, 
+                                                                            Báo cáo này tổng hợp khối lượng công việc của các giảng viên trong năm học,
                                                                             bao gồm giảng dạy, nghiên cứu khoa học và các hoạt động khác.
                                                                             Dữ liệu được trình bày theo định dạng PDF với font chữ đã cấu hình.
                                                                         </div>
@@ -885,7 +911,7 @@ function ExportReport() {
                                 <TableOutlined />
                                 <span>
                                     Bảng tổng hợp khối lượng tính vượt giờ (Hiển thị{" "}
-                                    {Math.min( previewData.reportData?.length || 0, 10 )}{" "} bản ghi đầu tiên):
+                                    {Math.min(previewData.reportData?.length || 0, 10)}{" "} bản ghi đầu tiên):
                                 </span>
                             </Title>
                             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 max-h-96 overflow-auto">
@@ -987,43 +1013,43 @@ function ExportReport() {
                                                             <td className="border border-gray-300 px-4 py-3 text-right font-mono">
                                                                 {Number(
                                                                     item.dinhmuc_khcn ||
-                                                                        0
+                                                                    0
                                                                 ).toFixed(2)}
                                                             </td>
                                                             <td className="border border-gray-300 px-4 py-3 text-right font-mono">
                                                                 {Number(
                                                                     item.dinhmuc_gd ||
-                                                                        0
+                                                                    0
                                                                 ).toFixed(2)}
                                                             </td>
                                                             <td className="border border-gray-300 px-4 py-3 text-right font-mono">
                                                                 {Number(
                                                                     item.thuc_hien_khcn ||
-                                                                        0
+                                                                    0
                                                                 ).toFixed(2)}
                                                             </td>
                                                             <td className="border border-gray-300 px-4 py-3 text-right font-mono">
                                                                 {Number(
                                                                     item.thuc_hien_gd ||
-                                                                        0
+                                                                    0
                                                                 ).toFixed(2)}
                                                             </td>
                                                             <td className="border border-gray-300 px-4 py-3 text-right font-mono">
                                                                 {Number(
                                                                     item.gd_xa_truong ||
-                                                                        0
+                                                                    0
                                                                 ).toFixed(2)}
                                                             </td>
                                                             <td className="border border-gray-300 px-4 py-3 text-right font-mono">
                                                                 {Number(
                                                                     item.so_tiet_vuot ||
-                                                                        0
+                                                                    0
                                                                 ).toFixed(2)}
                                                             </td>
                                                             <td className="border border-gray-300 px-4 py-3 text-right font-mono">
                                                                 {Number(
                                                                     item.muc_luong_co_ban ||
-                                                                        0
+                                                                    0
                                                                 ).toLocaleString(
                                                                     "vi-VN"
                                                                 )}
@@ -1043,7 +1069,7 @@ function ExportReport() {
                                                             <td className="border border-gray-300 px-4 py-3 text-right font-bold text-emerald-600 font-mono">
                                                                 {Number(
                                                                     item.thanh_tien ||
-                                                                        0
+                                                                    0
                                                                 ).toLocaleString(
                                                                     "vi-VN"
                                                                 )}
@@ -1052,28 +1078,28 @@ function ExportReport() {
                                                                 <Tag
                                                                     color={
                                                                         item.trang_thai ===
-                                                                        3
+                                                                            3
                                                                             ? "green"
                                                                             : item.trang_thai ===
-                                                                              1
-                                                                            ? "blue"
-                                                                            : item.trang_thai ===
-                                                                              4
-                                                                            ? "orange"
-                                                                            : "default"
+                                                                                1
+                                                                                ? "blue"
+                                                                                : item.trang_thai ===
+                                                                                    4
+                                                                                    ? "orange"
+                                                                                    : "default"
                                                                     }
                                                                     className="rounded-lg"
                                                                 >
                                                                     {item.trang_thai ===
-                                                                    3
+                                                                        3
                                                                         ? "Đã duyệt"
                                                                         : item.trang_thai ===
-                                                                          1
-                                                                        ? "Chờ duyệt"
-                                                                        : item.trang_thai ===
-                                                                          4
-                                                                        ? "BM trả lại"
-                                                                        : "Nháp"}
+                                                                            1
+                                                                            ? "Chờ duyệt"
+                                                                            : item.trang_thai ===
+                                                                                4
+                                                                                ? "BM trả lại"
+                                                                                : "Nháp"}
                                                                 </Tag>
                                                             </td>
                                                         </tr>
@@ -1094,9 +1120,8 @@ function ExportReport() {
                         {previewData.reportData &&
                             previewData.reportData.length > 10 && (
                                 <Alert
-                                    message={`Và ${
-                                        previewData.reportData.length - 10
-                                    } bản ghi khác sẽ được bao gồm trong báo cáo đầy đủ`}
+                                    message={`Và ${previewData.reportData.length - 10
+                                        } bản ghi khác sẽ được bao gồm trong báo cáo đầy đủ`}
                                     type="info"
                                     showIcon
                                     className="rounded-lg border-blue-200 bg-blue-50"

@@ -155,6 +155,21 @@
     }
 }
 
+/* Màn hình lớn hơn điện thoại, nhỏ hơn laptop */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .mobile-spacing {
+        padding: 2rem;
+    }
+    .mobile-text {
+        font-size: 1.8rem;
+        line-height: 1.6;
+    }
+    .mobile-logo {
+        height: 4rem;
+        width: 4rem;
+    }
+}
+
 /* Performance optimizations */
 .gpu-accelerated {
     transform: translateZ(0);

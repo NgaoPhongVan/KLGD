@@ -16,7 +16,7 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 // Xác thực vai trò người dùng (yêu cầu đăng nhập)
 Route::middleware('auth:sanctum')->get('/auth/verify-role', [AuthController::class, 'verifyRole']);
 
-// ROUTES YÊU CẦU ĐĂNG NHẬ
+// ROUTES YÊU CẦU ĐĂNG NHẬP
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
@@ -87,7 +87,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/logs/stats', [AdminController::class, 'getAdminLogStats']);
     });
 
-    // ROUTES DÀNH CHO MANAGER - TRƯỞNG BỘ MÔN (vai_tro = 2)
+    // ROUTES DÀNH CHO TRƯỞNG BỘ MÔN (vai_tro = 2)
     Route::middleware('role:2')->prefix('manager')->group(function () {
         Route::get('/profile', [ManagerController::class, 'getProfile']);
 
@@ -108,7 +108,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/bo-mon-list', [ManagerController::class, 'boMonList']);
     });
 
-    // ROUTES DÀNH CHO LECTURER - GIẢNG VIÊN (vai_tro = 3)
+    // ROUTES DÀNH CHO GIẢNG VIÊN (vai_tro = 3)
     Route::middleware('role:3')->prefix('lecturer')->group(function () {
         Route::get('/profile', [LecturerController::class, 'getProfile']);
         Route::put('/profile/phone', [LecturerController::class, 'updatePhone']);

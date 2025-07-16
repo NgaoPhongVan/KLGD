@@ -14,6 +14,33 @@ function ResetPassword() {
     const token = searchParams.get('token');
     const email = searchParams.get('email');
 
+    const getUserRole = () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return null;
+            
+            const userString = localStorage.getItem('user');
+            if (!userString) return null;
+            
+            const user = JSON.parse(userString);
+            return user.vai_tro || null;
+        } catch (error) {
+            return null;
+        }
+    };
+
+    const getDashboardRoute = () => {
+        const role = getUserRole();
+        if (role === 1) return '/admin/dashboard';
+        if (role === 2) return '/manager/dashboard';
+        if (role === 3) return '/lecturer/dashboard';
+        return '/reset-password';
+    };
+    
+    useEffect(() => {
+        navigate(getDashboardRoute());
+    }, []);
+
     useEffect(() => {
         setMounted(true);
     }, []);
@@ -555,6 +582,22 @@ function ResetPassword() {
                     .mobile-logo {
                         height: 3rem;
                         width: 3rem;
+                    }
+                }
+                /* Màn hình lớn hơn điện thoại, nhỏ hơn laptop */
+                @media (min-width: 769px) and (max-width: 1024px) {
+                    .mobile-spacing {
+                        padding: 2rem;
+                    }
+
+                    .mobile-text {
+                        font-size: 1.8rem;
+                        line-height: 1.6;
+                    }
+
+                    .mobile-logo {
+                        height: 4rem;
+                        width: 4rem;
                     }
                 }
             `}</style>

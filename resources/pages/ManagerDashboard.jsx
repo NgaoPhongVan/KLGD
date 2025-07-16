@@ -175,11 +175,6 @@ function ManagerDashboard() {
     if (authChecking || isLoading) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/20 to-blue-50/30 flex items-center justify-center overflow-hidden relative">
-                <div className="absolute inset-0 overflow-hidden">
-                    <div className="absolute top-20 left-20 w-64 h-64 bg-gradient-to-r from-indigo-400/8 to-purple-400/8 rounded-full blur-3xl animate-float"></div>
-                    <div className="absolute bottom-20 right-20 w-56 h-56 bg-gradient-to-r from-blue-400/8 to-teal-400/8 rounded-full blur-3xl animate-float-delayed"></div>
-                </div>
-                
                 <div className="relative z-10">
                     <div className="bg-white/90 backdrop-blur-xl shadow-2xl rounded-2xl p-8 border border-white/20 max-w-sm w-full mx-4 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none"></div>
@@ -219,14 +214,6 @@ function ManagerDashboard() {
                 </div>
 
                 <style>{`
-                    @keyframes float {
-                        0%, 100% { transform: translateY(0px) rotate(0deg); }
-                        50% { transform: translateY(-20px) rotate(180deg); }
-                    }
-                    @keyframes float-delayed {
-                        0%, 100% { transform: translateY(0px) rotate(0deg); }
-                        50% { transform: translateY(-15px) rotate(-180deg); }
-                    }
                     @keyframes spin-reverse {
                         from { transform: rotate(360deg); }
                         to { transform: rotate(0deg); }
@@ -236,8 +223,6 @@ function ManagerDashboard() {
                         50% { transform: translateX(0%); }
                         100% { transform: translateX(100%); }
                     }
-                    .animate-float { animation: float 6s ease-in-out infinite; }
-                    .animate-float-delayed { animation: float-delayed 8s ease-in-out infinite; }
                     .animate-spin-reverse { animation: spin-reverse 2s linear infinite; }
                     .animate-loading-wave { animation: loading-wave 2s ease-in-out infinite; }
                 `}</style>
@@ -332,7 +317,7 @@ function ManagerDashboard() {
                                     title={item.label}
                                 >
                                     {activeTab === item.id && (
-                                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/90 to-blue-500/90 animate-gradient-x"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/90 to-blue-500/90"></div>
                                     )}
                                     
                                     <div className={`${sidebarCollapsed ? "" : "mr-4"} relative z-10 transition-transform duration-300 group-hover:scale-110`}>
@@ -917,23 +902,7 @@ function ManagerDashboard() {
                         from { opacity: 0; transform: translateY(30px); }
                         to { opacity: 1; transform: translateY(0); }
                     }
-                    @keyframes gradient-x {
-                        0%, 100% { background-position: 0% 50%; }
-                        50% { background-position: 100% 50%; }
-                    }
-                    @keyframes float {
-                        0%, 100% { transform: translateY(0px) rotate(0deg); }
-                        50% { transform: translateY(-20px) rotate(180deg); }
-                    }
-                    @keyframes float-delayed {
-                        0%, 100% { transform: translateY(0px) rotate(0deg); }
-                        50% { transform: translateY(-15px) rotate(-180deg); }
-                    }
-
                     .animate-slide-up { animation: slide-up 0.6s ease-out forwards; }
-                    .animate-gradient-x { background-size: 200% 200%; animation: gradient-x 3s ease infinite; }
-                    .animate-float { animation: float 6s ease-in-out infinite; }
-                    .animate-float-delayed { animation: float-delayed 8s ease-in-out infinite; animation-delay: 2s; }
                     .shadow-3xl { box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25); }
                 `}</style>
             </main>

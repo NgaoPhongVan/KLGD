@@ -23,22 +23,27 @@ const SendNotificationModal = ({
     const [form] = Form.useForm();
     const [selectedSendTo, setSelectedSendTo] = useState('all');
     const [previewMode, setPreviewMode] = useState(false);
+    const [sending, setSending] = useState(false);
 
     useEffect(() => {
         if (open) {
             form.resetFields();
             setSelectedSendTo('all');
             setPreviewMode(false);
+            setSending(false);
         }
     }, [open, form]);
 
     const handleSubmit = async () => {
         try {
+            setSending(true);
             const values = await form.validateFields();
             await onConfirm(values);
             form.resetFields();
+            setSending(false);
         } catch (error) {
             console.error('Lỗi validate thông báo:', error);
+            setSending(false);
         }
     };
 
@@ -117,7 +122,12 @@ const SendNotificationModal = ({
             width={800}
             footer={
                 <div className="flex justify-between items-center pt-4 border-t border-gray-100">
-                    <Button onClick={onCancel} size="large" className="px-6">
+                    <Button 
+                        onClick={onCancel} 
+                        size="large" 
+                        className="px-6"
+                        disabled={sending}
+                    >
                         Hủy bỏ
                     </Button>
                     <Space size="middle">
@@ -126,18 +136,20 @@ const SendNotificationModal = ({
                             size="large" 
                             className="px-6"
                             icon={<InfoCircleOutlined />}
+                            disabled={sending}
                         >
                             Xem trước
                         </Button>
                         <Button 
                             type="primary" 
                             onClick={handleSubmit} 
-                            loading={isLoading}
+                            loading={sending || isLoading}
                             size="large"
                             className="px-8 bg-gradient-to-r from-blue-500 to-indigo-600 border-none shadow-lg"
                             icon={<SendOutlined />}
+                            disabled={sending}
                         >
-                            Gửi thông báo
+                            {sending ? 'Đang gửi...' : 'Gửi thông báo'}
                         </Button>
                     </Space>
                 </div>
@@ -168,7 +180,7 @@ const SendNotificationModal = ({
                                         <Option key={nh.id} value={nh.id}>
                                             <div className="flex items-center justify-between">
                                                 <span>{nh.ten_nam_hoc}</span>
-                                                {nh.la_nam_hien_hanh && (
+                                                {nh.la_nam_hien_hanh == 1 && (
                                                     <Tag color="green" size="small">Hiện tại</Tag>
                                                 )}
                                             </div>

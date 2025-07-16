@@ -30,7 +30,7 @@ function AdminDashboard() {
                 const timer2 = setTimeout(() => {
                     setWelcomeAnimationComplete(true);
                 }, 100);
-                
+
                 const timer3 = setTimeout(() => {
                     dismissWelcomePopup();
                 }, 6000);
@@ -56,12 +56,12 @@ function AdminDashboard() {
         const verifyAuth = async () => {
             setAuthChecking(true);
             const token = localStorage.getItem("token");
-            
+
             if (!token) {
                 navigate("/login");
                 return;
             }
-            
+
             try {
                 const response = await axios.get("/api/auth/verify-role", {
                     headers: {
@@ -71,30 +71,30 @@ function AdminDashboard() {
                         role: "admin"
                     }
                 });
-                
+
                 if (!response.data.success || !response.data.hasRole) {
                     localStorage.removeItem("token");
-                    navigate("/login", { 
-                        state: { 
-                            message: "Bạn không có quyền truy cập trang quản trị hệ thống" 
-                        } 
+                    navigate("/login", {
+                        state: {
+                            message: "Bạn không có quyền truy cập trang quản trị hệ thống"
+                        }
                     });
                     return;
                 }
-                
+
                 fetchAdminInfo();
             } catch (error) {
                 localStorage.removeItem("token");
-                navigate("/login", { 
-                    state: { 
-                        message: "Phiên đăng nhập hết hạn hoặc không hợp lệ" 
-                    } 
+                navigate("/login", {
+                    state: {
+                        message: "Phiên đăng nhập hết hạn hoặc không hợp lệ"
+                    }
                 });
             } finally {
                 setAuthChecking(false);
             }
         };
-        
+
         verifyAuth();
     }, [navigate]);
 
@@ -110,10 +110,10 @@ function AdminDashboard() {
         } catch (error) {
             if (error.response && (error.response.status === 401 || error.response.status === 403)) {
                 localStorage.removeItem("token");
-                navigate("/login", { 
-                    state: { 
-                        message: "Không thể truy cập thông tin quản trị viên" 
-                    } 
+                navigate("/login", {
+                    state: {
+                        message: "Không thể truy cập thông tin quản trị viên"
+                    }
                 });
             }
         } finally {
@@ -126,76 +126,71 @@ function AdminDashboard() {
     };
 
     const modules = [
-        { 
-            id: 'users', 
-            label: 'Quản lý người dùng', 
-            icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z', 
-            component: <UserManagement /> 
+        {
+            id: 'users',
+            label: 'Quản lý người dùng',
+            icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+            component: <UserManagement />
         },
-        { 
-            id: 'khoa', 
-            label: 'Quản lý khoa', 
-            icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4', 
-            component: <KhoaManagement /> 
+        {
+            id: 'khoa',
+            label: 'Quản lý khoa',
+            icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
+            component: <KhoaManagement />
         },
-        { 
-            id: 'bomon', 
-            label: 'Quản lý bộ môn', 
-            icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z', 
-            component: <BoMonManagement /> 
+        {
+            id: 'bomon',
+            label: 'Quản lý bộ môn',
+            icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z',
+            component: <BoMonManagement />
         },
-        { 
-            id: 'namhoc', 
-            label: 'Quản lý năm học', 
-            icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', 
-            component: <NamHocManagement /> 
+        {
+            id: 'namhoc',
+            label: 'Quản lý năm học',
+            icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+            component: <NamHocManagement />
         },
-        { 
-            id: 'hocky', 
-            label: 'Quản lý học kỳ', 
-            icon: 'M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z', 
-            component: <HocKyManagement /> 
+        {
+            id: 'hocky',
+            label: 'Quản lý học kỳ',
+            icon: 'M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z',
+            component: <HocKyManagement />
         },
-        { 
-            id: 'kekhaithoigian', 
-            label: 'Quản lý thời gian kê khai', 
-            icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', 
-            component: <KeKhaiThoiGianManagement /> 
+        {
+            id: 'kekhaithoigian',
+            label: 'Quản lý thời gian kê khai',
+            icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+            component: <KeKhaiThoiGianManagement />
         },
-        { 
-            id: 'dinhmuccanhan', 
-            label: 'Quản lý định mức cá nhân', 
-            icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', 
-            component: <DinhMucCaNhanManagement /> 
+        {
+            id: 'dinhmuccanhan',
+            label: 'Quản lý định mức cá nhân',
+            icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+            component: <DinhMucCaNhanManagement />
         },
-        { 
-            id: 'dmhesochung', 
-            label: 'Quản lý hệ số chung', 
-            icon: 'M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z', 
-            component: <DmHeSoChungManagement /> 
+        {
+            id: 'dmhesochung',
+            label: 'Quản lý hệ số chung',
+            icon: 'M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z',
+            component: <DmHeSoChungManagement />
         },
-        { 
-            id: 'luonggiangvien', 
-            label: 'Quản lý lương giảng viên', 
-            icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 
-            component: <LuongGiangVienManagement /> 
+        {
+            id: 'luonggiangvien',
+            label: 'Quản lý lương giảng viên',
+            icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+            component: <LuongGiangVienManagement />
         },
-        { 
-            id: 'miengiamdinhmuc', 
-            label: 'Quản lý miễn giảm định mức', 
-            icon: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z', 
-            component: <MienGiamDinhMucManagement /> 
+        {
+            id: 'miengiamdinhmuc',
+            label: 'Quản lý miễn giảm định mức',
+            icon: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
+            component: <MienGiamDinhMucManagement />
         },
     ];
 
     if (authChecking || isLoading) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-purple-50 via-slate-50/50 to-indigo-50/30 flex items-center justify-center overflow-hidden relative">
-                <div className="absolute inset-0 overflow-hidden">
-                    <div className="absolute top-20 left-20 w-64 h-64 bg-gradient-to-r from-purple-400/8 to-indigo-400/8 rounded-full blur-3xl animate-float"></div>
-                    <div className="absolute bottom-20 right-20 w-56 h-56 bg-gradient-to-r from-violet-400/8 to-purple-400/8 rounded-full blur-3xl animate-float-delayed"></div>
-                </div>
-                
                 <div className="relative z-10">
                     <div className="bg-white/90 backdrop-blur-xl shadow-2xl rounded-2xl p-8 border border-white/20 max-w-sm w-full mx-4 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none"></div>
@@ -212,7 +207,7 @@ function AdminDashboard() {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="text-center mb-6">
                                 <h3 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2">
                                     {authChecking ? "Đang xác thực..." : "Đang tải Dashboard"}
@@ -223,7 +218,7 @@ function AdminDashboard() {
                                         : "Hệ thống đang chuẩn bị dữ liệu quản trị"}
                                 </p>
                             </div>
-                            
+
                             <div className="w-full">
                                 <div className="h-1.5 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full overflow-hidden shadow-inner">
                                     <div className="h-full bg-gradient-to-r from-purple-600 via-indigo-500 to-violet-500 rounded-full animate-loading-wave"></div>
@@ -234,14 +229,6 @@ function AdminDashboard() {
                 </div>
 
                 <style>{`
-                    @keyframes float {
-                        0%, 100% { transform: translateY(0px) rotate(0deg); }
-                        50% { transform: translateY(-20px) rotate(180deg); }
-                    }
-                    @keyframes float-delayed {
-                        0%, 100% { transform: translateY(0px) rotate(0deg); }
-                        50% { transform: translateY(-15px) rotate(-180deg); }
-                    }
                     @keyframes spin-reverse {
                         from { transform: rotate(360deg); }
                         to { transform: rotate(0deg); }
@@ -251,8 +238,6 @@ function AdminDashboard() {
                         50% { transform: translateX(0%); }
                         100% { transform: translateX(100%); }
                     }
-                    .animate-float { animation: float 6s ease-in-out infinite; }
-                    .animate-float-delayed { animation: float-delayed 8s ease-in-out infinite; }
                     .animate-spin-reverse { animation: spin-reverse 2s linear infinite; }
                     .animate-loading-wave { animation: loading-wave 2s ease-in-out infinite; }
                 `}</style>
@@ -262,14 +247,12 @@ function AdminDashboard() {
 
     return (
         <div className="flex h-screen bg-gradient-to-br from-purple-50 via-slate-50/50 to-indigo-50/30 overflow-hidden font-sans relative">
-            <aside className={`fixed lg:relative inset-y-0 left-0 z-50 transform transition-all duration-500 ease-out ${
-                sidebarOpen ? "translate-x-0" : "-translate-x-full"
-            } lg:translate-x-0 ${
-                sidebarCollapsed ? "w-20" : "w-72"
-            } bg-white/95 backdrop-blur-xl border-r border-white/20 shadow-2xl flex flex-col h-screen overflow-hidden`}>
-                
+            <aside className={`fixed lg:relative inset-y-0 left-0 z-50 transform transition-all duration-500 ease-out ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+                } lg:translate-x-0 ${sidebarCollapsed ? "w-20" : "w-72"
+                } bg-white/95 backdrop-blur-xl border-r border-white/20 shadow-2xl flex flex-col h-screen overflow-hidden`}>
+
                 <div className="absolute -right-4 top-24 hidden lg:block z-10">
-                    <button 
+                    <button
                         onClick={toggleSidebar}
                         className="w-8 h-8 bg-white/90 backdrop-blur-xl rounded-full shadow-lg border border-white/20 text-purple-600 hover:text-purple-700 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all duration-300 hover:shadow-xl active:scale-95 flex items-center justify-center"
                     >
@@ -278,13 +261,13 @@ function AdminDashboard() {
                         </svg>
                     </button>
                 </div>
-                
+
                 <div className={`${sidebarCollapsed ? "px-4 py-6" : "px-6 py-6"} relative bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-600 text-white overflow-hidden`}>
                     <div className="absolute inset-0 opacity-15">
                         <div className="absolute top-0 right-0 w-24 h-24 bg-white/20 rounded-full -mr-16 -mt-16"></div>
                         <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/10 rounded-full -ml-12 -mb-12"></div>
                     </div>
-                    
+
                     <div className={`relative z-10 flex ${sidebarCollapsed ? "justify-center" : "items-center space-x-4"}`}>
                         <div className="flex-shrink-0 w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 flex items-center justify-center group hover:scale-110 transition-transform duration-300">
                             <svg className="mx-auto h-7 w-7 text-white transform transition-transform duration-700 ease-out group-hover:rotate-[360deg]" viewBox="0 0 24 24" fill="currentColor">
@@ -299,14 +282,14 @@ function AdminDashboard() {
                         )}
                     </div>
                 </div>
-                
+
                 <nav className="flex-1 py-6 px-4 overflow-y-auto bg-gradient-to-b from-white/80 to-white/95 backdrop-blur-sm">
                     {!sidebarCollapsed && (
                         <div className="mb-6 px-3">
                             <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Quản trị hệ thống</h2>
                         </div>
                     )}
-                    
+
                     <ul className="space-y-3">
                         {modules.map((module) => (
                             <li key={module.id}>
@@ -315,19 +298,17 @@ function AdminDashboard() {
                                         setActiveModule(module.id);
                                         if (window.innerWidth < 1024) setSidebarOpen(false);
                                     }}
-                                    className={`w-full group flex items-center ${
-                                        sidebarCollapsed ? "justify-center px-3" : "px-4"
-                                    } py-3 rounded-xl text-sm font-semibold transition-all duration-300 relative overflow-hidden ${
-                                        activeModule === module.id
+                                    className={`w-full group flex items-center ${sidebarCollapsed ? "justify-center px-3" : "px-4"
+                                        } py-3 rounded-xl text-sm font-semibold transition-all duration-300 relative overflow-hidden ${activeModule === module.id
                                             ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-200 transform scale-105"
                                             : "text-gray-700 hover:bg-gray-100/80 hover:text-purple-600 hover:scale-105 hover:shadow-md"
-                                    }`}
+                                        }`}
                                     title={module.label}
                                 >
                                     {activeModule === module.id && (
                                         <div className="absolute inset-0 bg-gradient-to-r from-purple-500/90 to-indigo-500/90 animate-gradient-x"></div>
                                     )}
-                                    
+
                                     <div className={`${sidebarCollapsed ? "" : "mr-4"} relative z-10 transition-transform duration-300 group-hover:scale-110`}>
                                         <div className={`w-5 h-5 ${activeModule === module.id ? "text-white" : "text-purple-600 group-hover:text-purple-700"}`}>
                                             <svg className="w-full h-full" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -335,13 +316,13 @@ function AdminDashboard() {
                                             </svg>
                                         </div>
                                     </div>
-                                    
+
                                     {!sidebarCollapsed && (
                                         <span className="relative z-10 transition-transform duration-300 group-hover:translate-x-1">
                                             {module.label}
                                         </span>
                                     )}
-                                    
+
                                     {sidebarCollapsed && (
                                         <div className="absolute left-full ml-6 bg-white/95 backdrop-blur-xl shadow-xl rounded-xl py-3 px-4 text-sm text-gray-700 whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 transform translate-x-4 group-hover:translate-x-0 z-50 border border-white/20">
                                             {module.label}
@@ -352,7 +333,7 @@ function AdminDashboard() {
                         ))}
                     </ul>
                 </nav>
-                
+
                 <div className={`border-t border-gray-100/50 ${sidebarCollapsed ? "p-4" : "p-0"} bg-white/50 backdrop-blur-sm`}>
                     {sidebarCollapsed ? (
                         <div className="relative group flex justify-center">
@@ -363,7 +344,7 @@ function AdminDashboard() {
                                     </span>
                                 </div>
                             </div>
-                            
+
                             <div className="absolute left-full bottom-0 ml-6 bg-white/95 backdrop-blur-xl shadow-xl rounded-xl py-3 px-2 text-sm text-gray-700 whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 transform translate-x-4 group-hover:translate-x-0 z-50 border border-white/20">
                                 <div className="px-4 py-2">
                                     <div className="font-bold text-gray-800 mb-1">
@@ -409,7 +390,7 @@ function AdminDashboard() {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="px-4 py-3 bg-white/80 border-t border-gray-100/50">
                                 <button
                                     onClick={() => {
@@ -450,7 +431,7 @@ function AdminDashboard() {
                                 </span>
                             </h1>
                         </div>
-                        
+
                         <div className="hidden sm:flex items-center">
                             <div className="flex items-center space-x-3 bg-gradient-to-r from-purple-50 to-indigo-50 px-4 py-3 rounded-xl border border-purple-100 shadow-md backdrop-blur-sm">
                                 <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
@@ -478,7 +459,7 @@ function AdminDashboard() {
                         </div>
                     </div>
                 </div>
-                
+
                 {welcomePopupVisible && (
                     <div className="fixed inset-0 flex items-center justify-center z-50 px-4">
                         <div
@@ -486,11 +467,10 @@ function AdminDashboard() {
                             onClick={dismissWelcomePopup}
                         ></div>
                         <div
-                            className={`relative bg-white/98 backdrop-blur-xl rounded-2xl shadow-2xl p-5 max-w-3xl w-full max-h-[85vh] overflow-y-auto transform transition-all duration-700 border border-white/30 ${
-                                welcomeAnimationComplete
+                            className={`relative bg-white/98 backdrop-blur-xl rounded-2xl shadow-2xl p-5 max-w-3xl w-full max-h-[85vh] overflow-y-auto transform transition-all duration-700 border border-white/30 ${welcomeAnimationComplete
                                     ? "opacity-100 scale-100 rotate-0"
                                     : "opacity-0 scale-75 rotate-3"
-                            }`}
+                                }`}
                         >
                             <div className="absolute inset-0 overflow-hidden rounded-2xl">
                                 <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-r from-purple-400/8 to-indigo-400/8 rounded-full -mr-12 -mt-12"></div>
@@ -602,7 +582,7 @@ function AdminDashboard() {
                                             <div className="text-purple-600 mb-2 group-hover:scale-110 transition-transform duration-300 flex justify-center">
                                                 {feature.icon}
                                             </div>
-                                            
+
                                             <div className="text-left">
                                                 <h4 className="flex justify-center text-xs font-bold text-gray-800 mb-1 group-hover:text-purple-700 transition-colors duration-300">
                                                     {feature.title}
@@ -670,7 +650,7 @@ function AdminDashboard() {
                                             </svg>
                                         </span>
                                     </button>
-                                    
+
                                     <button
                                         onClick={() => {
                                             dismissWelcomePopup();

@@ -455,7 +455,7 @@ function ManagerStatistics() {
         },
     ];
 
-    if (isLoadingInitial) {
+    if (isLoadingInitial && isLoading && !statsData.top_giang_viens_bm.length) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 relative overflow-hidden flex items-center justify-center">
                 <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -493,21 +493,6 @@ function ManagerStatistics() {
                     <div className="w-64 h-2 bg-gray-200 rounded-full overflow-hidden mx-auto">
                         <div className="h-full bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600 rounded-full animate-pulse"></div>
                     </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (isLoading && !statsData.top_giang_viens_bm.length) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 flex justify-center items-center">
-                <div className="text-center space-y-4">
-                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg border border-gray-200/50 mx-auto">
-                        <Spin size="large" />
-                    </div>
-                    <Text className="text-lg text-gray-600">
-                        Đang tải dữ liệu thống kê...
-                    </Text>
                 </div>
             </div>
         );
