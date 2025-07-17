@@ -265,23 +265,23 @@ class LecturerController extends Controller
 
                 switch ($item['type']) {
                     case 'gd_lop_dh_trongbm':
-                        $commonDataToSave['so_tiet_qd'] = round(floatval($data['kl_ke_hoach'] ?? 0) * floatval($data['he_so_qd'] ?? 0), 2);
+                        // $commonDataToSave['so_tiet_qd'] = round(floatval($data['kl_ke_hoach'] ?? 0) * floatval($data['he_so_qd'] ?? 0), 2);
                         KekhaiGdLopDhTrongbm::create($commonDataToSave);
                         break;
                     case 'gd_lop_dh_ngoaibm':
-                        $commonDataToSave['so_tiet_qd'] = round(floatval($data['kl_ke_hoach'] ?? 0) * floatval($data['he_so_qd'] ?? 0), 2);
+                        // $commonDataToSave['so_tiet_qd'] = round(floatval($data['kl_ke_hoach'] ?? 0) * floatval($data['he_so_qd'] ?? 0), 2);
                         KekhaiGdLopDhNgoaibm::create($commonDataToSave);
                         break;
                     case 'gd_lop_dh_ngoaics':
-                        $commonDataToSave['so_tiet_qd'] = round(floatval($data['kl_ke_hoach'] ?? 0) * floatval($data['he_so_qd'] ?? 0), 2);
+                        // $commonDataToSave['so_tiet_qd'] = round(floatval($data['kl_ke_hoach'] ?? 0) * floatval($data['he_so_qd'] ?? 0), 2);
                         KekhaiGdLopDhNgoaics::create($commonDataToSave);
                         break;
                     case 'gd_lop_ths':
-                        $commonDataToSave['so_tiet_qd'] = round(floatval($data['kl_ke_hoach'] ?? 0) * floatval($data['he_so_qd'] ?? 0), 2);
+                        // $commonDataToSave['so_tiet_qd'] = round(floatval($data['kl_ke_hoach'] ?? 0) * floatval($data['he_so_qd'] ?? 0), 2);
                         KekhaiGdLopThs::create($commonDataToSave);
                         break;
                     case 'gd_lop_ts':
-                        $commonDataToSave['so_tiet_qd'] = round(floatval($data['kl_ke_hoach'] ?? 0) * floatval($data['he_so_qd'] ?? 0), 2);
+                        // $commonDataToSave['so_tiet_qd'] = round(floatval($data['kl_ke_hoach'] ?? 0) * floatval($data['he_so_qd'] ?? 0), 2);
                         KekhaiGdLopTs::create($commonDataToSave);
                         break;
                     case 'hd_datn_daihoc':

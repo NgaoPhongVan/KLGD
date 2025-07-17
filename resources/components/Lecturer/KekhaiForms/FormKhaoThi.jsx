@@ -68,6 +68,7 @@ function FormKhaoThi({
             hang_muc: record.hang_muc,
             so_ca_bai_mon: record.so_ca_bai_mon,
             dinh_muc_gv_nhap: record.dinh_muc_gv_nhap,
+            so_tiet_qd: record.so_tiet_qd,
             ghi_chu: record.ghi_chu,
             pham_vi_display: phamViValue,
         });
@@ -79,22 +80,14 @@ function FormKhaoThi({
         message.success(`Đã xóa mục khảo thí.`);
     };
 
-    const calculateSoTietQD = (so_ca_bai_mon, dinh_muc_gv_nhap) => {
-        const sl = parseFloat(so_ca_bai_mon || 0);
-        const dm = parseFloat(dinh_muc_gv_nhap || 0);
-        return (sl * dm).toFixed(2);
-    };
-
     const handleModalOk = async () => {
         try {
             const values = await form.validateFields();
-            const so_tiet_qd = calculateSoTietQD(values.so_ca_bai_mon, values.dinh_muc_gv_nhap);
 
             const newItem = {
                 id_temp: editingItem?.record.id_temp || Date.now() + Math.random(),
                 id_database: editingItem?.record.id_database || null,
                 ...values,
-                so_tiet_qd: so_tiet_qd,
             };
             delete newItem.pham_vi_display;
 
@@ -257,7 +250,7 @@ function FormKhaoThi({
                             <Form.Item
                                 name="dinh_muc_gv_nhap"
                                 label="Định mức Giờ/Đơn vị (GV tự nhập)"
-                                rules={[{ required: true, message: 'Vui lòng nhập định mức!' }, { type: 'number', min: 0, message: 'Định mức không hợp lệ'}]}
+                                rules={[{ type: 'number', min: 0, message: 'Định mức không hợp lệ'}]}
                             >
                                 <InputNumber min={0} step={0.01} style={{ width: '100%' }} placeholder="Ví dụ: 2.5 (giờ/ca)" />
                             </Form.Item>
@@ -265,22 +258,11 @@ function FormKhaoThi({
                     </Row>
 
                      <Form.Item
-                        label="Số tiết Quy đổi (tự động tính)"
+                        name="so_tiet_qd"
+                        label="Số tiết Quy đổi"
+                        rules={[{ required: true, message: 'Vui lòng nhập số tiết quy đổi!' }, { type: 'number', min: 0, message: 'Số tiết quy đổi không hợp lệ'}]}
                     >
-                        <Form.Item
-                            noStyle
-                            shouldUpdate={(prevValues, currentValues) =>
-                                prevValues.so_ca_bai_mon !== currentValues.so_ca_bai_mon || prevValues.dinh_muc_gv_nhap !== currentValues.dinh_muc_gv_nhap
-                            }
-                        >
-                            {({ getFieldValue }) => (
-                                <Input
-                                    readOnly
-                                    value={calculateSoTietQD(getFieldValue('so_ca_bai_mon'), getFieldValue('dinh_muc_gv_nhap'))}
-                                    className="ant-input-readonly-custom"
-                                />
-                            )}
-                        </Form.Item>
+                        <InputNumber min={0} step={0.01} style={{ width: '100%' }} placeholder="Nhập số tiết quy đổi" />
                     </Form.Item>
 
                     <Form.Item

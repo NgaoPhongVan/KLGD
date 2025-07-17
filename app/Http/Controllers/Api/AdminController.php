@@ -154,6 +154,8 @@ class AdminController extends Controller
             'vai_tro' => 'required|in:1,2,3',
             'bo_mon_id' => 'required|exists:bo_mon,id',
             'trang_thai' => 'required|in:0,1',
+            'hoc_ham' => 'nullable|string|max:255',
+            'hoc_vi' => 'nullable|string|max:255',
         ], [
             'ma_gv.required' => 'Mã giảng viên là bắt buộc.',
             'ma_gv.unique' => 'Mã giảng viên đã tồn tại.',
@@ -169,6 +171,10 @@ class AdminController extends Controller
             'bo_mon_id.exists' => 'Bộ môn không tồn tại.',
             'trang_thai.required' => 'Trạng thái là bắt buộc.',
             'trang_thai.in' => 'Trạng thái không hợp lệ (chỉ được là 0 hoặc 1).',
+            'hoc_ham.string' => 'Học hàm phải là chuỗi ký tự.',
+            'hoc_ham.max' => 'Học hàm không được vượt quá 255 ký tự.',
+            'hoc_vi.string' => 'Học vị phải là chuỗi ký tự.',
+            'hoc_vi.max' => 'Học vị không được vượt quá 255 ký tự.',
         ]);
 
         if ($validator->fails()) {
@@ -186,6 +192,8 @@ class AdminController extends Controller
             'vai_tro' => $request->vai_tro,
             'bo_mon_id' => $request->bo_mon_id,
             'trang_thai' => $request->trang_thai,
+            'hoc_ham' => $request->hoc_ham,
+            'hoc_vi' => $request->hoc_vi,
         ]);
 
         $this->logActivity(
@@ -213,6 +221,8 @@ class AdminController extends Controller
             'vai_tro' => 'required|in:1,2,3',
             'bo_mon_id' => 'required|exists:bo_mon,id',
             'trang_thai' => 'required|in:0,1',
+            'hoc_ham' => 'nullable|string|max:255',
+            'hoc_vi' => 'nullable|string|max:255',
         ], [
             'ma_gv.required' => 'Mã giảng viên là bắt buộc.',
             'ma_gv.unique' => 'Mã giảng viên đã tồn tại.',
@@ -226,6 +236,10 @@ class AdminController extends Controller
             'bo_mon_id.exists' => 'Bộ môn không tồn tại.',
             'trang_thai.required' => 'Trạng thái là bắt buộc.',
             'trang_thai.in' => 'Trạng thái không hợp lệ (chỉ được là 0 hoặc 1).',
+            'hoc_ham.string' => 'Học hàm phải là chuỗi ký tự.',
+            'hoc_ham.max' => 'Học hàm không được vượt quá 255 ký tự.',
+            'hoc_vi.string' => 'Học vị phải là chuỗi ký tự.',
+            'hoc_vi.max' => 'Học vị không được vượt quá 255 ký tự.',
         ]);
 
         if ($validator->fails()) {
@@ -235,7 +249,7 @@ class AdminController extends Controller
             ], 422);
         }
 
-        $user->update($request->only('ma_gv', 'ho_ten', 'email', 'vai_tro', 'bo_mon_id', 'trang_thai'));
+        $user->update($request->only('ma_gv', 'ho_ten', 'email', 'vai_tro', 'bo_mon_id', 'trang_thai', 'hoc_ham', 'hoc_vi'));
         if ($request->password) {
             $user->password = Hash::make($request->password);
             $user->save();
@@ -775,7 +789,13 @@ class AdminController extends Controller
         $hocKy->delete();
 
         $this->logActivity(
-            'DELETE_HOCKY', "Xóa học kỳ: {$hocKyData['ten_hoc_ky']}", 'hoc_ky', $id, $hocKyData['ten_hoc_ky'], $hocKyData, null
+            'DELETE_HOCKY',
+            "Xóa học kỳ: {$hocKyData['ten_hoc_ky']}",
+            'hoc_ky',
+            $id,
+            $hocKyData['ten_hoc_ky'],
+            $hocKyData,
+            null
         );
 
         return response()->json(['message' => 'Xóa học kỳ thành công']);
@@ -1529,7 +1549,6 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'Import thời gian kê khai thất bại', 'error' => $e->getMessage()], 422);
         }
-
     }
 
     public function importBoMon(Request $request)

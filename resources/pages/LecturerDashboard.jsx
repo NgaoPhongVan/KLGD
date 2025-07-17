@@ -342,6 +342,45 @@ function LecturerDashboard({ setActiveTab: externalSetActiveTab, inDashboard = t
 
     return (
         <div className="flex h-screen bg-gradient-to-br from-slate-50 via-indigo-50/20 to-blue-50/30 overflow-hidden font-sans relative">
+            {/* <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-0 left-1/4 w-64 h-64 bg-gradient-to-r from-indigo-400/3 to-purple-400/3 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-0 right-1/4 w-56 h-56 bg-gradient-to-r from-blue-400/3 to-teal-400/3 rounded-full blur-3xl"></div>
+            </div> */}
+
+            <div className="lg:hidden fixed top-4 left-4 z-50">
+                <button
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                    className="w-10 h-10 rounded-xl bg-white/90 backdrop-blur-xl shadow-lg border border-white/20 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 active:scale-95 flex items-center justify-center"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className={`h-4 w-4 transition-transform duration-300 ${
+                            sidebarOpen ? "rotate-180" : ""
+                        }`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d={
+                                sidebarOpen
+                                    ? "M6 18L18 6M6 6l12 12"
+                                    : "M4 6h16M4 12h16M4 18h16"
+                            }
+                        />
+                    </svg>
+                </button>
+            </div>
+
+            {sidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden transition-all duration-300"
+                    onClick={() => setSidebarOpen(false)}
+                ></div>
+            )}
             <aside
                 className={`fixed lg:relative inset-y-0 left-0 z-50 transform transition-all duration-500 ease-out ${
                     sidebarOpen ? "translate-x-0" : "-translate-x-full"

@@ -227,6 +227,8 @@ function UserManagement() {
             vai_tro: user.vai_tro.toString(),
             trang_thai: user.trang_thai.toString(),
             bo_mon_id: user.bo_mon_id?.toString() || "",
+            hoc_ham: user.hoc_ham || "",
+            hoc_vi: user.hoc_vi || "",
             password: "",
         });
         setEditingId(user.id);
@@ -387,6 +389,8 @@ function UserManagement() {
             "ma_gv",
             "ho_ten",
             "email",
+            "hoc_ham",
+            "hoc_vi",
             "password",
             "vai_tro",
             "bo_mon_id",
@@ -398,6 +402,8 @@ function UserManagement() {
                 "GV001",
                 "Nguyễn Văn An",
                 "nguyenvanan@tlu.edu.vn",
+                "Phó Giáo sư",
+                "Tiến sĩ",
                 "password123",
                 "3",
                 "1",
@@ -407,6 +413,8 @@ function UserManagement() {
                 "GV002",
                 "Trần Thị Bình",
                 "tranthibinh@tlu.edu.vn",
+                "Không",
+                "Thạc sĩ",
                 "password456",
                 "3",
                 "2",
@@ -416,6 +424,8 @@ function UserManagement() {
                 "QL001",
                 "Lê Văn Cường",
                 "levancuong@tlu.edu.vn",
+                "Giáo sư",
+                "Tiến sĩ",
                 "manager123",
                 "2",
                 "1",
@@ -480,7 +490,7 @@ function UserManagement() {
                 const roleConfig = {
                     1: { color: "purple", text: "Quản trị viên" },
                     2: { color: "blue", text: "Quản lý" },
-                    3: { color: "green", text: "Giẩng viên" },
+                    3: { color: "green", text: "Giảng viên" },
                 };
                 const config = roleConfig[vai_tro] || {
                     color: "default",
@@ -504,6 +514,28 @@ function UserManagement() {
                         </Text>
                     )}
                 </div>
+            ),
+        },
+        {
+            title: "Học hàm",
+            dataIndex: "hoc_ham",
+            key: "hoc_ham",
+            width: 120,
+            render: (hoc_ham) => (
+                <Text className="text-sm text-gray-800">
+                    {hoc_ham || "___"}
+                </Text>
+            ),
+        },
+        {
+            title: "Học vị",
+            dataIndex: "hoc_vi",
+            key: "hoc_vi",
+            width: 120,
+            render: (hoc_vi) => (
+                <Text className="text-sm text-gray-800">
+                    {hoc_vi || "___"}
+                </Text>
             ),
         },
         {
@@ -785,6 +817,32 @@ function UserManagement() {
 
                             <Col xs={24} sm={12} lg={8}>
                                 <Form.Item
+                                    name="hoc_ham"
+                                    label={<Text strong>Học hàm</Text>}
+                                >
+                                    <Input
+                                        size="large"
+                                        placeholder="Nhập học hàm (VD: GVC, GVCC...)"
+                                        className="custom-input"
+                                    />
+                                </Form.Item>
+                            </Col>
+
+                            <Col xs={24} sm={12} lg={8}>
+                                <Form.Item
+                                    name="hoc_vi"
+                                    label={<Text strong>Học vị</Text>}
+                                >
+                                    <Input
+                                        size="large"
+                                        placeholder="Nhập học vị (VD: Ths, TS...)"
+                                        className="custom-input"
+                                    />
+                                </Form.Item>
+                            </Col>
+
+                            <Col xs={24} sm={12} lg={8}>
+                                <Form.Item
                                     name="password"
                                     label={
                                         <Text strong>
@@ -1027,7 +1085,7 @@ function UserManagement() {
                                         </Text>
                                         <Text className="block mt-1">
                                             File phải có cấu trúc đúng với các
-                                            cột: ma_gv, ho_ten, email, password,
+                                            cột: ma_gv, ho_ten, email, hoc_ham, hoc_vi, password,
                                             vai_tro, bo_mon_id, trang_thai
                                         </Text>
                                         <div className="mt-3 flex items-center justify-between">
@@ -1037,7 +1095,7 @@ function UserManagement() {
                                                 </strong>{" "}
                                                 vai_tro (1=Admin, 2=Manager,
                                                 3=Lecturer), trang_thai (0=Khóa,
-                                                1=Hoạt động)
+                                                1=Hoạt động), hoc_ham và hoc_vi có thể để trống
                                             </Text>
                                             <Button
                                                 type="link"

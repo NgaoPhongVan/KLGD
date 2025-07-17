@@ -442,11 +442,11 @@ class ManagerController extends Controller
 
         // Phân bổ giờ đã duyệt
         $activityStats = [
-            'giang_day_final' => round(floatval($approvedQuery->sum('tong_gio_giangday_final_duyet')), 2), // C11.I2
-            'nckh_final'      => round(floatval($approvedQuery->sum('tong_gio_khcn_kekhai_duyet')), 2),      // C1.I2
-            'congtac_khac_gd' => round(floatval($approvedQuery->sum('tong_gio_congtackhac_quydoi_duyet')), 2), // C2.I2
-            'coithi_chamthi_dh' => round(floatval($approvedQuery->sum('tong_gio_coithi_chamthi_dh_duyet')), 2), // C3.I2
-            'gd_xa_truong'    => round(floatval($approvedQuery->sum('tong_gio_gdxatruong_duyet')), 2)        // C12.I2
+            'giang_day_final' => round(floatval((clone $baseQuery)->where('trang_thai_phe_duyet', 3)->sum('tong_gio_giangday_final_duyet')), 2), // C11.I2
+            'nckh_final'      => round(floatval((clone $baseQuery)->where('trang_thai_phe_duyet', 3)->sum('tong_gio_khcn_kekhai_duyet')), 2),      // C1.I2
+            'congtac_khac_gd' => round(floatval((clone $baseQuery)->where('trang_thai_phe_duyet', 3)->sum('tong_gio_congtackhac_quydoi_duyet')), 2), // C2.I2
+            'coithi_chamthi_dh' => round(floatval((clone $baseQuery)->where('trang_thai_phe_duyet', 3)->sum('tong_gio_coithi_chamthi_dh_duyet')), 2), // C3.I2
+            'gd_xa_truong'    => round(floatval((clone $baseQuery)->where('trang_thai_phe_duyet', 3)->sum('tong_gio_gdxatruong_duyet')), 2)        // C12.I2
         ];
         $totalActivityHours = array_sum($activityStats);
         
@@ -665,11 +665,11 @@ class ManagerController extends Controller
                         ->setOption('margin-right', 10);
 
                     $lecturerName = $keKhai->nguoiDung->ho_ten ?? 'Unknown';
-                    $cleanName = preg_replace('/[^a-zA-Z0-9\s]/', '', $lecturerName);
-                    $cleanName = preg_replace('/\s+/', '_', trim($cleanName));
+                    // $cleanName = preg_replace('/[^a-zA-Z0-9\s]/', '', $lecturerName);
+                    // $cleanName = preg_replace('/\s+/', '_', trim($cleanName));
                     $maGV = $keKhai->nguoiDung->ma_gv ?? 'NoCode';
 
-                    $lecturerFile = $tempDir . '/' . sprintf('03_%02d_ChiTiet_%s_%s.pdf', $index + 1, $cleanName, $maGV);
+                    $lecturerFile = $tempDir . '/' . sprintf('03_%02d_ChiTiet_%s_%s.pdf', $index + 1, $lecturerName, $maGV);
 
                     $lecturerPdf->save($lecturerFile);
                     $pdfFiles[] = $lecturerFile;

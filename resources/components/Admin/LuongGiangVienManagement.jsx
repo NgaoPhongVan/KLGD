@@ -183,9 +183,8 @@ function LuongGiangVienManagement() {
                     per_page: 1000,
                 },
             });
-            setNguoiDungList(response.data.data);
+            setNguoiDungList(response.data.data.filter(u => parseInt(u.vai_tro) === 3));
         } catch (error) {
-            console.error('Error fetching users:', error);
             message.error("Không thể tải dữ liệu người dùng");
         }
     };
@@ -804,7 +803,7 @@ function LuongGiangVienManagement() {
                                     />
                                 </Form.Item>
                             </Col>
-                            <Col xs={24} md={12}>
+                            {/* <Col xs={24} md={12}>
                                 <Form.Item
                                     label={<Text strong>Tổng giờ chuẩn thực hiện</Text>}
                                     name="tong_gio_chuan_thuc_hien"
@@ -873,7 +872,7 @@ function LuongGiangVienManagement() {
                                         className="w-full"
                                     />
                                 </Form.Item>
-                            </Col>
+                            </Col> */}
                             <Col xs={24}>
                                 <Form.Item label={<Text strong>Ghi chú</Text>} name="ghi_chu">
                                     <TextArea

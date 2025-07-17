@@ -11,6 +11,7 @@ import DinhMucCaNhanManagement from '../components/Admin/DinhMucCaNhanManagement
 import DmHeSoChungManagement from '../components/Admin/DmHeSoChungManagement';
 import LuongGiangVienManagement from '../components/Admin/LuongGiangVienManagement';
 import MienGiamDinhMucManagement from '../components/Admin/MienGiamDinhMucManagement';
+import ApiDocument from '../components/Admin/ApiDocument';
 
 function AdminDashboard() {
     const navigate = useNavigate();
@@ -182,9 +183,15 @@ function AdminDashboard() {
         },
         {
             id: 'miengiamdinhmuc',
-            label: 'Quản lý miễn giảm định mức',
-            icon: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
+            label: 'Quản lý miễn giảm',
+            icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
             component: <MienGiamDinhMucManagement />
+        },
+        {
+            id: 'apidoc',
+            label: 'Tài liệu API',
+            icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z M13 2v6a1 1 0 001 1h6',
+            component: <ApiDocument />
         },
     ];
 
@@ -247,6 +254,45 @@ function AdminDashboard() {
 
     return (
         <div className="flex h-screen bg-gradient-to-br from-purple-50 via-slate-50/50 to-indigo-50/30 overflow-hidden font-sans relative">
+            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-0 left-1/4 w-64 h-64 bg-gradient-to-r from-indigo-400/3 to-purple-400/3 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-0 right-1/4 w-56 h-56 bg-gradient-to-r from-blue-400/3 to-teal-400/3 rounded-full blur-3xl"></div>
+            </div>
+
+            <div className="lg:hidden fixed top-4 left-4 z-50">
+                <button
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                    className="w-10 h-10 rounded-xl bg-white/90 backdrop-blur-xl shadow-lg border border-white/20 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 active:scale-95 flex items-center justify-center"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className={`h-4 w-4 transition-transform duration-300 ${
+                            sidebarOpen ? "rotate-180" : ""
+                        }`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d={
+                                sidebarOpen
+                                    ? "M6 18L18 6M6 6l12 12"
+                                    : "M4 6h16M4 12h16M4 18h16"
+                            }
+                        />
+                    </svg>
+                </button>
+            </div>
+
+            {sidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden transition-all duration-300"
+                    onClick={() => setSidebarOpen(false)}
+                ></div>
+            )}
             <aside className={`fixed lg:relative inset-y-0 left-0 z-50 transform transition-all duration-500 ease-out ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
                 } lg:translate-x-0 ${sidebarCollapsed ? "w-20" : "w-72"
                 } bg-white/95 backdrop-blur-xl border-r border-white/20 shadow-2xl flex flex-col h-screen overflow-hidden`}>

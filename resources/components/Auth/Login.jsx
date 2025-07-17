@@ -380,7 +380,7 @@ function Login() {
 
                                 <div className="mt-8 text-center">
                                     <p className="text-xs text-gray-500">
-                                        © 2024 Đại học Thủy Lợi. Tất cả quyền được bảo lưu.
+                                        © 2025 Đại học Thủy Lợi. Tất cả quyền được bảo lưu.
                                     </p>
                                 </div>
                             </div>

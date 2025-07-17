@@ -291,7 +291,12 @@ function ManagerStatistics() {
             activity_stats_bm.nckh_final || 0,
             activity_stats_bm.gd_xa_truong || 0,
         ];
-        
+
+        // console.log("Activity Pie Data:", {
+        //     labels,
+        //     dataValues
+        // });
+
         const filteredLabels = [];
         const filteredDataValues = [];
         const backgroundColors = [

@@ -119,7 +119,7 @@ function KeKhaiThoiGianManagement() {
         setIsLoading(true);
         try {
             const data = {
-                hoc_ky_id: values.hoc_ky_id,
+                nam_hoc_id: values.nam_hoc_id,
                 thoi_gian_bat_dau: values.thoi_gian_bat_dau.format('YYYY-MM-DD HH:mm:ss'),
                 thoi_gian_ket_thuc: values.thoi_gian_ket_thuc.format('YYYY-MM-DD HH:mm:ss'),
                 ghi_chu: values.ghi_chu || "",
@@ -151,7 +151,7 @@ function KeKhaiThoiGianManagement() {
 
     const handleEdit = (keKhaiThoiGian) => {
         form.setFieldsValue({
-            hoc_ky_id: keKhaiThoiGian.hoc_ky_id.toString(),
+            nam_hoc_id: keKhaiThoiGian.nam_hoc_id.toString(),
             thoi_gian_bat_dau: moment(keKhaiThoiGian.thoi_gian_bat_dau),
             thoi_gian_ket_thuc: moment(keKhaiThoiGian.thoi_gian_ket_thuc),
             ghi_chu: keKhaiThoiGian.ghi_chu || "",
@@ -249,7 +249,7 @@ function KeKhaiThoiGianManagement() {
 
     const downloadSampleFile = () => {
         const csvHeaders = [
-            'hoc_ky_id',
+            'nam_hoc_id',
             'thoi_gian_bat_dau',
             'thoi_gian_ket_thuc',
             'ghi_chu'
@@ -670,7 +670,7 @@ function KeKhaiThoiGianManagement() {
                         <Row gutter={[24, 24]}>
                             <Col xs={24} sm={12} lg={8}>
                                 <Form.Item
-                                    name="hoc_ky_id"
+                                    name="nam_hoc_id"
                                     label={<Text strong>Năm học</Text>}
                                     rules={[{ required: true, message: 'Vui lòng chọn năm học' }]}
                                 >
@@ -810,7 +810,7 @@ function KeKhaiThoiGianManagement() {
                                     <InfoCircleOutlined className="text-blue-600 mt-0.5 mr-2 flex-shrink-0" />
                                     <div className="text-xs text-blue-800 flex-1">
                                         <Text strong className="block">Định dạng hỗ trợ: .xlsx, .xls, .csv</Text>
-                                        <Text className="block mt-1">File phải có cấu trúc đúng với các cột theo thứ tự: hoc_ky_id, thoi_gian_bat_dau, thoi_gian_ket_thuc, ghi_chu</Text>
+                                        <Text className="block mt-1">File phải có cấu trúc đúng với các cột theo thứ tự: nam_hoc_id, thoi_gian_bat_dau, thoi_gian_ket_thuc, ghi_chu</Text>
                                         <div className="mt-3 flex items-center justify-between">
                                             <Text className="text-blue-700">
                                                 <strong>Lưu ý:</strong> nam_hoc_id phải tồn tại trong hệ thống, thời gian theo định dạng YYYY-MM-DD HH:mm:ss

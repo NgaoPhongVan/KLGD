@@ -23,7 +23,8 @@ class User extends Authenticatable
         'hoc_vi',
         'password',
         'vai_tro',
-        'trang_thai'
+        'trang_thai',
+        'bo_mon_id'
     ];
     protected $hidden = ['password', 'remember_token'];
 

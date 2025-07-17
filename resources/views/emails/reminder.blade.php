@@ -457,7 +457,7 @@
             </div>
             
             <div class="footer-section">
-                <div>© 2024 Đại học Thủy Lợi. Tất cả quyền được bảo lưu.</div>
+                <div>© 2025 Đại học Thủy Lợi. Tất cả quyền được bảo lưu.</div>
                 <div style="margin-top: 8px; font-size: 13px; color: #94a3b8;">
                     Đây là email tự động từ hệ thống, vui lòng không phản hồi trực tiếp.
                 </div>
