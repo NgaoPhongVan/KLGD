@@ -1236,10 +1236,7 @@ function DuyetKeKhai() {
             width: 110,
             align: "center",
             render: (text, record) => {
-                const value = parseFloat(
-                    record.trang_thai_phe_duyet === 3
-                        ? record.dinhmuc_gd_apdung : 0
-                );
+                const value = parseFloat(record.dinhmuc_gd_apdung || 0);
                 return (
                     <div className="text-center py-2">
                         <div className="text-lg font-bold text-gray-800 mb-0.5">
@@ -1273,10 +1270,7 @@ function DuyetKeKhai() {
             width: 110,
             align: "center",
             render: (text, record) => {
-                const value = parseFloat(
-                    record.trang_thai_phe_duyet === 3
-                        ? record.dinhmuc_khcn_apdung : 0
-                );
+                const value = parseFloat(record.dinhmuc_khcn_apdung || 0);
                 return (
                     <div className="text-center py-2">
                         <div className="text-lg font-bold text-gray-800 mb-0.5">

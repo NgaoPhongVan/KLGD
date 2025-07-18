@@ -87,6 +87,25 @@ function KeKhaiGiangDayForm() {
 
     const [dmHeSoChung, setDmHeSoChung] = useState([]);
 
+    // Hàm kiểm tra trạng thái kê khai
+    const getKeKhaiStatus = () => {
+        if (!keKhaiThoiGian || !keKhaiThoiGian.thoi_gian_bat_dau || !keKhaiThoiGian.thoi_gian_ket_thuc) {
+            return null;
+        }
+
+        const now = new Date();
+        const startTime = new Date(keKhaiThoiGian.thoi_gian_bat_dau);
+        const endTime = new Date(keKhaiThoiGian.thoi_gian_ket_thuc);
+
+        if (now < startTime) return "upcoming";
+        if (now > endTime) return "expired";
+        return "active";
+    };
+
+    const isKeKhaiExpired = () => {
+        return getKeKhaiStatus() === "expired";
+    };
+
     const formatDisplayValue = (value) => {
         if (value === null || value === undefined || value === "") {
             return <EmptyValueDisplay />;
@@ -390,6 +409,15 @@ function KeKhaiGiangDayForm() {
             );
             return;
         }
+
+        // Kiểm tra trạng thái kê khai
+        if (isKeKhaiExpired()) {
+            message.error(
+                "Không thể lưu bản nháp vì đã qua thời điểm kê khai."
+            );
+            return;
+        }
+
         setIsSubmitting(true);
         setError(null);
         const currentToken = localStorage.getItem("token");
@@ -534,6 +562,14 @@ function KeKhaiGiangDayForm() {
         if (!currentKeKhaiTongHop || !currentKeKhaiTongHop.id) {
             message.error(
                 "Vui lòng chọn năm học và bắt đầu kê khai trước khi nộp."
+            );
+            return;
+        }
+
+        // Kiểm tra trạng thái kê khai
+        if (isKeKhaiExpired()) {
+            message.error(
+                "Không thể nộp kê khai chính thức vì đã qua thời điểm kê khai."
             );
             return;
         }
@@ -861,19 +897,7 @@ function KeKhaiGiangDayForm() {
         };
 
         const isActive = () => {
-            if (
-                !keKhaiThoiGian.thoi_gian_bat_dau ||
-                !keKhaiThoiGian.thoi_gian_ket_thuc
-            )
-                return null;
-
-            const now = new Date();
-            const startTime = new Date(keKhaiThoiGian.thoi_gian_bat_dau);
-            const endTime = new Date(keKhaiThoiGian.thoi_gian_ket_thuc);
-
-            if (now < startTime) return "upcoming";
-            if (now > endTime) return "expired";
-            return "active";
+            return getKeKhaiStatus();
         };
 
         const status = isActive();
@@ -1548,6 +1572,18 @@ function KeKhaiGiangDayForm() {
                                 </TabPane>
                             </Tabs>
                             <Divider />
+                            
+                            {/* Thông báo khi kê khai đã đóng */}
+                            {isKeKhaiExpired() && (
+                                <Alert
+                                    message="Thời gian kê khai đã kết thúc"
+                                    description="Bạn không thể lưu bản nháp hoặc nộp kê khai chính thức vì đã qua thời điểm kê khai."
+                                    type="warning"
+                                    showIcon
+                                    className="mb-4"
+                                />
+                            )}
+                            
                             <Form.Item
                                 style={{
                                     marginTop: "20px",
@@ -1562,7 +1598,11 @@ function KeKhaiGiangDayForm() {
                                         loading={isSubmitting}
                                         size="large"
                                         disabled={
-                                            isSubmittingOfficial || !currentKeKhaiTongHop || currentKeKhaiTongHop.trang_thai_phe_duyet === 1 || currentKeKhaiTongHop.trang_thai_phe_duyet === 3
+                                            isSubmittingOfficial || 
+                                            !currentKeKhaiTongHop || 
+                                            currentKeKhaiTongHop.trang_thai_phe_duyet === 1 || 
+                                            currentKeKhaiTongHop.trang_thai_phe_duyet === 3 ||
+                                            isKeKhaiExpired()
                                         }
                                         className="text-white px-8 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 border-0 rounded-xl shadow-lg hover:shadow-xl"
                                     >
@@ -1577,10 +1617,9 @@ function KeKhaiGiangDayForm() {
                                         disabled={
                                             isSubmitting ||
                                             !currentKeKhaiTongHop ||
-                                            currentKeKhaiTongHop.trang_thai_phe_duyet ===
-                                            1 ||
-                                            currentKeKhaiTongHop.trang_thai_phe_duyet ===
-                                            3
+                                            currentKeKhaiTongHop.trang_thai_phe_duyet === 1 ||
+                                            currentKeKhaiTongHop.trang_thai_phe_duyet === 3 ||
+                                            isKeKhaiExpired()
                                         }
                                         className="px-8 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 border-0 rounded-xl shadow-lg hover:shadow-xl"
                                     >

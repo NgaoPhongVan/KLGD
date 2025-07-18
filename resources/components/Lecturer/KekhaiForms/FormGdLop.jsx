@@ -1233,19 +1233,10 @@ function FormGdLop({
                                     ]}
                                 >
                                     <Select placeholder="Chọn kỹ năng (LT, TH,...)">
-                                        <Option value="LT">
-                                            LT - Lý thuyết
-                                        </Option>
-                                        <Option value="TH">
-                                            TH - Thực hành
-                                        </Option>
+                                        <Option value="LT">LT - Lý thuyết</Option>
+                                        <Option value="TH">TH - Thực hành</Option>
                                         <Option value="BT">BT - Bài tập</Option>
-                                        <Option value="DA">
-                                            DA - Đồ án môn học
-                                        </Option>
-                                        <Option value="TTTN">
-                                            TTTN - Thực tập tốt nghiệp
-                                        </Option>
+                                        <Option value="PM">PM</Option>
                                         <Option value="Khác">Khác</Option>
                                     </Select>
                                 </Form.Item>

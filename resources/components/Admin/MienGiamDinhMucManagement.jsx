@@ -187,7 +187,7 @@ function MienGiamDinhMucManagement() {
                     per_page: 1000,
                 },
             });
-            setNguoiDungList(response.data.data || []);
+            setNguoiDungList(response.data.data.filter(u => parseInt(u.vai_tro) === 3));
         } catch (error) {
             console.error("Error fetching users:", error);
             message.error("Không thể tải dữ liệu người dùng");
